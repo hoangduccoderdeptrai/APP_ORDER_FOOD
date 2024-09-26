@@ -1,22 +1,24 @@
 import mongoose from "mongoose";
 
-const Schema = mongoose.Schema;
+// Import Schema
+const { Schema } = mongoose;
 
 const RestaurantSchema = new Schema({
-  userId:{
-    type:Schema.Types.ObjectId,
-    ref:'User',
-    required:true
-  },
-  name: { type: String, required: true },
-  address: {
-    street: { type: String },
-    city: { type: String },
-    zip: { type: String }
-  },
-  menu: [{ type: Schema.Types.ObjectId, ref: 'MenuItem' }],
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now }
+    ownerId: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+    },
+    name: { type: String, required: true },
+    address: {
+        street: { type: String, required: true },
+        city: { type: String, required: true },
+        borough: { type: String, required: true },
+        zip: { type: String },
+    },
+    profit: { type: Number, default: 0 },
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model('Restaurant', RestaurantSchema);
+module.exports = mongoose.model("Restaurant", RestaurantSchema);
