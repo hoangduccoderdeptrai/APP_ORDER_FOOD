@@ -1,43 +1,69 @@
-import mongoose from "mongoose"
-const Schema =new mongoose.Schema
+import mongoose from "mongoose";
+
+// Import mongoose-slug-generator
+import slug from "mongoose-slug-generator";
+
+// Mongoose plugin
+mongoose.plugin(slug);
+
+// Import Schema
+const { Schema } = mongoose;
+
 const MenuItemSchema = new Schema({
-    restaurantId:{
-      type:Schema.Types.ObjectId,
-      ref:'Restaurant'
+    restaurantId: {
+        type: Schema.Types.ObjectId,
+        ref: "Restaurant",
     },
-    imageUrl:[{
-      url:{type:String}, //Cloudinary URL
-      public_id:{type:String} //Cloundinary id
-    }],
-    title:{
-      type:String,
-      required:true
+    imageUrl: [
+        {
+            url: { type: String }, //Cloudinary URL
+            public_id: { type: String }, //Cloundinary id
+        },
+    ],
+    title: {
+        type: String,
+        required: true,
     },
-    description:{
-      type:String,
-      required:true
+    description: {
+        type: String,
+        required: true,
     },
-    price:{
-      type:Number,
-      required:true
+    quantity: {
+        type: Number,
+        default: 0,
     },
-    caterogy:{
-      type:String
+    price: {
+        type: Number,
+        required: true,
     },
-    isAvailable:{
-      type:Boolean,
-      default:true
-  
+    caterogy: {
+        type: String,
     },
-    createdAt:{
-      type:Date,
-      default:Date.now
+    isAvailable: {
+        type: Boolean,
+        default: true,
     },
-    updatedAt:{
-      type:Date,
-      default:Date.now
-    }
-  
-  
-  })
-  module.exports = mongoose.model('MenuItem',MenuItemSchema)
+    discount: {
+        type: Number,
+        default: 0,
+    },
+    starMedium: {
+        type: Number,
+        default: 0,
+    },
+    slug: {
+        type: String,
+        unique: true,
+        slug: "title",
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now,
+    },
+});
+
+module.exports = mongoose.model("MenuItem", MenuItemSchema);
