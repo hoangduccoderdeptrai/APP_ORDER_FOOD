@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const Schema = mongoose.Schema;
+const {Schema} = mongoose;
 
 const RestaurantSchema = new Schema({
   userId:{
@@ -19,4 +19,4 @@ const RestaurantSchema = new Schema({
   updatedAt: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('Restaurant', RestaurantSchema);
+export const Restaurant = mongoose.model('Restaurant', RestaurantSchema);

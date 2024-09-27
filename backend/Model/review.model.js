@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-const Schema = mongoose.Schema
+const {Schema} = mongoose
 
 const ReviewSchema =new Schema({
     userId:{

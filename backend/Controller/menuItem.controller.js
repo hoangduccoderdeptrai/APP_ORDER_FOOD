@@ -1,8 +1,9 @@
-import {cloudinary} from '../config/cloundinaryCofig'
-import MenuItem from '../Model/menuItem.model'
-import Restaurant from '../Model/restaurant.model'
+import {Cloudinary} from '../config/cloundinaryCofig.js'
+import {MenuItem} from '../Model/menuItem.model.js'
+import {Restaurant} from '../Model/restaurant.model.js'
 import multer from 'multer'
 import fs from  'fs'
+import { hasUncaughtExceptionCaptureCallback } from 'process'
 const createMenuItem =async(req,res)=>{
     try{
 
@@ -14,7 +15,7 @@ const createMenuItem =async(req,res)=>{
         if(!restaurant) return res.status(404).json({msg:"restaurant not found when creating Item"})
         const uploadPromises =files.map((file)=>{
 
-            return cloudinary.uploader.upload(file.path,{
+            return Cloudinary.uploader.upload(file.path,{
                 folder:'Item_images' //name of folder in Cloundinary that will store all images
             })
         })
@@ -55,7 +56,7 @@ const updateMenuItem =async (req,res)=>{
         if(!restaurant)return res.status(404).json({msg:'restaurant was not found'})
         if(files && files.length>0){
             const imagePromises =files.map((file)=>{
-                return cloudinary.uploader.upload(file.path,{
+                return Cloudinary.uploader.upload(file.path,{
                     folder:'Item_images'
                 })
             })
@@ -70,10 +71,10 @@ const updateMenuItem =async (req,res)=>{
         }
         console.log(img_url)
         if(img_url && img_url.length>0){
-            // delete url cloudinary
-            const url_cloudinary = menuItem.imageUrl
-            const deletePromises =url_cloudinary.map((file)=>{
-                return cloudinary.uploader.destroy(file.public_id)
+            // delete url Cloudinary
+            const url_Cloudinary = menuItem.imageUrl
+            const deletePromises =url_Cloudinary.map((file)=>{
+                return Cloudinary.uploader.destroy(file.public_id)
             })
             await Promise.all(deletePromises)
             menuItem.imageUrl=img_url
@@ -109,7 +110,7 @@ const deleteMenuItem =async(req,res)=>{
         if(!menuItem) return res.status(404).json({msg:'menuItem not found to delete'})
         const public_Id_Arr = menuItem.imageUrl.map((val)=>val.public_id)
 
-        const deleteImgCloundinary =public_Id_Arr.map((id)=>cloudinary.uploader.destroy(id))
+        const deleteImgCloundinary =public_Id_Arr.map((id)=>Cloudinary.uploader.destroy(id))
         await Promise.all(deleteImgCloundinary)
         await menuItem.remove()
         return res.status(200).json({msg:"deleting menuItem was successfull"})
@@ -129,4 +130,4 @@ const deleteTempFiles =(files)=>{
 
 
 
-module.exports ={deleteMenuItem,createMenuItem}
+export {deleteMenuItem,createMenuItem,updateMenuItem}

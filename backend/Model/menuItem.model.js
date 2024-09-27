@@ -1,5 +1,5 @@
 import mongoose from "mongoose"
-const Schema =new mongoose.Schema
+const {Schema} =mongoose
 const MenuItemSchema = new Schema({
     restaurantId:{
       type:Schema.Types.ObjectId,
@@ -40,4 +40,4 @@ const MenuItemSchema = new Schema({
   
   
   })
-  module.exports = mongoose.model('MenuItem',MenuItemSchema)
+export const MenuItem = mongoose.model('MenuItem',MenuItemSchema)
