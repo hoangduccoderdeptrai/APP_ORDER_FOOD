@@ -65,5 +65,4 @@ const MenuItemSchema = new Schema({
         default: Date.now,
     },
 });
-
-module.exports = mongoose.model("MenuItem", MenuItemSchema);
+export const MenuItem = mongoose.model("MenuItem", MenuItemSchema);

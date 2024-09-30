@@ -1,4 +1,4 @@
-import Users from "../Model/user.js";
+import { Users } from "../Model/user.model.js";
 const createCurrentUser = async (req, res) => {
     try {
         const { auth0Id } = req.body;

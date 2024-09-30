@@ -8,4 +8,4 @@ cloudinary.config({
     secure:true
 })
 
-module.exports =cloudinary
+export const Cloudinary =cloudinary

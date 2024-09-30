@@ -39,5 +39,4 @@ const OrderSchema = new Schema({
     orderDate: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
 });
-
-module.exports = mongoose.model("Order", OrderSchema);
+export const Order = mongoose.model("Order", OrderSchema);

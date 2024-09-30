@@ -18,4 +18,4 @@ const InvoiceUserSchema = new Schema({
     updatedAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model("InvoiceUser", InvoiceUserSchema);
+export const InvoiceUser = mongoose.model("InvoiceUser", InvoiceUserSchema);

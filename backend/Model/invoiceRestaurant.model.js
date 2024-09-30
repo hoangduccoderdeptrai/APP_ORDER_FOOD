@@ -33,4 +33,4 @@ const InvoiceRestaurantSchema = new Schema({
     updatedAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model("InvoiceRestaurant", InvoiceRestaurantSchema);
+export const InvoiceRestaurant = mongoose.model("InvoiceRestaurant", InvoiceRestaurantSchema);
