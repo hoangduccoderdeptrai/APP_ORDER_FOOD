@@ -20,30 +20,28 @@ const createMenuItem =async(req,res)=>{
             })
         })
         // Wait for all images to be uploaded at the same time
-        const uploadedImages =await Promise.all(uploadPromises)
-        const images_url = uploadedImages.map((image)=>{
+        const uploadedImages = await Promise.all(uploadPromises);
+        const images_url = uploadedImages.map((image) => {
             return {
-                url:image.secure_url,
-                public_id:image.public_id
-            }
-        })
+                url: image.secure_url,
+                public_id: image.public_id,
+            };
+        });
         const newItem = new MenuItem({
             restaurantId,
-            imageUrl:images_url,
+            imageUrl: images_url,
             title,
             description,
             price,
-            category
-
-        })
-        await newItem.save()
-        deleteTempFiles(files)
-        return res.status(200).json({msg:"Creating MenuItem was successful"})
-    }catch(err){
-        res.status(500).json({msg:err.message})
+            category,
+        });
+        await newItem.save();
+        deleteTempFiles(files);
+        return res.status(200).json({ msg: "Creating MenuItem was successful" });
+    } catch (err) {
+        res.status(500).json({ msg: err.message });
     }
-
-}
+};
 
 //update
 const updateMenuItem =async (req,res)=>{
@@ -63,11 +61,10 @@ const updateMenuItem =async (req,res)=>{
             const uploadCloudinnary =await Promise.all(imagePromises)
             const img_url =uploadCloudinnary.map((file)=>{
                 return {
-                    url:file.secure_url,
-                    public_id:file.public_id
-                }
-            })
-
+                    url: file.secure_url,
+                    public_id: file.public_id,
+                };
+            });
         }
         console.log(img_url)
         if(img_url && img_url.length>0){
@@ -79,24 +76,20 @@ const updateMenuItem =async (req,res)=>{
             await Promise.all(deletePromises)
             menuItem.imageUrl=img_url
         }
-        if(title){
-            menuItem.title =title
-            
+        if (title) {
+            menuItem.title = title;
         }
-        if(description) menuItem.description =description
-        if(price) menuItem.price =price
-        if(category) menuItem.category =category
-        if(isAvailable !==undefined) menuItem.isAvailable =isAvailable
-        await menuItem.save()
-        return res.status(200).json({msg:"MenuItem updated successfully"})
-
-
-    }catch(err){
-        return res.status(500).json({msg:err.message})
+        if (description) menuItem.description = description;
+        if (price) menuItem.price = price;
+        if (category) menuItem.category = category;
+        if (isAvailable !== undefined) menuItem.isAvailable = isAvailable;
+        await menuItem.save();
+        return res.status(200).json({ msg: "MenuItem updated successfully" });
+    } catch (err) {
+        return res.status(500).json({ msg: err.message });
     }
-    
+};
 
-}
 
 
 
@@ -117,17 +110,17 @@ const deleteMenuItem =async(req,res)=>{
     }catch(err){
         res.status(500).json({msg:err.message})
     }
-}
+};
 
 // delete temporary folder when uploading images to cloundinary
-const deleteTempFiles =(files)=>{
-    files.forEach((file)=>{
-        fs.unlink(file.path,(err)=>{
-            if(err) console.log('Failed to delete file',file.path,err.message)
-        })
-    })
-}
+const deleteTempFiles = (files) => {
+    files.forEach((file) => {
+        fs.unlink(file.path, (err) => {
+            if (err) console.log("Failed to delete file", file.path, err.message);
+        });
+    });
+};
 
 
 
-export {deleteMenuItem,createMenuItem,updateMenuItem}
+export {deleteMenuItem,createMenuItem,updateMenuItem};

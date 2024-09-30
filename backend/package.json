@@ -1,23 +1,24 @@
 {
-  "name": "backend",
-  "type": "module",
-  "version": "1.0.0",
-  "description": "backend of my order app",
-  "main": "app.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon app.js"
-  },
-  "author": "le hoang duc",
-  "license": "ISC",
-  "dependencies": {
-    "cloudinary": "^2.5.0",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^5.0.0-beta.2",
-    "fs": "^0.0.1-security",
-    "mongoose": "^8.2.2",
-    "multer": "^1.4.5-lts.1",
-    "nodemon": "^3.1.0"
-  }
+    "name": "backend",
+    "type": "module",
+    "version": "1.0.0",
+    "description": "backend of my order app",
+    "main": "app.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "nodemon app.js"
+    },
+    "author": "le hoang duc",
+    "license": "ISC",
+    "dependencies": {
+        "cloudinary": "^2.5.0",
+        "cors": "^2.8.5",
+        "dotenv": "^16.4.5",
+        "express": "^5.0.0-beta.2",
+        "fs": "^0.0.1-security",
+        "mongoose": "^8.2.2",
+        "mongoose-slug-generator": "^1.0.4",
+        "multer": "^1.4.5-lts.1",
+        "nodemon": "^3.1.0"
+    }
 }
