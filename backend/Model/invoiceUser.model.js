@@ -14,10 +14,6 @@ const InvoiceUserSchema = new Schema({
         ref: "Order",
         required: true,
     },
-    paymentId: {
-        type: Schema.Types.ObjectId,
-        ref: "Payment",
-    },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
 });
