@@ -51,6 +51,10 @@ const MenuItemSchema = new Schema({
         type: Number,
         default: 0,
     },
+    quantitySolded: {
+        type: Number,
+        default: 0,
+    },
     slug: {
         type: String,
         unique: true,

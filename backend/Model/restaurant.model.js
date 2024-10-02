@@ -16,6 +16,10 @@ const RestaurantSchema = new Schema({
         borough: { type: String, required: true },
         zip: { type: String },
     },
+    quantitySolded: {
+        type: Number,
+        default: 0,
+    },
     profit: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },

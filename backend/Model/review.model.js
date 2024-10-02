@@ -9,9 +9,9 @@ const ReviewSchema = new Schema({
         ref: "User",
         required: true,
     },
-    menuItemId: {
+    restaurantId: {
         type: Schema.Types.ObjectId,
-        ref: "MenuItem",
+        ref: "Restaurant",
         required: true,
     },
     rating: {
