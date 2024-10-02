@@ -20,6 +20,10 @@ const RestaurantSchema = new Schema({
         type: Number,
         default: 0,
     },
+    status: {
+        type: String,
+        default: False,
+    },
     profit: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
