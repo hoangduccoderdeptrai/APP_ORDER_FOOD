@@ -1,5 +1,5 @@
-import {v2 as cloudinary} from 'cloudinary'
-import "dotenv/config"
+import { v2 as cloudinary } from "cloudinary";
+import "dotenv/config";
 
 cloudinary.config({
     cloud_name:'dtyyxogjq',
@@ -8,4 +8,5 @@ cloudinary.config({
     secure:true
 })
 
-export const Cloudinary =cloudinary
+
+export const Cloudinary = cloudinary;

@@ -228,3 +228,15 @@ const editAuthorization = async (req, res) => {
         res.status(500).json({ msg: err.message });
     }
 };
+
+export {
+    getRoles,
+    getDetailRole,
+    getPageCreateRole,
+    createRole,
+    getPageEditRole,
+    editRole,
+    deleteRole,
+    getPageAuthorization,
+    editAuthorization,
+};
