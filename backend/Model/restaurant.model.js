@@ -16,15 +16,26 @@ const RestaurantSchema = new Schema({
         borough: { type: String, required: true },
         zip: { type: String },
     },
+    profit: { type: Number, default: 0 },
     quantitySolded: {
         type: Number,
         default: 0,
     },
+    phone: { type: String, required: true },
+    time_open: { type: String, required: true },
+    time_close: { type: String, required: true },
+    starMedium: { type: Number, default: 0 },
     status: {
         type: String,
-        default: False,
+        enum: ["pending", "active", "inactive"],
+        default: "pending",
     },
-    profit: { type: Number, default: 0 },
+    imageUrl: [
+        {
+            url: { type: String }, //Cloudinary URL
+            public_id: { type: String }, //Cloundinary id
+        },
+    ],
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
 });
