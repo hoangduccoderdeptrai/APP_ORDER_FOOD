@@ -1,12 +1,14 @@
-import { Cloudinary } from "../config/cloundinaryCofig.js";
-import { MenuItem } from "../Model/menuItem.model.js";
-import { Restaurant } from "../Model/restaurant.model.js";
+import { Cloudinary } from "../../config/cloundinaryCofig.js";
+import { MenuItem } from "../../Model/menuItem.model.js";
+import { Restaurant } from "../../Model/restaurant.model.js";
 import multer from "multer";
 import fs from "fs";
 import { hasUncaughtExceptionCaptureCallback } from "process";
 const createMenuItem = async (req, res) => {
     try {
         const files = req.files;
+        console.log(req.body)
+        console.log(files)
         if (!files) return res.status(404).json({ msg: "Image files was required" });
         const { restaurantId, title, description, price, category } = req.body;
         const restaurant = await Restaurant.findById(restaurantId);
@@ -37,7 +39,8 @@ const createMenuItem = async (req, res) => {
         deleteTempFiles(files);
         return res.status(200).json({ msg: "Creating MenuItem was successful" });
     } catch (err) {
-        res.status(500).json({ msg: err.message });
+        console.log(err.message)
+        res.status(500).json({ msg: err });
     }
 };
 

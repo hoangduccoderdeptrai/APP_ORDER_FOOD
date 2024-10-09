@@ -68,5 +68,31 @@
 }
  
 @layer utilities{
-  
+  .animation-form{
+    animation: form 300ms cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+  }
+  @keyframes form {
+    0%{
+      top:-100px
+    }
+    90%,100%{
+      top:0
+    }
+  }
+  td{
+    
+    text-align: center;
+
+  }
+  th{
+    background-color: rgb(235, 235, 235);;
+  }
+  td,
+  th{
+    border: 1px solid rgb(190, 190, 190);
+    padding: 10px 20px;;
+  }
+  .font-family{
+    font-family: "Montserrat", sans-serif;
+}
 }
