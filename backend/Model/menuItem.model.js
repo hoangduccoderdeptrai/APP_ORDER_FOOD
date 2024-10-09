@@ -1,11 +1,5 @@
 import mongoose from "mongoose";
 
-// Import mongoose-slug-generator
-import slug from "mongoose-slug-generator";
-
-// Mongoose plugin
-mongoose.plugin(slug);
-
 // Import Schema
 const { Schema } = mongoose;
 
@@ -55,11 +49,7 @@ const MenuItemSchema = new Schema({
         type: Number,
         default: 0,
     },
-    slug: {
-        type: String,
-        unique: true,
-        slug: "title",
-    },
+  
     createdAt: {
         type: Date,
         default: Date.now,

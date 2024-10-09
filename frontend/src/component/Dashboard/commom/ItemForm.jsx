@@ -1,6 +1,7 @@
 import React from 'react'
 import {FormData} from '../../../config/FormDate'
-const ItemForm = (rawData) => {
+import UploadImage from './UploadImage'
+const ItemForm = ({rawData,setRawData,className,openForm,setOpenForm,buttonText,imgFile,setImgFile,onSubmit}) => {
     const handleForm =(Item)=>{
         let value =rawData[Item.name] || ""
         let element =null
@@ -11,7 +12,10 @@ const ItemForm = (rawData) => {
                     type={Item.type} 
                     placeholder={Item.placeholder}
                     className={classCustom}
+                    id={Item.name}
+                    name={Item.name}
                     value={value}
+                    onChange={(event)=>{setRawData({...rawData,[Item.name]:event.target.value})}}
 
                 />
             )
@@ -20,33 +24,75 @@ const ItemForm = (rawData) => {
                 <textarea 
                     type={Item.type} 
                     placeholder={Item.placeholder} 
+                    id={Item.name}
+                    name={Item.name}
                     className={classCustom}
                     value={value}
+                    onChange={(event)=>{setRawData({...rawData,[Item.name]:event.target.value})}}
 
                 />
 
                 
             )
-        }else if(Item.componentType==='select'){
+        }else if(Item.componentType ==='select'){
             element=(
-                
+                <select
+                    value={value}
+                    className={classCustom}
+                    id={Item.name}
+                    name={Item.name}
+                    onChange={(event)=>{setRawData({...rawData,[Item.name]:event.target.value})}}
+                >
+                    {
+                        Item?.options.map((elm)=>(
+                            <option key={elm.id} id={elm.id} value={elm.id}>{elm.label}</option>
+                            
+                        ))
+                    }
+                   
+                </select>
+            )
+        }else{
+            element=(
+                <input 
+                    type={Item.type} 
+                    placeholder={Item.placeholder}
+                    className={classCustom}
+                    id={Item.name}
+                    name={Item.name}
+                    value={value}
+                    onChange={(event)=>{setRawData({...rawData,[Item.name]:event.target.value})}}
+
+                />
             )
         }
 
         return element
     }
   return (
-    <div className='absolute max-w-[720px] w-full top-0 left-[50%] -translate-x-[50%] bg-[#FFFFFF] text-left text-[#212B36] shadow-[2px_0_2px_0_rgba(145,158,171,0.08)]'>
+    <div className={className}>
         <form className='w-full'>
-            {FormData&&
-                FormData.map((Item)=>{
-                    return (
-                        <div className='w-full grid gap-1' key={Item.id}>
-                            <label className='first-letter:capitalize text'>{Item.lable}</label>
-                        </div>
-                    )
-                })
-            }
+            <div className='flex justify-between mb-2'>
+                <div className='text-2xl font-mono font-bold'>{buttonText ==="Add"?"Add New Product":"Edit Product"}</div>
+                <div className='cursor-pointer' onClick={()=>setOpenForm(false)}><i className='bx bx-x text-2xl'></i></div>
+            </div>
+            <div className='flex flex-col gap-3'>
+                <UploadImage setImgFile={setImgFile} imgFile={imgFile}/>
+                {FormData&&
+                    FormData.map((Item)=>{
+                        return (
+                            <div className='w-full grid gap-1' key={Item.id}>
+                                <label className='first-letter:capitalize text-xl'>{Item.lable}</label>
+                                {handleForm(Item)}
+                            </div>
+                        )
+                    })
+                }
+            </div>
+            <div className='flex justify-end'>
+                <button onClick={(event)=>onSubmit(event)} type='submit' className='mt-3 max-w-[200px] w-full py-1 text-white bg-[#198754]'>{buttonText||"Submit"}</button>
+            </div>
+            
         </form>
     </div>
   )
