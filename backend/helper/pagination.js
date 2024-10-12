@@ -9,6 +9,8 @@ function pagination(query, totalitems, objectPagination) {
 
     // Calculation number page
     objectPagination.numberPages = Math.ceil(totalitems / objectPagination.limit);
+
+    return objectPagination;
 }
 
-export default pagination;
+export { pagination };

@@ -14,10 +14,10 @@ import { InvoiceUser } from "../../Model/invoiceUser.model.js";
 import { Order } from "../../Model/order.model.js";
 
 // Import searchHelper
-import search from "../../helper/search.js";
+import { search } from "../../helper/search.js";
 
 // Import paginationHelper
-import pagination from "../../helper/pagination.js";
+import { pagination } from "../../helper/pagination.js";
 
 // Get all account
 const getPageUsers = async (req, res) => {
@@ -42,7 +42,7 @@ const getPageUsers = async (req, res) => {
 
         // Find all user and remove email and password_account
         const users = await Users.find(find)
-            .select("-email -password_account")
+            .select("-password_account")
             .limit(objectPagination.limit)
             .skip(objectPagination.skip);
 
