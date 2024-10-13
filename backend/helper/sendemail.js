@@ -1,9 +1,9 @@
-async function sendemail(emailOwner, textContent) {
+async function sendemail(emailOwner, textContent, transporter) {
     try {
         await transporter.sendMail({
             from: process.env.EMAIL,
             to: emailOwner,
-            subject: "Thông báo từ hệ thống",
+            subject: "Thông báo từ hệ thống Yummy Order Food",
             text: textContent,
         });
     } catch (err) {
@@ -13,4 +13,4 @@ async function sendemail(emailOwner, textContent) {
 }
 
 // Export module
-export default sendemail;
+export { sendemail };
