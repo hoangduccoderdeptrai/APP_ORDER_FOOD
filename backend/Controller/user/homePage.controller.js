@@ -1,4 +1,3 @@
-// Import menuItems model
 import { MenuItem } from "../../Model/menuItem.model.js";
 
 // Import restaurant model
@@ -69,7 +68,7 @@ const getHomePage = async (req, res) => {
             restaurants: restaurants,
             foods: foods,
         });
-    } catch (error) {
+    } catch (err) {
         // Return error message
         res.status(500).json({ msg: err.message });
     }

@@ -4,6 +4,7 @@ import cors from "cors";
 import menuItemRoute from "./routes/seller/menuItem.route.js";
 import webInitRouterCustomer from "./routes/customer/customer.router.js";
 import webInitRouterAdmin from "./routes/admin/admin.router.js";
+import webInitRouterUser from "./routes/user/user.router.js";
 import "dotenv/config.js";
 function run() {
     // Init server
@@ -26,6 +27,7 @@ function run() {
     app.use("/api/restaurant", menuItemRoute); // Seller
     webInitRouterCustomer(app); // Customer
     webInitRouterAdmin(app); // Admin
+    webInitRouterUser(app); // User
 
     // Init port
     app.listen("3000", () => {
