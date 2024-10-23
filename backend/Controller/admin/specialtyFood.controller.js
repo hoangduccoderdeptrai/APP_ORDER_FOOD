@@ -28,9 +28,9 @@ const getAllSpecialtyFood = async (req, res) => {
         }
 
         // Pagination
-        const numSpecialtyFood = await SpecialtyFood.countDocuments(find); // Count all specialtyFood
+        const numSpecialtyFoods = await SpecialtyFood.countDocuments(find); // Count all specialtyFood
 
-        const objectPagination = pagination(req.query, numSpecialtyFood, {
+        const objectPagination = pagination(req.query, numSpecialtyFoods, {
             currentPage: 1,
             limit: 4,
         }); // Get pagination object
@@ -81,7 +81,7 @@ const createSpecialtyFood = async (req, res) => {
         const file = req.file; // Get file img from request
 
         const result = await Cloudinary.uploader.upload(file.path, {
-            upload_preset: ProcessingInstruction.env.UPLOAD_PRESET,
+            upload_preset: process.env.UPLOAD_PRESET,
         }); // Upload to cloudinary
 
         // Image source

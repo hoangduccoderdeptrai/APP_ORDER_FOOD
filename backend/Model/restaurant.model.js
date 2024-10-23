@@ -1,5 +1,11 @@
 import mongoose from "mongoose";
 
+// Import slug
+import slug from "mongoose-slug-updater";
+
+//  Plug in slug
+mongoose.plugin(slug);
+
 // Import Schema
 const { Schema } = mongoose;
 
@@ -36,6 +42,7 @@ const RestaurantSchema = new Schema({
             public_id: { type: String }, //Cloundinary id
         },
     ],
+    slug: { type: String, slug: "name", unique: true },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
 });

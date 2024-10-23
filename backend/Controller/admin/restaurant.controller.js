@@ -1,32 +1,20 @@
-// Import nodemailer
-import nodemailer from "nodemailer";
-const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-    auth: {
-        user: process.env.EMAIL,
-        pass: process.env.PASSWORD,
-    },
-}); // Create transporter
-
 // Import restaurant model
 import { Restaurant } from "../../Model/restaurant.model.js";
 
 // Import user model
-import { User } from "../../Model/user.model.js";
+import { Users } from "../../Model/user.model.js";
 
 // Import Menu model
 import { MenuItem } from "../../Model/menuItem.model.js";
 
 // Import searchHelper function
-import search from "../../helper/search.js";
+import { search } from "../../helper/search.js";
 
 // Import paginationHelper function
-import pagination from "../../helper/pagination.js";
+import { pagination } from "../../helper/pagination.js";
 
 // Import sendemail function
-import sendemail from "../../helper/sendemail.js";
+import { sendemail } from "../../helper/sendemail.js";
 
 // Get all restaurant
 const getPageRestaurants = async (req, res) => {
@@ -56,12 +44,11 @@ const getPageRestaurants = async (req, res) => {
             .skip(objectPagination.skip);
 
         // Return Json
-        res.status(200),
-            json({
-                restaurants: restaurants,
-                objectPagination: objectPagination,
-                keySearch: objectSearch.keyword,
-            });
+        res.status(200).json({
+            restaurants: restaurants,
+            objectPagination: objectPagination,
+            keySearch: objectSearch.keyword,
+        });
     } catch (err) {
         // Notificate Error
         res.status(500).json({ msg: err.message });
@@ -81,7 +68,7 @@ const getDetailRetaurant = async (req, res) => {
         const ownerId = restaurant.ownerId;
 
         // Find user by ownerId
-        const owner = await User.findById(ownerId).select("-password_account -email");
+        const owner = await Users.findById(ownerId).select("-password_account -email");
 
         // Count all menuItems of restaurant
         const numberMenuItems = await MenuItem.countDocuments({ restaurantId: id });
@@ -98,7 +85,7 @@ const getDetailRetaurant = async (req, res) => {
     }
 };
 
-// Stop active of restaurant
+// Change status of restaurant
 const changeStatusRestaurant = async (req, res) => {
     try {
         // Get id restaurant from params
@@ -111,7 +98,7 @@ const changeStatusRestaurant = async (req, res) => {
         const ownerId = restaurant.ownerId;
 
         // Find user by ownerId
-        const owner = await User.findById(ownerId).select("-password_account");
+        const owner = await Users.findById(ownerId).select("-password_account");
 
         // Get mail of user
         const emailOwner = owner.email;
@@ -131,7 +118,7 @@ const changeStatusRestaurant = async (req, res) => {
         } để biết thêm thông tin`;
 
         // Send email to user
-        sendemail(emailOwner, textContent);
+        sendemail(emailOwner, textContent, transporter);
 
         // Save restaurant
         await restaurant.save();
@@ -195,7 +182,7 @@ const acceptOrDenyRestaurant = async (req, res) => {
         const restaurant = await Restaurant.findById(id);
 
         // Set status of restaurant
-        typeStatus = req.body.status;
+        const typeStatus = req.body.status;
 
         // Check typeStatus
         if (typeStatus == "accept") {
@@ -220,7 +207,7 @@ const acceptOrDenyRestaurant = async (req, res) => {
             const ownerId = restaurant.ownerId;
 
             // Find user by ownerId
-            const owner = await User.findById(ownerId).select("-password_account");
+            const owner = await Users.findById(ownerId).select("-password_account");
 
             // Get mail of user
             const emailOwner = owner.email;

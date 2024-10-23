@@ -2,8 +2,8 @@
 import { Role } from "../../Model/role.model.js";
 
 // Import searchHelper
-import search from "../../helper/search.js";
-import pagination from "../../helper/pagination.js";
+import { search } from "../../helper/search.js";
+import { pagination } from "../../helper/pagination.js";
 
 // [GET] all role
 const getRoles = async (req, res) => {
@@ -91,7 +91,9 @@ const createRole = async (req, res) => {
         await role.save();
 
         // Redirect
-        res.redirect(""); // Unknown
+        res.status(200).json({
+            msg: "Create role was successful",
+        });
     } catch (error) {
         // Notificate Error
         res.status(500).json({ msg: err.message });
@@ -131,12 +133,14 @@ const editRole = async (req, res) => {
             { _id: id },
             {
                 title: newRole.title,
-                description: newRole.desc,
+                description: newRole.description,
             }
         );
 
         // Redirect
-        res.redirect("back");
+        res.status(200).json({
+            msg: "Edit role was successful",
+        });
     } catch (error) {
         // Notificate Error
         res.status(500).json({ msg: err.message });
@@ -153,7 +157,7 @@ const deleteRole = async (req, res) => {
         await Role.deleteOne({ _id: id });
 
         // Redirect
-        res.redirect("back");
+        res.status(200).json({ msg: "Delete role was successful" });
     } catch (error) {
         // Notificate Error
         res.status(500).json({ msg: err.message });
@@ -186,7 +190,7 @@ const getPageAuthorization = async (req, res) => {
             },
             {
                 nameAutorization: "order",
-                typeAuthorizations: ["view", "create", "edit"],
+                typeAuthorizations: ["view", "create", "edit", "delete"],
             },
         ];
 
@@ -222,7 +226,7 @@ const editAuthorization = async (req, res) => {
         });
 
         // redirect
-        res.redirect("back");
+        res.status(200).json({ msg: "Edit authorization was successful" });
     } catch (error) {
         // Notificate Error
         res.status(500).json({ msg: err.message });

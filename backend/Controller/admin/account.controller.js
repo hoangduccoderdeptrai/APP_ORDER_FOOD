@@ -14,10 +14,13 @@ import { InvoiceUser } from "../../Model/invoiceUser.model.js";
 import { Order } from "../../Model/order.model.js";
 
 // Import searchHelper
-import search from "../../helper/search.js";
+import { search } from "../../helper/search.js";
 
 // Import paginationHelper
-import pagination from "../../helper/pagination.js";
+import { pagination } from "../../helper/pagination.js";
+
+// Import sendEmail helper function
+import { sendemail } from "../../helper/sendemail.js";
 
 // Get all account
 const getPageUsers = async (req, res) => {
@@ -42,7 +45,7 @@ const getPageUsers = async (req, res) => {
 
         // Find all user and remove email and password_account
         const users = await Users.find(find)
-            .select("-email -password_account")
+            .select("-password_account")
             .limit(objectPagination.limit)
             .skip(objectPagination.skip);
 
@@ -87,17 +90,19 @@ const deleteUser = async (req, res) => {
         // Get id from params
         const id = req.params.id;
 
+        // Get user by id
+        const user = await Users.findById(id);
+
         // Delete user by id
         await Users.findByIdAndDelete(id);
 
-        // Delete many order of user
-        await Order.deleteMany({ userId: id });
-
-        // Delete many invoice of user
-        await InvoiceUser.deleteMany({ userId: id });
-
-        // Delete restaurant of user
+        // Delete restaurant of user if user is seller
         await Restaurant.deleteOne({ ownerId: id });
+
+        // Send email to user
+        const textContent = `Chào ${user.name_account}, 
+        bạn đã bị xóa tài khoản vì vi phạm cộng đồng Yummy Order Food. Nếu bạn không đồng ý, vui lòng liên hệ với chúng tôi thông qua số điện thoại ${process.env.PHONE} để được hỗ trợ.`;
+        sendemail(user.email, textContent);
 
         // Return Json
         res.status(200).json({ msg: "User deleted successfully" });

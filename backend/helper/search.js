@@ -17,4 +17,4 @@ function search(query) {
     return objectSearch;
 }
 
-export default search;
+export { search };

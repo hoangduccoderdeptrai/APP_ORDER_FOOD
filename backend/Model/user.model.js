@@ -16,10 +16,8 @@ const UserSchema = new Schema({
         required: true,
     },
     address: {
-        street: { type: String },
-        city: { type: String },
-        borough: { type: String },
-        zip: { type: String },
+        type: String,
+        required: true,
     },
     
     role_id: { type: Schema.Types.ObjectId, ref: "Role" },
