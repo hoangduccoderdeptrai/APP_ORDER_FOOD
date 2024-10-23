@@ -11,7 +11,6 @@ const upload = multer({ dest: "uploads/" });
 // Import controller
 import {
     getAllSpecialtyFood,
-    getPageCreateSpecialtyFood,
     createSpecialtyFood,
     getPageEditSpecialtyFood,
     editSpecialtyFood,
@@ -20,9 +19,6 @@ import {
 
 // Get all specialtyFood
 specialtyFoodRouter.get("/", getAllSpecialtyFood);
-
-// Get page create specialtyFood
-specialtyFoodRouter.get("/create", getPageCreateSpecialtyFood);
 
 // Create specialtyFood
 specialtyFoodRouter.post("/create", upload.single("image"), createSpecialtyFood);

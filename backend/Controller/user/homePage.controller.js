@@ -22,7 +22,7 @@ const getKeySearchFood = async (req, res) => {
         let find = {};
 
         // Get objectSearch
-        const objectSearch = search(req.query);
+        const objectSearch = search(keyword);
 
         // Check regex
         if (objectSearch.regex) {

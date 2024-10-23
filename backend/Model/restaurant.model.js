@@ -12,7 +12,7 @@ const { Schema } = mongoose;
 const RestaurantSchema = new Schema({
     ownerId: {
         type: Schema.Types.ObjectId,
-        ref: "User",
+        ref: "Account",
         required: true,
     },
     name: { type: String, required: true },
