@@ -21,6 +21,7 @@ const UserSchema = new Schema({
         borough: { type: String },
         zip: { type: String },
     },
+    
     role_id: { type: Schema.Types.ObjectId, ref: "Role" },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },

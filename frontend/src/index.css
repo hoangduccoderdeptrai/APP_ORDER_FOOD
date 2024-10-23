@@ -94,5 +94,32 @@
   }
   .font-family{
     font-family: "Montserrat", sans-serif;
-}
+
+  }
+  .selected{
+    /* Remove native appearance */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+
+    /* Tailwind-like styles */
+    background-color: #f9fafb;
+    border: 2px solid #4b5563;
+    border-radius: 0.375rem; /* Rounded-md */
+    padding: 0.5rem 2.5rem 0.5rem 1rem; /* Add space for custom arrow */
+    width: 100%;
+    font-size: 1rem;
+    color: #374151;
+    cursor: pointer;
+  }
+  .custom-select::after{  
+    content: '▼'; /* Unicode arrow */
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none; /* Prevent arrow click */
+    color: #6b7280; /* Tailwind Gray-500 */
+    z-index: 100;
+  }
 }

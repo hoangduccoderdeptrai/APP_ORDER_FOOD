@@ -1,7 +1,8 @@
 import {toast} from 'react-toastify'
+import { deleteItem } from '../../features/products-slice'
 
 export const NotificationAdd =(name)=>{
-    return toast.success(`Add ${name} was successful`,{
+    return toast.success(`${name} was successful`,{
         position:'top-center',
         autoClose:2000,
         hideProgressBar:false,
@@ -13,3 +14,6 @@ export const NotificationAdd =(name)=>{
         }
     })
 }
+
+
+  

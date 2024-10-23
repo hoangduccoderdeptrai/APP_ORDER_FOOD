@@ -27,7 +27,7 @@ const OrderSchema = new Schema({
                 ref: "MenuItem",
                 required: true,
             },
-            quatity: { type: Number, require: true },
+            quantity: { type: Number, required: true },
         },
     ],
     totalPrice: { type: Number, required: true },
