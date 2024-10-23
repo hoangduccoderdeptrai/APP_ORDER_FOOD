@@ -20,7 +20,7 @@ const getAllSpecialtyFood = async (req, res) => {
         let find = {};
 
         // Search object
-        const objectSearch = search(req.query);
+        const objectSearch = search(req.query.keyword);
 
         // Check if has keyword
         if (objectSearch.regex) {
@@ -52,30 +52,23 @@ const getAllSpecialtyFood = async (req, res) => {
     }
 };
 
-// Get page create specialtyFood
-const getPageCreateSpecialtyFood = async (req, res) => {
-    try {
-        // Get all specialtyFood
-        const specialtyFoods = await SpecialtyFood.find();
-
-        // Return response
-        res.status(200).json({
-            msg: "Page create specialtyFood",
-            specialtyFoodS: specialtyFoods,
-        });
-    } catch (err) {
-        // Return error message
-        res.status(500).json({
-            msg: err.message,
-        });
-    }
-};
-
 // Create specialtyFood
 const createSpecialtyFood = async (req, res) => {
     try {
         // Get name of specialtyFood from request
         const name = req.body.name;
+
+        // Get all specialtyFood
+        const specialtyFoods = await SpecialtyFood.find();
+
+        // Check if name specialtyFood is exist
+        const specialtyFood = specialtyFoods.find((specialtyFood) => specialtyFood.name === name);
+
+        if (specialtyFood) {
+            return res.status(400).json({
+                msg: "SpecialtyFood is exist",
+            });
+        }
 
         // Upload to cloudinary
         const file = req.file; // Get file img from request
@@ -123,13 +116,9 @@ const getPageEditSpecialtyFood = async (req, res) => {
         // Find specialtyFood by id
         const specialtyFood = await SpecialtyFood.findById(id);
 
-        // Get all specialtyFood
-        const specialtyFoods = await SpecialtyFood.find();
-
         // Return response
         res.status(200).json({
             specialtyFood: specialtyFood,
-            specialtyFoods: specialtyFoods,
         });
     } catch (err) {
         // Return error message
@@ -148,11 +137,28 @@ const editSpecialtyFood = async (req, res) => {
         // Get specialtyFood from id
         const specialtyFood = await SpecialtyFood.findById(id);
 
+        // Check if specialtyFood is not exist
+        if (!specialtyFood) {
+            return res.status(404).json({
+                msg: "SpecialtyFood is not exist",
+            });
+        }
+
         // Get name from request
         const name = req.body.name;
 
         // Get file from request
         const file = req.file;
+
+        console.log(file);
+
+        // check name is exist that not of specialtyFood
+        const oldSpecialtyFood = await SpecialtyFood.findOne({ name: name });
+        if (oldSpecialtyFood && oldSpecialtyFood._id.toString() !== id) {
+            return res.status(400).json({
+                msg: "SpecialtyFood's name is exist",
+            });
+        }
 
         // Delete file in cloudinary
         await Cloudinary.uploader.destroy(specialtyFood.imageUrl.public_id);
@@ -166,7 +172,7 @@ const editSpecialtyFood = async (req, res) => {
         const image_url = {
             url: result.secure_url,
             public_id: result.public_id,
-        }; // Image source
+        };
 
         // Delete file temporarity
         deleteTempFiles([file]);
@@ -182,7 +188,7 @@ const editSpecialtyFood = async (req, res) => {
         res.status(200).json({
             msg: "Update specialtyFood was successful",
         });
-    } catch (error) {
+    } catch (err) {
         // Return error message
         res.status(500).json({
             msg: err.message,
@@ -214,7 +220,6 @@ const deleteSpecialtyFood = async (req, res) => {
 // Export controller
 export {
     getAllSpecialtyFood,
-    getPageCreateSpecialtyFood,
     createSpecialtyFood,
     getPageEditSpecialtyFood,
     editSpecialtyFood,
