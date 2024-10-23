@@ -1,10 +1,17 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState,memo } from 'react'
 
-const UploadImage = ({imgFile,setImgFile}) => {
+const UploadImage = ({imgFile,setImgFile,rawData}) => {
+  console.log(rawData)
   const RefInput = useRef('null')
-  const [currentUrl,setCurrentUrl] =useState(null)
+  const [currentUrl,setCurrentUrl] =useState(()=>{
+    return rawData.images||null
+  })
+  console.log(currentUrl)
+
+  
   const handleImage =(event)=>{
       const files =event.target.files[0]
+      console.log(files,"files imgae")
       if(files){
         setImgFile(files)
       }
@@ -25,6 +32,12 @@ const UploadImage = ({imgFile,setImgFile}) => {
       RefInput.current.value=""
     }
   }
+  useEffect(()=>{
+    if(rawData.images){
+      setCurrentUrl(rawData.images)
+
+    }else setCurrentUrl(null)
+  },[rawData.images])
   return (
     <div className='w-full grid gap-1.5 '>
         <label className='first-letter:capitalize text-xl'>Upload Image</label>
@@ -58,4 +71,4 @@ const UploadImage = ({imgFile,setImgFile}) => {
   )
 }
 
-export default UploadImage
+export default memo(UploadImage)

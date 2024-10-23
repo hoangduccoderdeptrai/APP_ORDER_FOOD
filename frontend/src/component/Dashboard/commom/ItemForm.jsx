@@ -1,7 +1,9 @@
-import React from 'react'
+import React,{memo} from 'react'
 import {FormData} from '../../../config/FormDate'
 import UploadImage from './UploadImage'
-const ItemForm = ({rawData,setRawData,className,openForm,setOpenForm,buttonText,imgFile,setImgFile,onSubmit}) => {
+                
+const ItemForm = ({rawData,setRawData,className,openForm,setOpenForm,buttonText,imgFile,setImgFile,onSubmit,setCurrentEditedId,currentEditedId}) => {
+    // console.log(rawData.images)
     const handleForm =(Item)=>{
         let value =rawData[Item.name] || ""
         let element =null
@@ -69,15 +71,20 @@ const ItemForm = ({rawData,setRawData,className,openForm,setOpenForm,buttonText,
 
         return element
     }
+    const handleCloseForm =()=>{
+        setCurrentEditedId(null)
+        console.log(currentEditedId,'day la current id')
+        setOpenForm(false)
+    }
   return (
     <div className={className}>
         <form className='w-full'>
             <div className='flex justify-between mb-2'>
                 <div className='text-2xl font-mono font-bold'>{buttonText ==="Add"?"Add New Product":"Edit Product"}</div>
-                <div className='cursor-pointer' onClick={()=>setOpenForm(false)}><i className='bx bx-x text-2xl'></i></div>
+                <div className='cursor-pointer' onClick={()=>handleCloseForm()}><i className='bx bx-x text-2xl'></i></div>
             </div>
             <div className='flex flex-col gap-3'>
-                <UploadImage setImgFile={setImgFile} imgFile={imgFile}/>
+                <UploadImage setImgFile={setImgFile} imgFile={imgFile} rawData={rawData}/>
                 {FormData&&
                     FormData.map((Item)=>{
                         return (
@@ -98,4 +105,4 @@ const ItemForm = ({rawData,setRawData,className,openForm,setOpenForm,buttonText,
   )
 }
 
-export default ItemForm
+export default memo(ItemForm)
