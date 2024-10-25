@@ -19,6 +19,7 @@ const AccountSchema = new Schema({
         type: String,
         required: true,
     },
+    
     role_id: { type: Schema.Types.ObjectId, ref: "Role" },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },

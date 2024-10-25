@@ -3,7 +3,7 @@ import axios from 'axios'
 const initialState ={
     isLoading:false,
     error:null,
-    itemList :[]
+    itemList:[]
 }
 
 export const addItem =createAsyncThunk(
@@ -24,26 +24,28 @@ export const addItem =createAsyncThunk(
 
 export const updateItem =createAsyncThunk(
     "/restaurant/updateItem",
-    async(id,formData)=>{
+    async({currentEditedId,formData})=>{
+        console.log(formData,"may nhin")
         const result = await axios.patch(
-            `http://localhost:3000/api/restaurant/update-items/${id}`,
+            `http://localhost:3000/api/restaurant/update-items/${currentEditedId}`,
             formData,
             {
                 headers:{
-                    "Content-Type":"application/json"
+                    "Content-Type":"multipart/form-data"
                 }
             }
         )
+        
         return result?.data
     }
 )
 
 export const deleteItem =createAsyncThunk(
     "/restaurant/deleteItem",
-    async(id,formData)=>{
+    async(id)=>{
         const result = await axios.delete(
-            `http://localhost:3000/api/restaurant/delete-items`,
-            formData,
+            `http://localhost:3000/api/restaurant/delete-items/${id}`,
+            
             {
                 headers:{
                     "Content-Type":"application/json"
@@ -56,18 +58,20 @@ export const deleteItem =createAsyncThunk(
 
 export const fetchAllItem =createAsyncThunk(
     "/restaurant/fetchAllItem",
-    async()=>{
+    async(restaurantId)=>{
         const result =await axios.get(
-            "http://localhost:3000/restaurant/all-items",
+            `http://localhost:3000/api/restaurant/all-items/${restaurantId}`,
             {
                 headers:{
                     "Content-Type":"application/json"
                 }
             }
         )
+        console.log(result)
         return result?.data
     }
 )
+
 
 const RestaurantItemSlice =createSlice({
     name:"restaurantItem",
@@ -80,6 +84,7 @@ const RestaurantItemSlice =createSlice({
             }
         ).addCase(
             fetchAllItem.fulfilled,(state,action)=>{
+                console.log(action.payload)
                 state.isLoading=false
                 state.itemList =action.payload.data
             }
@@ -97,6 +102,28 @@ const RestaurantItemSlice =createSlice({
             state.isLoading=false,
             state.error =null
         }).addCase(addItem.rejected,(state,action)=>{
+            state.isLoading=false,
+            state.error =action.error.message
+        })
+        // deleteItem
+        .addCase(deleteItem.pending,(state)=>{
+            state.isLoading=true
+            state.error =null
+        }).addCase(deleteItem.fulfilled,(state)=>{
+            state.isLoading=false,
+            state.error =null
+        }).addCase(deleteItem.rejected,(state,action)=>{
+            state.isLoading=false,
+            state.error =action.error.message
+        })
+        // updateItem
+        .addCase(updateItem.pending,(state)=>{
+            state.isLoading=true
+            state.error =null
+        }).addCase(updateItem.fulfilled,(state)=>{
+            state.isLoading=false,
+            state.error =null
+        }).addCase(updateItem.rejected,(state,action)=>{
             state.isLoading=false,
             state.error =action.error.message
         })

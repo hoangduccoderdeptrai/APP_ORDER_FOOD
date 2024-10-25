@@ -6,6 +6,8 @@ import webInitRouterCustomer from "./routes/customer/customer.router.js";
 import webInitRouterAdmin from "./routes/admin/admin.router.js";
 import webInitRouterUser from "./routes/user/user.router.js";
 import "dotenv/config.js";
+import manageOderRoute from "./routes/seller/manageOrder.route.js";
+import orderItemsRoute from "./routes/customer/order.route.js";
 function run() {
     // Init server
     const app = express();
@@ -15,13 +17,16 @@ function run() {
     app.use(express.urlencoded({ extended: true }));
     app.use(express.static("public"));
 
-    // Middleware to handle CORS
-    app.use(
-        cors({
-            origin: "http://localhost:5173",
-            credentials: true,
-        })
-    );
+    app.use(cors({
+        origin:'http://localhost:5173',
+        credentials:true
+    }));
+    app.use('/api/restaurant',menuItemRoute)
+    app.use('/api/restaurant/order',manageOderRoute)
+    app.use('/order',orderItemsRoute)
+
+
+   
 
     // Use API
     app.use("/api/restaurant", menuItemRoute); // Seller
@@ -30,6 +35,7 @@ function run() {
     webInitRouterUser(app); // User
 
     // Init port
+
     app.listen("3000", () => {
         console.log("server is listening");
     });

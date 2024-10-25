@@ -7,8 +7,8 @@ import { hasUncaughtExceptionCaptureCallback } from "process";
 const createMenuItem = async (req, res) => {
     try {
         const files = req.files;
-        console.log(req.body)
-        console.log(files)
+        
+        console.log(files,'file')
         if (!files) return res.status(404).json({ msg: "Image files was required" });
         const { restaurantId, title, description, price, category } = req.body;
         const restaurant = await Restaurant.findById(restaurantId);
@@ -47,13 +47,18 @@ const createMenuItem = async (req, res) => {
 //update
 const updateMenuItem = async (req, res) => {
     try {
-        const { restaurantId, title, description, price, category, menuItemId, isAvailable } =
+        const { restaurantId, title, description, price, category, isAvailable } =
             req.body;
+        
+        console.log(req.files,'files')
         const files = req.files;
+        const menuItemId =req.params.id      
         const menuItem = await MenuItem.findById(menuItemId);
+        console.log(menuItem)
         if (!menuItem) return res.status(404).json({ msg: "menuItem not found" });
         const restaurant = await Restaurant.findById(restaurantId);
         if (!restaurant) return res.status(404).json({ msg: "restaurant was not found" });
+        let img_url =null
         if (files && files.length > 0) {
             const imagePromises = files.map((file) => {
                 return Cloudinary.uploader.upload(file.path, {
@@ -61,14 +66,14 @@ const updateMenuItem = async (req, res) => {
                 });
             });
             const uploadCloudinnary = await Promise.all(imagePromises);
-            const img_url = uploadCloudinnary.map((file) => {
+            img_url = uploadCloudinnary.map((file) => {
                 return {
                     url: file.secure_url,
                     public_id: file.public_id,
                 };
             });
         }
-        console.log(img_url);
+        // console.log(img_url);
         if (img_url && img_url.length > 0) {
             // delete url Cloudinary
             const url_Cloudinary = menuItem.imageUrl;
@@ -88,6 +93,7 @@ const updateMenuItem = async (req, res) => {
         await menuItem.save();
         return res.status(200).json({ msg: "MenuItem updated successfully" });
     } catch (err) {
+        console.log(err.message)
         return res.status(500).json({ msg: err.message });
     }
 };
@@ -95,16 +101,17 @@ const updateMenuItem = async (req, res) => {
 // delete
 const deleteMenuItem = async (req, res) => {
     try {
-        const { menuItemId } = req.body;
+        const menuItemId = req.params.id;
         const menuItem = await MenuItem.findById(menuItemId);
         if (!menuItem) return res.status(404).json({ msg: "menuItem not found to delete" });
         const public_Id_Arr = menuItem.imageUrl.map((val) => val.public_id);
 
         const deleteImgCloundinary = public_Id_Arr.map((id) => Cloudinary.uploader.destroy(id));
         await Promise.all(deleteImgCloundinary);
-        await menuItem.remove();
+        await menuItem.deleteOne();
         return res.status(200).json({ msg: "deleting menuItem was successfull" });
     } catch (err) {
+        console.log(err.message)
         res.status(500).json({ msg: err.message });
     }
 };
@@ -117,5 +124,17 @@ const deleteTempFiles = (files) => {
         });
     });
 };
+// fetch all item
+const fetchAllItems =async(req,res)=>{
+    try{
+        const restaurantId =req.params.id
+        const menuItem = await MenuItem.find({restaurantId:restaurantId})
+        return res.status(200).json({data:menuItem})
+    }catch(err){
+        res.status(500).json({msg:err.message})
+    }
 
-export { deleteMenuItem, createMenuItem, updateMenuItem };
+    
+}
+
+export { deleteMenuItem, createMenuItem, updateMenuItem,fetchAllItems };
