@@ -5,7 +5,6 @@ const logInlogOutRouter = express.Router();
 // Import handleLogInLogOut controller
 import {
     signIn,
-    getPageSignUp,
     signUp,
     signOut,
     changePassword,
@@ -14,9 +13,6 @@ import {
 
 // Sign in
 logInlogOutRouter.post("/signin", signIn);
-
-// Get page sign up
-logInlogOutRouter.get("/signup", getPageSignUp);
 
 // Sign up
 logInlogOutRouter.post("/signup", signUp);

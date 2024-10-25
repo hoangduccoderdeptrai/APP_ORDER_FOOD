@@ -4,9 +4,9 @@ import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 const ReviewSchema = new Schema({
-    userId: {
+    accountId: {
         type: Schema.Types.ObjectId,
-        ref: "User",
+        ref: "Account",
         required: true,
     },
     restaurantId: {

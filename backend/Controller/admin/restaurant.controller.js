@@ -1,8 +1,8 @@
 // Import restaurant model
 import { Restaurant } from "../../Model/restaurant.model.js";
 
-// Import user model
-import { Users } from "../../Model/user.model.js";
+// Import account model
+import { Account } from "../../Model/account.model.js";
 
 // Import Menu model
 import { MenuItem } from "../../Model/menuItem.model.js";
@@ -24,7 +24,7 @@ const getPageRestaurants = async (req, res) => {
             status: "active",
         };
 
-        let objectSearch = search(req.query);
+        let objectSearch = search(req.query.keyword);
 
         // Check objectSearch has regex
         if (objectSearch.regex) {
@@ -64,11 +64,11 @@ const getDetailRetaurant = async (req, res) => {
         // Find restaurant by id
         const restaurant = await Restaurant.findById(id);
 
-        // Get ownerId's user from restaurant
+        // Get ownerId's account from restaurant
         const ownerId = restaurant.ownerId;
 
-        // Find user by ownerId
-        const owner = await Users.findById(ownerId).select("-password_account -email");
+        // Find account by ownerId
+        const owner = await Account.findById(ownerId).select("-password_account");
 
         // Count all menuItems of restaurant
         const numberMenuItems = await MenuItem.countDocuments({ restaurantId: id });
@@ -94,13 +94,13 @@ const changeStatusRestaurant = async (req, res) => {
         // Find restaurant by id
         const restaurant = await Restaurant.findById(id);
 
-        // Get ownerId's user from restaurant
+        // Get ownerId's account from restaurant
         const ownerId = restaurant.ownerId;
 
-        // Find user by ownerId
-        const owner = await Users.findById(ownerId).select("-password_account");
+        // Find account by ownerId
+        const owner = await Account.findById(ownerId).select("-password_account");
 
-        // Get mail of user
+        // Get mail of account
         const emailOwner = owner.email;
 
         // Set status of restaurant
@@ -117,8 +117,8 @@ const changeStatusRestaurant = async (req, res) => {
             process.env.PHONE
         } để biết thêm thông tin`;
 
-        // Send email to user
-        sendemail(emailOwner, textContent, transporter);
+        // Send email to account
+        sendemail(emailOwner, textContent);
 
         // Save restaurant
         await restaurant.save();
@@ -141,7 +141,7 @@ const getPageAwaitRestaurants = async (req, res) => {
             status: "pending",
         };
 
-        let objectSearch = search(req.query);
+        let objectSearch = search(req.query.keyword);
 
         // Check objectSearch has regex
         if (objectSearch.regex) {
@@ -197,19 +197,13 @@ const acceptOrDenyRestaurant = async (req, res) => {
                 msg: "Update status restaurant was successful",
             });
         } else {
-            // Deny restaurant
-            const id_restaurant = req.params.id; // Get id from fe
-
-            // Find restaurant by id
-            const restaurant = await Restaurant.findById(id_restaurant);
-
-            // Get ownerId's user from restaurant
+            // Get ownerId's account from restaurant
             const ownerId = restaurant.ownerId;
 
-            // Find user by ownerId
-            const owner = await Users.findById(ownerId).select("-password_account");
+            // Find account by ownerId
+            const owner = await Account.findById(ownerId).select("-password_account");
 
-            // Get mail of user
+            // Get mail of account
             const emailOwner = owner.email;
 
             // Delte restaurant in DB
@@ -218,7 +212,7 @@ const acceptOrDenyRestaurant = async (req, res) => {
             // Text content
             const textContent = `Nhà hàng ${restaurant.name} của bạn đã bị từ chối hoạt động. Vui lòng liên hệ với chúng tôi qua số điện thoại ${process.env.PHONE} để biết thêm thông tin`;
 
-            // Send email to user
+            // Send email to account
             sendemail(emailOwner, textContent);
 
             // Return Json

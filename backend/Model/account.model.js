@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 // Import Schema
 const { Schema } = mongoose;
 
-const UserSchema = new Schema({
+const AccountSchema = new Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     phone: { type: String, required: true },
@@ -25,4 +25,4 @@ const UserSchema = new Schema({
     updatedAt: { type: Date, default: Date.now },
 });
 
-export const Users = mongoose.model("User", UserSchema);
+export const Account = mongoose.model("Account", AccountSchema);

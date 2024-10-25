@@ -5,18 +5,18 @@ const accountRouter = express.Router();
 
 // Import controller
 import {
-    getPageUsers,
-    getDetailUser,
-    deleteUser,
+    getPageAccount,
+    getDetailAccount,
+    deleteAccount,
 } from "../../Controller/admin/account.controller.js";
 
 // Get all account
-accountRouter.get("/", getPageUsers);
+accountRouter.get("/", getPageAccount);
 
 // Get detail user
-accountRouter.get("/detail/:id", getDetailUser);
+accountRouter.get("/detail/:id", getDetailAccount);
 
 // Delete user
-accountRouter.delete("/delete/:id", deleteUser);
+accountRouter.delete("/delete/:id", deleteAccount);
 
 export default accountRouter;

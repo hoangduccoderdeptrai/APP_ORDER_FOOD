@@ -1,6 +1,3 @@
-// Import router role
-import roleRouter from "./role.router.js";
-
 // Import router restaurant
 import restaurantRouter from "./restaurant.router.js";
 
@@ -10,9 +7,10 @@ import accountRouter from "./account.router.js";
 // Import router specialtyFood
 import specialtyFoodRouter from "./specialtyFood.router.js";
 
-function webInitRouterAdmin(app) {
-    app.use("/admin/role", roleRouter);
+// Import middleware authentication
+import { authenticate } from "../../middleware/user/authentication.js";
 
+function webInitRouterAdmin(app) {
     app.use("/admin/restaurant", restaurantRouter);
 
     app.use("/admin/account", accountRouter);

@@ -1,4 +1,4 @@
-function search(query) {
+function search(keyword) {
     // Define object search
     let objectSearch = {
         keyword: "",
@@ -6,7 +6,7 @@ function search(query) {
     };
 
     // Get keyword from query
-    objectSearch.keyword = query.keyword;
+    objectSearch.keyword = keyword;
 
     // Check if has keyword
     if (objectSearch.keyword) {
