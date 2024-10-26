@@ -17,16 +17,15 @@ function run() {
     app.use(express.urlencoded({ extended: true }));
     app.use(express.static("public"));
 
-    app.use(cors({
-        origin:'http://localhost:5173',
-        credentials:true
-    }));
-    app.use('/api/restaurant',menuItemRoute)
-    app.use('/api/restaurant/order',manageOderRoute)
-    app.use('/order',orderItemsRoute)
-
-
-   
+    app.use(
+        cors({
+            origin: "http://localhost:5173",
+            credentials: true,
+        })
+    );
+    app.use("/api/restaurant", menuItemRoute);
+    app.use("/api/restaurant/order", manageOderRoute);
+    app.use("/order", orderItemsRoute);
 
     // Use API
     app.use("/api/restaurant", menuItemRoute); // Seller
