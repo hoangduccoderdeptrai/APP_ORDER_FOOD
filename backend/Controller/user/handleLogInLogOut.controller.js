@@ -1,8 +1,11 @@
 // Import account model
 import { Account } from "../../Model/account.model.js";
 
-// Import role model
-import { Role } from "../../Model/role.model.js";
+// Import restaurant model
+import { Restaurant } from "../../Model/restaurant.model.js";
+
+// Import cloudinary
+import { Cloudinary } from "../../config/cloundinaryCofig.js";
 
 // Import md5
 import md5 from "md5";
@@ -51,7 +54,7 @@ const signIn = async (req, res) => {
 const signUp = async (req, res) => {
     try {
         // Get account from form
-        const infoAccount = req.body;
+        const infoAccount = req.body.inforAccount;
 
         // Check account exist
         const accounts = await Account.find({
@@ -61,8 +64,6 @@ const signUp = async (req, res) => {
                 { name_account: infoAccount.name_account },
             ],
         });
-
-        console.log(accounts);
 
         // array error
         const arrError = [];
@@ -79,28 +80,97 @@ const signUp = async (req, res) => {
             }
         });
 
+        // Check error
         if (arrError.length > 0) {
             return res.status(400).json({ msg: arrError });
         }
-
-        // Get role
-        const roleName = infoAccount.role_name;
-        const role = await Role.findOne({ title: roleName });
-        infoAccount.role_id = role._id;
 
         // Create account
         const newAccount = new Account({
             name: infoAccount.name,
             email: infoAccount.email,
             phone: infoAccount.phone,
+            description: infoAccount.description,
             name_account: infoAccount.name_account,
             password_account: md5(infoAccount.password_account),
             address: infoAccount.address,
-            role_id: infoAccount.role_id,
+            role: infoAccount.role,
         });
 
-        // Save account
-        await newAccount.save();
+        // Check role_name is seller
+        if (infoAccount.role === "seller") {
+            // Get email to find account
+            const email = infoAccount.email;
+
+            // Get inforrestaurant from form
+            const infoRestaurant = req.body.inforRestaurant;
+
+            // Check phone and name restaurant exist
+            const restaurants = await Restaurant.find({
+                $or: [{ phone: infoRestaurant.phone }, { name: infoRestaurant.name }],
+            });
+
+            // Loop to check error
+            for (restaurant of restaurants) {
+                if (restaurant.phone === infoRestaurant.phone) {
+                    arrError.push("Phone restaurant has exist");
+                }
+                if (restaurant.name === infoRestaurant.name) {
+                    arrError.push("Name restaurant has exist");
+                }
+            }
+
+            // Check error
+            if (arrError.length > 0) {
+                return res.status(400).json({ msg: arrError });
+            }
+
+            // Save account
+            await newAccount.save();
+
+            // Find account by email
+            const account = await Account.findOne({ email: email });
+            const ownerId = account._id;
+
+            // Save image of restaurant to cloudinary
+            const image_url = [];
+            if (req.files) {
+                // Get avatar restaurant
+                const avatar = req.files.avatar[0];
+                const images = req.files.images;
+                const arrImages = [avatar, ...images];
+                // Loop to save image to cloudinary
+                for (image of arrImages) {
+                    const result = await Cloudinary.uploader.upload(image.path, {
+                        upload_preset: process.env.UPLOAD_PRESET,
+                    });
+
+                    // Image source
+                    image_url.push({
+                        url: result.secure_url,
+                        public_id: result.public_id,
+                    });
+                }
+            }
+
+            // Create restaurant
+            const newRestaurant = new Restaurant({
+                ownerId: ownerId,
+                name: infoRestaurant.name,
+                address: infoRestaurant.address,
+                phone: infoRestaurant.phone,
+                time_open: infoRestaurant.time_open,
+                time_close: infoRestaurant.time_close,
+                description: infoRestaurant.description,
+                imageUrl: image_url,
+            });
+
+            // Save restaurant
+            await newRestaurant.save();
+        } else {
+            // Save account
+            await newAccount.save();
+        }
 
         // Return Json.
         res.status(200).json({
