@@ -116,6 +116,13 @@ const getPageEditSpecialtyFood = async (req, res) => {
         // Find specialtyFood by id
         const specialtyFood = await SpecialtyFood.findById(id);
 
+        // Check if specialtyFood is not exist
+        if (!specialtyFood) {
+            return res.status(404).json({
+                msg: "SpecialtyFood is not exist",
+            });
+        }
+
         // Return response
         res.status(200).json({
             specialtyFood: specialtyFood,
