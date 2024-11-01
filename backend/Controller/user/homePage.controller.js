@@ -13,7 +13,10 @@ import { search } from "../../helper/search.js";
 const getKeySearchFood = async (req, res) => {
     try {
         // Get keyword from search bar query
-        const { keyword } = req.query;
+        const nameFood = req.query.nameFood;
+        const nameRestaurant = req.query.nameRestaurant;
+
+        const keyword = nameFood || nameRestaurant;
 
         // Create a set to store all the results
         const result = new Set();
@@ -24,13 +27,19 @@ const getKeySearchFood = async (req, res) => {
         // Get objectSearch
         const objectSearch = search(keyword);
 
-        // Check regex
-        if (objectSearch.regex) {
-            find["title"] = objectSearch.regex;
-        }
+        // List all the menuItems
+        let menuItems = [];
 
-        // Find all the restaurants that contain the keyword
-        const menuItems = await MenuItem.find(find);
+        // Check if user search restaurant or food
+        if (nameRestaurant) {
+            find["name"] = objectSearch.regex;
+            // Find all the restaurants that contain the keyword
+            menuItems = await Restaurant.find(find).select("name");
+        } else {
+            find["title"] = objectSearch.regex;
+            // Find all the food that contain the keyword
+            menuItems = await MenuItem.find(find).select("title");
+        }
 
         // Loop through all the menuItems
         for (let menuItem of menuItems) {

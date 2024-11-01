@@ -39,6 +39,13 @@ const getAllSpecialtyFood = async (req, res) => {
             .limit(objectPagination.limit)
             .skip(objectPagination.skip);
 
+        // Check if specialtyFoods is empty
+        if (!specialtyFoods || specialtyFoods.length === 0) {
+            return res.status(200).json({
+                msg: "SpecialtyFoods is empty",
+            });
+        }
+
         // Return response
         res.status(200).json({
             specialtyFoods: specialtyFoods,
@@ -157,8 +164,6 @@ const editSpecialtyFood = async (req, res) => {
         // Get file from request
         const file = req.file;
 
-        console.log(file);
-
         // check name is exist that not of specialtyFood
         const oldSpecialtyFood = await SpecialtyFood.findOne({ name: name });
         if (oldSpecialtyFood && oldSpecialtyFood._id.toString() !== id) {
@@ -211,6 +216,13 @@ const deleteSpecialtyFood = async (req, res) => {
 
         // Find specialtyFood by id and delete
         await SpecialtyFood.findByIdAndDelete(id);
+
+        // Return error if specialtyFood is not exist
+        if (!specialtyFood) {
+            return res.status(200).json({
+                msg: "SpecialtyFood is not exist",
+            });
+        }
 
         // Return response
         res.status(200).json({
