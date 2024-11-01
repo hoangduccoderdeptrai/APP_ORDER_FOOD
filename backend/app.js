@@ -25,10 +25,9 @@ function run() {
     );
     app.use("/api/restaurant", menuItemRoute);
     app.use("/api/restaurant/order", manageOderRoute);
-    app.use("/order", orderItemsRoute);
+    app.use("/api/restaurant", menuItemRoute); // Seller
 
     // Use API
-    app.use("/api/restaurant", menuItemRoute); // Seller
     webInitRouterCustomer(app); // Customer
     webInitRouterAdmin(app); // Admin
     webInitRouterUser(app); // User
