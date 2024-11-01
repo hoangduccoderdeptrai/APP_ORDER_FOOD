@@ -60,6 +60,7 @@ const detailRestaurant = async (req, res) => {
             restaurant: restaurant,
             listAllFood: listAllFood,
             listComment: listComment,
+            objectPagination: objectPagination,
         });
     } catch (error) {
         // Return message error
