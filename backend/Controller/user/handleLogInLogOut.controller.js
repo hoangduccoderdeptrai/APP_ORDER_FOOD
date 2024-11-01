@@ -30,7 +30,7 @@ const signIn = async (req, res) => {
 
         // Check account
         if (!account) {
-            return res.status(400).json({ msg: "Account does not exist" });
+            return res.status(200).json({ msg: "Account does not exist" });
         } else {
             // Compare password
             if (account.password_account === passwordSended) {
@@ -54,7 +54,7 @@ const signIn = async (req, res) => {
 const signUp = async (req, res) => {
     try {
         // Get account from form
-        const infoAccount = req.body.inforAccount;
+        const infoAccount = req.body.infoAccount;
 
         // Check account exist
         const accounts = await Account.find({
@@ -82,7 +82,7 @@ const signUp = async (req, res) => {
 
         // Check error
         if (arrError.length > 0) {
-            return res.status(400).json({ msg: arrError });
+            return res.status(200).json({ msg: arrError });
         }
 
         // Create account
@@ -90,7 +90,6 @@ const signUp = async (req, res) => {
             name: infoAccount.name,
             email: infoAccount.email,
             phone: infoAccount.phone,
-            description: infoAccount.description,
             name_account: infoAccount.name_account,
             password_account: md5(infoAccount.password_account),
             address: infoAccount.address,
@@ -103,7 +102,12 @@ const signUp = async (req, res) => {
             const email = infoAccount.email;
 
             // Get inforrestaurant from form
-            const infoRestaurant = req.body.inforRestaurant;
+            const infoRestaurant = req.body.infoRestaurant;
+
+            // Check infoRestaurant is empty
+            if (Object.keys(infoRestaurant).length === 0) {
+                return res.status(200).json({ msg: "Info restaurant is empty" });
+            }
 
             // Check phone and name restaurant exist
             const restaurants = await Restaurant.find({
@@ -122,7 +126,7 @@ const signUp = async (req, res) => {
 
             // Check error
             if (arrError.length > 0) {
-                return res.status(400).json({ msg: arrError });
+                return res.status(200).json({ msg: arrError });
             }
 
             // Save account
@@ -167,15 +171,20 @@ const signUp = async (req, res) => {
 
             // Save restaurant
             await newRestaurant.save();
+
+            // Return Json
+            res.status(200).json({
+                msg: "Create account and restaurant was successful",
+            });
         } else {
             // Save account
             await newAccount.save();
-        }
 
-        // Return Json.
-        res.status(200).json({
-            msg: "Create account was successful",
-        });
+            // Return Json.
+            res.status(200).json({
+                msg: "Create account was successful",
+            });
+        }
     } catch (err) {
         // Notificate Error
         res.status(500).json({ msg: err.message });
@@ -208,7 +217,7 @@ const forgotPassword = async (req, res) => {
 
         // Check account
         if (!account) {
-            res.status(400).json({ msg: "Account does not exist" });
+            res.status(200).json({ msg: "Account does not exist" });
         } else {
             // Create new password
             const newPassword = Math.random().toString(36).slice(-8);
@@ -251,7 +260,7 @@ const changePassword = async (req, res) => {
 
         // Check old password
         if (oldPasswordSended !== currentPassword) {
-            res.status(400).json({ msg: "Old password is incorrect" });
+            return res.status(400).json({ msg: "Old password is incorrect" });
         }
 
         // Get new password

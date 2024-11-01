@@ -21,12 +21,19 @@ const searchPage = async (req, res) => {
         let findRestaurant = {
             status: "active",
         };
+        let sortRestaurant = {
+            quantitySolded: -1,
+        };
 
-        // Check if user search restaurant
-        const nameRestaurant = infoSearch.nameRestaurant;
-        const boroughRestaurant = infoSearch.boroughRestaurant;
-        const starMedium = infoSearch.starMedium;
-        const typeSort = infoSearch.typeSort || "Best seller";
+        // Search food
+        let caterogy = infoSearch.caterogy;
+        let nameFood = infoSearch.nameFood;
+
+        // Search restaurant
+        let nameRestaurant = infoSearch.nameRestaurant;
+        let boroughRestaurant = infoSearch.boroughRestaurant;
+        let starMedium = infoSearch.starMedium;
+        let typeSort = infoSearch.typeSort || "Best seller";
 
         if (nameRestaurant) {
             const objectSearchRestaurant = search(nameRestaurant);
@@ -40,19 +47,17 @@ const searchPage = async (req, res) => {
         }
 
         if (starMedium) {
+            // Conver starMedium to number
+            starMedium = parseInt(starMedium);
             findRestaurant["starMedium"] = { $gte: starMedium };
         }
 
         // Type sort restaurant
-        if (typeSort === "Best seller") {
-            findRestaurant["quantitySolded"] = -1;
-        } else {
-            findRestaurant["updatedAt"] = -1;
+        if (typeSort !== "Best seller") {
+            sortRestaurant = {
+                createdAt: -1,
+            };
         }
-
-        // Check if user search food
-        const caterogy = infoSearch.caterogy;
-        const nameFood = infoSearch.nameFood;
 
         // list food
         let listFood = [];
@@ -61,7 +66,7 @@ const searchPage = async (req, res) => {
             // Create object search nameFood
             const objectSearchName = search(nameFood);
 
-            if (caterogy) {
+            if (caterogy && caterogy.length > 0) {
                 findFood["caterogy"] = {
                     $in: caterogy,
                 };
@@ -96,8 +101,11 @@ const searchPage = async (req, res) => {
             limit: 20,
         }); // Object pagination
 
+        console.log(findRestaurant);
+
         // Find restaurant
         let restaurants = await Restaurant.find(findRestaurant)
+            .sort(sortRestaurant)
             .skip(objectPagination.skip)
             .limit(objectPagination.limit);
 
