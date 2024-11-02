@@ -1,4 +1,4 @@
-import { Users } from "../../Model/user.model.js";
+import { Account } from "../../Model/account.model.js";
 import { Restaurant } from "../../Model/restaurant.model.js";
 import { MenuItem } from "../../Model/menuItem.model.js";
 import { Order } from "../../Model/order.model.js";
@@ -6,11 +6,11 @@ import { Order } from "../../Model/order.model.js";
 // Create Order
 const createOrder = async (req, res) => {
     try {
-        const { userId, restaurantId, items,deliveryAddress } = req.body;
+        const { accountId:userId, restaurantId, items,deliveryAddress } = req.body;
         const ItemArr = [];
         let totalPrice = 0;
         // Check if the user exists
-        const user = await Users.findById({ _id: userId });
+        const user = await Account.findById({ _id: userId });
         if (!user) return res.status(404).jsono({ msg: "Not found user" });
         // Check if the restaurant exists
         const restaurant = await Restaurant.findById({_id: restaurantId });
@@ -32,7 +32,7 @@ const createOrder = async (req, res) => {
         };
 
         const newOrder = new Order({
-            userId,
+            accountId:userId,
             restaurantId,
             items:ItemArr,
             totalPrice:totalPrice,
@@ -51,9 +51,9 @@ const createOrder = async (req, res) => {
 };
 
 export {createOrder}
-// request body looke like to create an order (json format)
+// request body look like to create an order (json format)
 // {
-//     "userId":"123",
+//     "accountId":"123",
 //     "restaurantId":"123",
 //     "items":[
 //         {

@@ -9,14 +9,14 @@ const initialState ={
 }
 export const getOrder =createAsyncThunk(
     "restaurant/order/get",
-    async({restaurantId,status,page=0})=>{
-        console.log(restaurantId,status,page)
+    async({restaurantId,status,skipPage=0})=>{
+        console.log(restaurantId,status,skipPage)
         const result = await axios.get(
             `http://localhost:3000/api/restaurant/order/${restaurantId}`,
             {
                 params:{
                     status,
-                    skip:page
+                    skip:skipPage
                 }
             }
         )
@@ -29,10 +29,11 @@ export const updateStatusOrder =createAsyncThunk(
     async({restaurantId,orderId,status})=>{
         const result = await axios.patch(
             `http://localhost:3000/api/restaurant/order/${restaurantId}`,
-            status,
+            
             {
                 params:{
-                    orderId
+                    orderId,
+                    status
                 }
             }
 

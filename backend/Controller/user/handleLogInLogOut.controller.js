@@ -19,6 +19,9 @@ const signIn = async (req, res) => {
         // Get email or phone and password
         const accountSended = req.body.email || req.body.phone;
         const passwordSended = md5(req.body.password);
+        if(!accountSended || !passwordSended){
+            return res.status(400).json({msg:"Email/Phone and Password are required"})
+        }
 
         // Find account by email or phone
         const account = await Account.findOne({
@@ -62,7 +65,7 @@ const signUp = async (req, res) => {
             ],
         });
 
-        console.log(accounts);
+        console.log(accounts,'cc');
 
         // array error
         const arrError = [];
@@ -83,11 +86,8 @@ const signUp = async (req, res) => {
             return res.status(400).json({ msg: arrError });
         }
 
-        // Get role
-        const roleName = infoAccount.role_name;
-        const role = await Role.findOne({ title: roleName });
-        infoAccount.role_id = role._id;
-
+        
+       
         // Create account
         const newAccount = new Account({
             name: infoAccount.name,
@@ -96,7 +96,7 @@ const signUp = async (req, res) => {
             name_account: infoAccount.name_account,
             password_account: md5(infoAccount.password_account),
             address: infoAccount.address,
-            role_id: infoAccount.role_id,
+            role: infoAccount.role
         });
 
         // Save account

@@ -21,6 +21,7 @@ function run() {
         origin:'http://localhost:5173',
         credentials:true
     }));
+    // Restaurant API
     app.use('/api/restaurant',menuItemRoute)
     app.use('/api/restaurant/order',manageOderRoute)
     app.use('/order',orderItemsRoute)
@@ -29,7 +30,7 @@ function run() {
    
 
     // Use API
-    app.use("/api/restaurant", menuItemRoute); // Seller
+    
     webInitRouterCustomer(app); // Customer
     webInitRouterAdmin(app); // Admin
     webInitRouterUser(app); // User

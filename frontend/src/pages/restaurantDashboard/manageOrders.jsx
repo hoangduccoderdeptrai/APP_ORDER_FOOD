@@ -2,26 +2,26 @@ import React,{ useEffect, useState } from 'react'
 import { useSelector,useDispatch } from 'react-redux'
 import LoadingOverlay from 'react-loading-overlay-ts'
 import { ToastContainer } from 'react-toastify'
-import hero from '../../assets/hero.png'
-import ShowDeleteConfirmation from '../../component/common/showDeleteConfirmation'
+import { SuccessfulNotification,FailedNotification } from '../../component/common/Notification'
 import TablePagination from '@mui/material/TablePagination'
-import { getOrder } from '../../features/manageOrder-slice'
+import { getOrder,updateStatusOrder } from '../../features/manageOrder-slice'
 const ManageOrders = () => {
     const [status,setStatus] =useState('pending')
-    const [skipPage,setSkipPage] =useState(0)
-    const [page,setPage] =useState(0) //0 is the first page
+    const [skipPage,setSkipPage] =useState(0) //0 is the first page
+    // const [page,setPage] =useState(0) //0 is the first page
     const [rowsPerPage,setRowPerPage] =useState(5) //default rows per page
     const restaurantId ="66f754127c954abda7c56d15"
     const {isLoading,error,orderList} =useSelector((state)=>state.RestaurantOders)
     const dispatch =useDispatch()
     // handle page change
     const handleChangePage = (event,newPage)=>{
-        setPage(newPage)
+        console.log(newPage,"thực sự nhớ em")
+        setSkipPage(newPage)
     }
     // handle rows per page change
     const handleChangeRowsPerPage =(event)=>{
         setRowPerPage(parseInt(event.target.value,10))
-        setPage(0)
+        setSkipPage(0)
     }
     const handleStatus =async(event)=>{
         try{
@@ -35,6 +35,20 @@ const ManageOrders = () => {
             console.error(err.message)
         }
        
+    }
+    const handleChangeStatus =async(event)=>{
+        console.log(event.target.value,event.target.id)
+        try{
+            const orderId =event.target.id
+            const status =event.target.value
+            const result =await dispatch(updateStatusOrder({restaurantId,orderId,status}))
+            if(!isLoading && !error && result){
+                SuccessfulNotification("Update Order'status")
+            }
+        }catch(err){
+            FailedNotification("Update Order'status")
+            console.error(err.message)
+        }
     }
     useEffect(()=>{
         dispatch(getOrder({restaurantId,status,skipPage}))
@@ -79,7 +93,7 @@ const ManageOrders = () => {
                 <table className='w-full overflow-x-auto border-collapse  border-2 border-solid border-[rbg(200,200,200)] '>
                     <thead className=''>
                         <tr>
-                            <th>UserId</th>
+                            <th>Orderer's name</th>
                             <th>Address</th>
                             <th>Items</th>
                             <th>Status</th>
@@ -87,84 +101,67 @@ const ManageOrders = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {/* <tr className=''>
-                            <td>1</td>
-                            
-                            <td className='text-start'>
-                                <p><strong>Street:</strong>NGõ 2, đường Phạm Thị Sáu</p>
-                                <p><strong>City:</strong>Thủ Đức</p>
-                                <p><strong>Zip:</strong>112</p>
-                            </td>
-                            <td>{(30000).toLocaleString('it-IT',{style:"currency",currency:'VND'})}</td>
-                            <td className=' '>
-                                <select className='rounded-sm bg-[#ffc107] font-bold p-[1px_2px] border-none outline-none '>
-                                    <option>Pending</option>
-                                    <option>Accept</option>
-                                    <option>Canceled</option>
-                                </select>
-                            </td>
-                            <td><button className=' bg-green-400 rounded-sm  p-[2px_5px] '>Detail</button></td>
-                        </tr> */}
-                       
-                           {
-                                Array.isArray(orderList) &&!isLoading&& orderList.length>0 ? (
-                                    orderList.map((val)=>(
-                                        <tr key={val._id}>
-                                            <td>{val.userId}</td>
-                                            <td className='text-start'>
-                                                <p><strong>Street: </strong>{val.deliveryAddress.street}</p>
-                                                <p><strong>City: </strong>{val.deliveryAddress.city}</p>
-                                                <p><strong>Borough: </strong>{val.deliveryAddress.borough}</p>
-                                                <p><strong>Zip: </strong>{val.deliveryAddress.zip}</p>
-                                            </td>
-                                            <td>
-                                                {val.items.length>0 &&
-                                                    (   
-                                                        <table className=''>
-                                                            <thead>
-                                                                <tr>
-                                                                    <th className='p-1'>name</th>
-                                                                    <th className='p-1'>Quantity</th>  
+                      
+                        {
+                            Array.isArray(orderList) &&!isLoading&& orderList.length>0 ? (
+                                orderList.map((val)=>(
+                                    <tr key={val._id}>
+                                        <td>{val?.accountId?.name}</td>
+                                        <td className='text-start'>
+                                            <p><strong>Street: </strong>{val.deliveryAddress.street}</p>
+                                            <p><strong>City: </strong>{val.deliveryAddress.city}</p>
+                                            <p><strong>Borough: </strong>{val.deliveryAddress.borough}</p>
+                                            <p><strong>Zip: </strong>{val.deliveryAddress.zip}</p>
+                                            <p><strong>Phone: </strong>{val?.accountId?.phone}</p>
+                                        </td>
+                                        <td>
+                                            {val.items.length>0 &&
+                                                (   
+                                                    <table className=''>
+                                                        <thead>
+                                                            <tr>
+                                                                <th className='p-1'>name</th>
+                                                                <th className='p-1'>Quantity</th>  
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {val.items.map((item)=>(
+                                                                <tr key={item._id}>
+                                                                    <td>{item.menuItemId.title}</td>
+                                                                    <td>{item.quantity||1}</td>
                                                                 </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                {val.items.map((item)=>(
-                                                                    <tr key={item._id}>
-                                                                        <td>{item.menuItemId.title}</td>
-                                                                        <td>{item.quantity||1}</td>
-                                                                    </tr>
-                                                                ))}
-                                                            </tbody>
-                                                            
+                                                            ))}
+                                                        </tbody>
+                                                        
 
-                                                        </table> 
-                                                       
-                                                    )
+                                                    </table> 
                                                     
-                                                }
-                                            </td>
-                                            <td>
-                                                { val.status ?
-                                                    (
-                                                        <select  className='rounded-sm bg-[#ffc107] font-bold p-[1px_2px] border-none outline-none '>
-                                                            <option>Pending</option>
-                                                            <option>Accept</option>
-                                                            <option>Canceled</option>
-                                                        </select>
-                                                    ):(
-                                                        val.status
-                                                    )
-                                                }
-                                            </td>
-                                            <td><button value={val} className=' bg-green-400 rounded-sm  p-[2px_5px] '>Detail</button></td>
-                                        </tr>
-                                    ))
-                                ):(
-                                    <tr>
-                                        <td colSpan="5" className="text-center">No items found</td>
+                                                )
+                                                
+                                            }
+                                        </td>
+                                        <td>
+                                            { val.status ?
+                                                (
+                                                    <select id={val._id} onChange={(event)=>handleChangeStatus(event)}  className='rounded-sm bg-[#ffc107] font-bold p-[1px_2px] border-none outline-none '>
+                                                        <option>Pending</option>
+                                                        <option>Accept</option>
+                                                        <option>Canceled</option>
+                                                    </select>
+                                                ):(
+                                                    val.status
+                                                )
+                                            }
+                                        </td>
+                                        <td><button value={val} className=' bg-green-400 rounded-sm  p-[2px_5px] '>Detail</button></td>
                                     </tr>
-                                )
-                            }
+                                ))
+                            ):(
+                                <tr>
+                                    <td colSpan="5" className="text-center">No items found</td>
+                                </tr>
+                            )
+                        }
                         
                     </tbody>
                    
@@ -174,9 +171,18 @@ const ManageOrders = () => {
                 <div className=' rounded-b-2xl z-10'>
                     <div className='w-full'></div>
                     <TablePagination
-                        page={page}
+                        style={{
+                            
+                            fontWeight: 'bold',
+                            borderRadius: '4px',
+                            padding: '10px',
+                            fontSize:'1rem',
+                        }}
+
+                        
+                        page={skipPage}
                         component="div"
-                        count={50}
+                        count={orderList.length ||0}
                         rowsPerPage={rowsPerPage}
                         onPageChange={handleChangePage}
                         rowsPerPageOptions={[5, 10, 25]}

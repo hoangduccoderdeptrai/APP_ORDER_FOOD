@@ -20,7 +20,11 @@ const AccountSchema = new Schema({
         required: true,
     },
     
-    role_id: { type: Schema.Types.ObjectId, ref: "Role" },
+    role:{
+        type:String,
+        enum:['admin','seller','customer','user'],
+        required:true,
+    },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
 });
