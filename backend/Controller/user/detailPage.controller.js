@@ -7,6 +7,9 @@ import { MenuItem } from "../../Model/menuItem.model.js";
 // Import review model
 import { Review } from "../../Model/review.model.js";
 
+// Import pagination helper
+import { pagination } from "../../helper/pagination.js";
+
 // Get detail page restaurant
 const detailRestaurant = async (req, res) => {
     try {
@@ -31,7 +34,15 @@ const detailRestaurant = async (req, res) => {
         });
 
         // Get comment of restaurant
-        const listComment = await Review.find({ restaurantId: idRestaurant });
+        const numberComments = await Review.countDocuments({ restaurantId: idRestaurant });
+        const objectPagination = pagination(req.query, numberComments, {
+            currentPage: 1,
+            limit: 5,
+        });
+        const listComment = await Review.find({ restaurantId: idRestaurant })
+            .sort({ rating: -1 })
+            .skip(objectPagination.skip)
+            .limit(objectPagination.limit);
 
         // Arrange list food that food has id in listIdFood will be first
         if (listIdFood.length > 0) {
@@ -49,6 +60,7 @@ const detailRestaurant = async (req, res) => {
             restaurant: restaurant,
             listAllFood: listAllFood,
             listComment: listComment,
+            objectPagination: objectPagination,
         });
     } catch (error) {
         // Return message error
