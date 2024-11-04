@@ -8,9 +8,12 @@ import accountRouter from "./account.router.js";
 import specialtyFoodRouter from "./specialtyFood.router.js";
 
 // Import middleware authentication
-import { authenticate } from "../../middleware/user/authentication.js";
+import { authenticate, authorizeRoles } from "../../middleware/user/authentication.js";
 
 function webInitRouterAdmin(app) {
+    // Middleware authentication
+    app.use("/admin", authenticate, authorizeRoles("admin"));
+
     app.use("/admin/restaurant", restaurantRouter);
 
     app.use("/admin/account", accountRouter);

@@ -15,6 +15,9 @@ import {
     forgotPassword,
 } from "../../Controller/user/handleLogInLogOut.controller.js";
 
+// Import middleware authentication
+import { authenticate } from "../../middleware/user/authentication.js";
+
 // Sign in
 logInlogOutRouter.post("/signin", signIn);
 
@@ -29,7 +32,7 @@ logInlogOutRouter.post("/signup", cpUpload, signUp);
 logInlogOutRouter.get("/signout", signOut);
 
 // Change password
-logInlogOutRouter.patch("/change-password", changePassword);
+logInlogOutRouter.patch("/change-password", authenticate, changePassword);
 
 // Forgot password
 logInlogOutRouter.patch("/forgot-password", forgotPassword);
