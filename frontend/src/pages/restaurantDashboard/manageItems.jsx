@@ -6,7 +6,7 @@ import ItemForm from '../../component/Dashboard/commom/ItemForm'
 import { addItem,updateItem,deleteItem,fetchAllItem } from '../../features/products-slice'
 import {useSelector,useDispatch} from "react-redux"
 import { ToastContainer } from 'react-toastify'
-import { NotificationAdd} from '../../component/common/Notification.jsx'
+import { SuccessfulNotification,FailedNotification} from '../../component/common/Notification.jsx'
 import ShowDeleteConfirmation from '../../component/common/showDeleteConfirmation.jsx'
 import 'react-toastify/dist/ReactToastify.css';
 const initRawData ={
@@ -60,13 +60,14 @@ const ManageItems = () => {
                 dispatch(fetchAllItem(rawData?.restaurantId))
                 setOpenForm(false)
                 setShowDelete(false)
-                NotificationAdd("Delete Item")
+                SuccessfulNotification("Delete Item")
                 setCurrentEditedId(null)
                 setRawData(initRawData)
                 setImgFile("")
             
             }
         }catch(err){
+            FailedNotification("Delete Item")
             console.error(err.message)
         }
     }
@@ -89,12 +90,13 @@ const ManageItems = () => {
                 if(!isLoading&& !error){
                     dispatch(fetchAllItem(rawData?.restaurantId))
                     setOpenForm(false)
-                    NotificationAdd("Edit Item")
+                    SuccessfulNotification("Edit Item")
                     setCurrentEditedId(null)
                     setRawData(initRawData)
                     setImgFile("")
                 }
             }catch(err){
+                FailedNotification("Edit Item")
                 console.error("Error editing product:",err.message)
             }
             
@@ -112,12 +114,13 @@ const ManageItems = () => {
                 if(!isLoading&& !error){
                     dispatch(fetchAllItem(rawData?.restaurantId))
                     setOpenForm(false)
-                    NotificationAdd("Add Item")
+                    SuccessfulNotification("Add Item")
                     setRawData(initRawData)
                     setImgFile("")
 
                 }
             }catch(err){
+                FailedNotification("Add Item")
                 console.error("Error creating product:",err.message)
             }
            

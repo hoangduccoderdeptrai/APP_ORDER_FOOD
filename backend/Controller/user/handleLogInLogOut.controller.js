@@ -22,6 +22,9 @@ const signIn = async (req, res) => {
         // Get email or phone and password
         const accountSended = req.body.email || req.body.phone;
         const passwordSended = md5(req.body.password);
+        if(!accountSended || !passwordSended){
+            return res.status(400).json({msg:"Email/Phone and Password are required"})
+        }
 
         // Find account by email or phone
         const account = await Account.findOne({
@@ -36,10 +39,25 @@ const signIn = async (req, res) => {
             if (account.password_account === passwordSended) {
                 // Create token
                 const token = createToken(account);
+                
+                console.log(token)
                 // Return Json
                 return res
                     .status(200)
-                    .json({ msg: "Login success", account: account, token: token });
+                    .cookie('token',token,{httpOnly:true,secure:true})
+                    .json({ 
+                        success:true,
+                        msg: "Login success", 
+                        user:{
+                            email:account.email,
+                            role:account.role,
+                            userId:account._id,
+                            username:account.name
+
+
+                        }
+                        
+                    });
             } else {
                 return res.status(400).json({ msg: "Password is incorrect" });
             }
@@ -195,7 +213,10 @@ const signUp = async (req, res) => {
 const signOut = async (req, res) => {
     try {
         // Return Json
-        res.status(200).json({
+        res.status(200)
+        .clearCookie("token")
+        .json({
+            success:true,
             msg: "Log out success",
         });
     } catch (err) {

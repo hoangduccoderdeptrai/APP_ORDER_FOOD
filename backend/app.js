@@ -1,6 +1,7 @@
 import express from "express";
 import connect from "./DB_Mongoose/connect_BD.js";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import menuItemRoute from "./routes/seller/menuItem.route.js";
 import webInitRouterCustomer from "./routes/customer/customer.router.js";
 import webInitRouterAdmin from "./routes/admin/admin.router.js";
@@ -13,21 +14,25 @@ function run() {
     const app = express();
 
     // Middleware to handle data in request
+    app.use(cookieParser())
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
     app.use(express.static("public"));
 
-    app.use(
-        cors({
-            origin: "http://localhost:5173",
-            credentials: true,
-        })
-    );
-    app.use("/api/restaurant", menuItemRoute);
-    app.use("/api/restaurant/order", manageOderRoute);
-    app.use("/api/restaurant", menuItemRoute); // Seller
+    app.use(cors({
+        origin:'http://localhost:5173',
+        credentials:true
+    }));
+    // Restaurant API
+    app.use('/api/restaurant',menuItemRoute)
+    app.use('/api/restaurant/order',manageOderRoute)
+    app.use('/order',orderItemsRoute)
+
+
+   
 
     // Use API
+    
     webInitRouterCustomer(app); // Customer
     webInitRouterAdmin(app); // Admin
     webInitRouterUser(app); // User
