@@ -13,10 +13,10 @@ const createOrder = async (req, res) => {
         const user = await Account.findById({ _id: userId });
         if (!user) return res.status(404).jsono({ msg: "Not found user" });
         // Check if the restaurant exists
-        const restaurant = await Restaurant.findById({_id: restaurantId });
+        const restaurant = await Restaurant.findById({ _id: restaurantId });
         if (!restaurant) return res.status(404).json({ msg: "Not found Restaurant" });
-        if(!items||items.length==0)return res.status(404).json({msg:"Items not exist"})
-        for(const val of items) {
+        if (!items || items.length == 0) return res.status(404).json({ msg: "Items not exist" });
+        for (const val of items) {
             const { menuItemId, quantity } = val;
             const menuItem = await MenuItem.findById(menuItemId);
             if (!menuItem) return res.status(404).json({ msg: "Item not found" });
@@ -28,14 +28,14 @@ const createOrder = async (req, res) => {
                 menuItemId: menuItemId,
                 quantity: Number(quantity),
             });
-            console.log(ItemArr)
-        };
+            console.log(ItemArr);
+        }
 
         const newOrder = new Order({
             accountId:userId,
             restaurantId,
-            items:ItemArr,
-            totalPrice:totalPrice,
+            items: ItemArr,
+            totalPrice: totalPrice,
             deliveryAddress,
             status: "pending",
         });
@@ -44,14 +44,14 @@ const createOrder = async (req, res) => {
         // add id order to User's order (reference)
         // user.order.push(newOrder._id);
         // await user.save();
-        return res.status(200).json({data:newOrder})
+        return res.status(200).json({ data: newOrder });
     } catch (err) {
         res.status(500).json({ msg: err.message });
     }
 };
 
-export {createOrder}
-// request body look like to create an order (json format)
+export { createOrder };
+// request body looke like to create an order (json format)
 // {
 //     "accountId":"123",
 //     "restaurantId":"123",

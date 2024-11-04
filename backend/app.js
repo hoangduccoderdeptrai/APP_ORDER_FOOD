@@ -1,6 +1,7 @@
 import express from "express";
 import connect from "./DB_Mongoose/connect_BD.js";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import menuItemRoute from "./routes/seller/menuItem.route.js";
 import webInitRouterCustomer from "./routes/customer/customer.router.js";
 import webInitRouterAdmin from "./routes/admin/admin.router.js";
@@ -13,6 +14,7 @@ function run() {
     const app = express();
 
     // Middleware to handle data in request
+    app.use(cookieParser())
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
     app.use(express.static("public"));

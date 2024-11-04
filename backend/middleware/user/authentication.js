@@ -1,11 +1,17 @@
 // Import token helper function
+import mongoose from "mongoose";
 import { verifytoken } from "../../helper/token.js";
 import { Restaurant } from "../../Model/restaurant.model.js";
 // Middleware to authenticate user
 const authenticate = async (req, res, next) => {
     try {
         // Get token from header
-        let token = req.headers.authorization;
+       console.log('test',req.cookies.token)
+        const token = req.cookies.token
+        
+        console.log(token)
+
+        if(!token)return res.json({msg:"Unauthorization"})
         // console.log(token)
         if(!token){
             return res.status(401).json({msg:'No token, authorization denied'})
@@ -14,13 +20,17 @@ const authenticate = async (req, res, next) => {
         let result = verifytoken(token);
         
         // Add id_restaurant
-        const RestaurantId = await Restaurant.findOne({ownerId:result.id})
-        if(RestaurantId)result.push({restaurantId:RestaurantId})
+        const RestaurantId = await Restaurant.findOne({ ownerId: new mongoose.Types.ObjectId(`${result.userId}`) })
+
+
+
+        console.log(RestaurantId, 'rest',result.userId)
 
 
         // Check result
         if (result) {
             // Set payload to req
+            result.restaurantId =RestaurantId ? RestaurantId._id:null
             req.user = result;
             next();
         } else {

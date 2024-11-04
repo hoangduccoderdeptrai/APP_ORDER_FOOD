@@ -11,9 +11,10 @@ function createToken(user) {
     };
 
     const payload = {
-        id: user._id,
-        name:user.name_account,
+        email:user.email,
         role:user.role,
+        userId:user._id,
+        username:user.name,
         exp: Date.now() + 60 * 60 * 1000,
     };
 

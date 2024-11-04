@@ -1,8 +1,11 @@
 // Import account model
 import { Account } from "../../Model/account.model.js";
 
-// Import role model
-import { Role } from "../../Model/role.model.js";
+// Import restaurant model
+import { Restaurant } from "../../Model/restaurant.model.js";
+
+// Import cloudinary
+import { Cloudinary } from "../../config/cloundinaryCofig.js";
 
 // Import md5
 import md5 from "md5";
@@ -30,16 +33,31 @@ const signIn = async (req, res) => {
 
         // Check account
         if (!account) {
-            return res.status(400).json({ msg: "Account does not exist" });
+            return res.status(200).json({ msg: "Account does not exist" });
         } else {
             // Compare password
             if (account.password_account === passwordSended) {
                 // Create token
                 const token = createToken(account);
+                
+                console.log(token)
                 // Return Json
                 return res
                     .status(200)
-                    .json({ msg: "Login success", account: account, token: token });
+                    .cookie('token',token,{httpOnly:true,secure:true})
+                    .json({ 
+                        success:true,
+                        msg: "Login success", 
+                        user:{
+                            email:account.email,
+                            role:account.role,
+                            userId:account._id,
+                            username:account.name
+
+
+                        }
+                        
+                    });
             } else {
                 return res.status(400).json({ msg: "Password is incorrect" });
             }
@@ -54,7 +72,7 @@ const signIn = async (req, res) => {
 const signUp = async (req, res) => {
     try {
         // Get account from form
-        const infoAccount = req.body;
+        const infoAccount = req.body.infoAccount;
 
         // Check account exist
         const accounts = await Account.find({
@@ -64,8 +82,6 @@ const signUp = async (req, res) => {
                 { name_account: infoAccount.name_account },
             ],
         });
-
-        console.log(accounts,'cc');
 
         // array error
         const arrError = [];
@@ -82,12 +98,11 @@ const signUp = async (req, res) => {
             }
         });
 
+        // Check error
         if (arrError.length > 0) {
-            return res.status(400).json({ msg: arrError });
+            return res.status(200).json({ msg: arrError });
         }
 
-        
-       
         // Create account
         const newAccount = new Account({
             name: infoAccount.name,
@@ -96,16 +111,98 @@ const signUp = async (req, res) => {
             name_account: infoAccount.name_account,
             password_account: md5(infoAccount.password_account),
             address: infoAccount.address,
-            role: infoAccount.role
+            role: infoAccount.role,
         });
 
-        // Save account
-        await newAccount.save();
+        // Check role_name is seller
+        if (infoAccount.role === "seller") {
+            // Get email to find account
+            const email = infoAccount.email;
 
-        // Return Json.
-        res.status(200).json({
-            msg: "Create account was successful",
-        });
+            // Get inforrestaurant from form
+            const infoRestaurant = req.body.infoRestaurant;
+
+            // Check infoRestaurant is empty
+            if (Object.keys(infoRestaurant).length === 0) {
+                return res.status(200).json({ msg: "Info restaurant is empty" });
+            }
+
+            // Check phone and name restaurant exist
+            const restaurants = await Restaurant.find({
+                $or: [{ phone: infoRestaurant.phone }, { name: infoRestaurant.name }],
+            });
+
+            // Loop to check error
+            for (restaurant of restaurants) {
+                if (restaurant.phone === infoRestaurant.phone) {
+                    arrError.push("Phone restaurant has exist");
+                }
+                if (restaurant.name === infoRestaurant.name) {
+                    arrError.push("Name restaurant has exist");
+                }
+            }
+
+            // Check error
+            if (arrError.length > 0) {
+                return res.status(200).json({ msg: arrError });
+            }
+
+            // Save account
+            await newAccount.save();
+
+            // Find account by email
+            const account = await Account.findOne({ email: email });
+            const ownerId = account._id;
+
+            // Save image of restaurant to cloudinary
+            const image_url = [];
+            if (req.files) {
+                // Get avatar restaurant
+                const avatar = req.files.avatar[0];
+                const images = req.files.images;
+                const arrImages = [avatar, ...images];
+                // Loop to save image to cloudinary
+                for (image of arrImages) {
+                    const result = await Cloudinary.uploader.upload(image.path, {
+                        upload_preset: process.env.UPLOAD_PRESET,
+                    });
+
+                    // Image source
+                    image_url.push({
+                        url: result.secure_url,
+                        public_id: result.public_id,
+                    });
+                }
+            }
+
+            // Create restaurant
+            const newRestaurant = new Restaurant({
+                ownerId: ownerId,
+                name: infoRestaurant.name,
+                address: infoRestaurant.address,
+                phone: infoRestaurant.phone,
+                time_open: infoRestaurant.time_open,
+                time_close: infoRestaurant.time_close,
+                description: infoRestaurant.description,
+                imageUrl: image_url,
+            });
+
+            // Save restaurant
+            await newRestaurant.save();
+
+            // Return Json
+            res.status(200).json({
+                msg: "Create account and restaurant was successful",
+            });
+        } else {
+            // Save account
+            await newAccount.save();
+
+            // Return Json.
+            res.status(200).json({
+                msg: "Create account was successful",
+            });
+        }
     } catch (err) {
         // Notificate Error
         res.status(500).json({ msg: err.message });
@@ -116,7 +213,10 @@ const signUp = async (req, res) => {
 const signOut = async (req, res) => {
     try {
         // Return Json
-        res.status(200).json({
+        res.status(200)
+        .clearCookie("token")
+        .json({
+            success:true,
             msg: "Log out success",
         });
     } catch (err) {
@@ -138,7 +238,7 @@ const forgotPassword = async (req, res) => {
 
         // Check account
         if (!account) {
-            res.status(400).json({ msg: "Account does not exist" });
+            res.status(200).json({ msg: "Account does not exist" });
         } else {
             // Create new password
             const newPassword = Math.random().toString(36).slice(-8);
@@ -181,7 +281,7 @@ const changePassword = async (req, res) => {
 
         // Check old password
         if (oldPasswordSended !== currentPassword) {
-            res.status(400).json({ msg: "Old password is incorrect" });
+            return res.status(400).json({ msg: "Old password is incorrect" });
         }
 
         // Get new password

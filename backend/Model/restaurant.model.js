@@ -36,6 +36,7 @@ const RestaurantSchema = new Schema({
         enum: ["pending", "active", "inactive"],
         default: "pending",
     },
+    description: { type: String },
     imageUrl: [
         {
             url: { type: String }, //Cloudinary URL

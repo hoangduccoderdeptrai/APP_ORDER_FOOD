@@ -43,6 +43,11 @@ const getPageRestaurants = async (req, res) => {
             .limit(objectPagination.limit)
             .skip(objectPagination.skip);
 
+        // Check if restaurants is empty
+        if (!restaurants || restaurants.length == 0) {
+            return res.status(200).json({ msg: "Not found any restaurant" });
+        }
+
         // Return Json
         res.status(200).json({
             restaurants: restaurants,
@@ -63,6 +68,11 @@ const getDetailRetaurant = async (req, res) => {
 
         // Find restaurant by id
         const restaurant = await Restaurant.findById(id);
+
+        // Check if restaurant is empty
+        if (!restaurant) {
+            return res.status(200).json({ msg: "Not found restaurant" });
+        }
 
         // Get ownerId's account from restaurant
         const ownerId = restaurant.ownerId;
@@ -93,6 +103,11 @@ const changeStatusRestaurant = async (req, res) => {
 
         // Find restaurant by id
         const restaurant = await Restaurant.findById(id);
+
+        // Check if restaurant is empty
+        if (!restaurant) {
+            return res.status(200).json({ msg: "Not found restaurant" });
+        }
 
         // Get ownerId's account from restaurant
         const ownerId = restaurant.ownerId;
@@ -160,6 +175,11 @@ const getPageAwaitRestaurants = async (req, res) => {
             .limit(objectPagination.limit)
             .skip(objectPagination.skip);
 
+        // Check if restaurants is empty
+        if (!restaurants || restaurants.length == 0) {
+            return res.status(200).json({ msg: "Not found any restaurant" });
+        }
+
         // Return Json
         res.status(200).json({
             restaurants: restaurants,
@@ -180,6 +200,11 @@ const acceptOrDenyRestaurant = async (req, res) => {
 
         // Find restaurant by id
         const restaurant = await Restaurant.findById(id);
+
+        // Check if restaurant is empty
+        if (!restaurant) {
+            return res.status(200).json({ msg: "Not found restaurant" });
+        }
 
         // Set status of restaurant
         const typeStatus = req.body.status;

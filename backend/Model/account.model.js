@@ -19,11 +19,10 @@ const AccountSchema = new Schema({
         type: String,
         required: true,
     },
-    
-    role:{
-        type:String,
-        enum:['admin','seller','customer','user'],
-        required:true,
+
+    role: {
+        type: String,
+        enum: ["admin", "seller", "customer", "user"],
     },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },

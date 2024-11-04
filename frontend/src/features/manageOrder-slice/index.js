@@ -10,7 +10,7 @@ const initialState ={
 export const getOrder =createAsyncThunk(
     "restaurant/order/get",
     async({restaurantId,status,skipPage=0})=>{
-        console.log(restaurantId,status,skipPage)
+       
         const result = await axios.get(
             `http://localhost:3000/api/restaurant/order/${restaurantId}`,
             {
@@ -20,23 +20,18 @@ export const getOrder =createAsyncThunk(
                 }
             }
         )
-
+        console.log(result?.data)
         return result?.data
 
     }
 )
 export const updateStatusOrder =createAsyncThunk(
+    "restaurant/order/updateStatus",
     async({restaurantId,orderId,status})=>{
+        console.log(restaurantId,orderId,status)
         const result = await axios.patch(
             `http://localhost:3000/api/restaurant/order/${restaurantId}`,
-            
-            {
-                params:{
-                    orderId,
-                    status
-                }
-            }
-
+            {orderId,status}
         )
         return result?.data
     }

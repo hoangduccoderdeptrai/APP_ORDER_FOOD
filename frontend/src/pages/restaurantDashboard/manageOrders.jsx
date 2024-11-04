@@ -10,7 +10,10 @@ const ManageOrders = () => {
     const [skipPage,setSkipPage] =useState(0) //0 is the first page
     // const [page,setPage] =useState(0) //0 is the first page
     const [rowsPerPage,setRowPerPage] =useState(5) //default rows per page
+    const [orderId,setOrderId] =useState(null)
+    const [orderStatus,setOrderStatus] =useState(null)
     const restaurantId ="66f754127c954abda7c56d15"
+    
     const {isLoading,error,orderList} =useSelector((state)=>state.RestaurantOders)
     const dispatch =useDispatch()
     // handle page change
@@ -24,8 +27,10 @@ const ManageOrders = () => {
         setSkipPage(0)
     }
     const handleStatus =async(event)=>{
+        console.log('anh yêu')
         try{
             const newStatus =event.target.value
+            console.log(newStatus)
             setStatus(newStatus)
             const result = await dispatch(getOrder({restaurantId,status:newStatus,skipPage}))
             if(!isLoading &&!error &&result){
@@ -39,10 +44,15 @@ const ManageOrders = () => {
     const handleChangeStatus =async(event)=>{
         console.log(event.target.value,event.target.id)
         try{
+            console.log('test 2')
             const orderId =event.target.id
-            const status =event.target.value
-            const result =await dispatch(updateStatusOrder({restaurantId,orderId,status}))
-            if(!isLoading && !error && result){
+            const statusOrder =event.target.value
+            setOrderId(orderId)
+            setOrderStatus(statusOrder)
+            const result =await dispatch(updateStatusOrder({restaurantId,orderId,status:statusOrder}))
+            if(result.meta.requestStatus === 'fulfilled'){
+                dispatch(getOrder({restaurantId,status,skipPage}))
+                console.log(orderList,'list')
                 SuccessfulNotification("Update Order'status")
             }
         }catch(err){
@@ -51,8 +61,10 @@ const ManageOrders = () => {
         }
     }
     useEffect(()=>{
+        console.log("useeffect")
         dispatch(getOrder({restaurantId,status,skipPage}))
     },[dispatch,restaurantId,status,skipPage])
+   
    
   return (
     <LoadingOverlay
@@ -141,7 +153,7 @@ const ManageOrders = () => {
                                             }
                                         </td>
                                         <td>
-                                            { val.status ?
+                                            { val.status =='pending' ?
                                                 (
                                                     <select id={val._id} onChange={(event)=>handleChangeStatus(event)}  className='rounded-sm bg-[#ffc107] font-bold p-[1px_2px] border-none outline-none '>
                                                         <option>Pending</option>
@@ -201,3 +213,6 @@ const ManageOrders = () => {
 }
 
 export default ManageOrders
+
+
+

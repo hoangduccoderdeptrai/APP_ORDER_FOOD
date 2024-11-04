@@ -49,6 +49,11 @@ const getPageAccount = async (req, res) => {
             .limit(objectPagination.limit)
             .skip(objectPagination.skip);
 
+        // Check account is not exist
+        if (!accounts || accounts.length === 0) {
+            return res.status(200).json({ msg: "Account not found" });
+        }
+
         // Return Json
         res.status(200).json({
             accounts: accounts,

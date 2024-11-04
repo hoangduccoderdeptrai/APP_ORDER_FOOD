@@ -2,6 +2,10 @@
 import express from "express";
 const logInlogOutRouter = express.Router();
 
+// Import Multer
+import multer from "multer";
+const upload = multer({ dest: "uploads/" });
+
 // Import handleLogInLogOut controller
 import {
     signIn,
@@ -15,7 +19,11 @@ import {
 logInlogOutRouter.post("/signin", signIn);
 
 // Sign up
-logInlogOutRouter.post("/signup", signUp);
+const cpUpload = upload.fields([
+    { name: "avatar", maxCount: 1 },
+    { name: "images", maxCount: 4 },
+]);
+logInlogOutRouter.post("/signup", cpUpload, signUp);
 
 // Sign out
 logInlogOutRouter.get("/signout", signOut);
