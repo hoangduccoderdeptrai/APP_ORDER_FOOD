@@ -6,31 +6,30 @@ import { Restaurant } from "../../Model/restaurant.model.js";
 const authenticate = async (req, res, next) => {
     try {
         // Get token from header
-       console.log('test',req.cookies.token)
-        const token = req.cookies.token
-        
-        console.log(token)
+        console.log("test", req.cookies.token);
+        const token = req.cookies.token;
 
-        if(!token)return res.json({msg:"Unauthorization"})
+        console.log(token);
+
         // console.log(token)
-        if(!token){
-            return res.status(401).json({msg:'No token, authorization denied'})
+        if (!token) {
+            return res.status(401).json({ msg: "No token, authorization denied" });
         }
+
         // Verify token
         let result = verifytoken(token);
-        
+
         // Add id_restaurant
-        const RestaurantId = await Restaurant.findOne({ ownerId: new mongoose.Types.ObjectId(`${result.userId}`) })
+        const RestaurantId = await Restaurant.findOne({
+            ownerId: new mongoose.Types.ObjectId(`${result.userId}`),
+        });
 
-
-
-        console.log(RestaurantId, 'rest',result.userId)
-
+        console.log(RestaurantId, "rest", result.userId);
 
         // Check result
         if (result) {
             // Set payload to req
-            result.restaurantId =RestaurantId ? RestaurantId._id:null
+            result.restaurantId = RestaurantId ? RestaurantId._id : null;
             req.user = result;
             next();
         } else {
@@ -43,15 +42,14 @@ const authenticate = async (req, res, next) => {
 
 // Role-based authorization middleware
 
-const authorizeRoles =(...roles)=>{
-    return (req,res,next)=>{
-        if(!roles.includes(req.user.role)){
-            return res.status(403).json({msg:'Access denied'})
+const authorizeRoles = (...roles) => {
+    return (req, res, next) => {
+        if (!roles.includes(req.user.role)) {
+            return res.status(403).json({ msg: "Access denied" });
         }
-        next()
-    }
-}
-
+        next();
+    };
+};
 
 // Export middleware
-export { authenticate,authorizeRoles };
+export { authenticate, authorizeRoles };
