@@ -14,11 +14,6 @@ const ReviewSchema = new Schema({
         ref: "Restaurant",
         required: true,
     },
-    rating: {
-        type: Number,
-        min: 0,
-        max: 5,
-    },
     reviewText: {
         type: String,
     },

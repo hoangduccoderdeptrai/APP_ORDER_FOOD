@@ -33,7 +33,7 @@ const OrderSchema = new Schema({
     totalPrice: { type: Number, required: true },
     status: {
         type: String,
-        enum: ["pending", "in-progress", "accept", "completed", "canceled"],
+        enum: ["pending", "in-progress", "completed", "canceled"],
         default: "pending",
     },
     orderDate: { type: Date, default: Date.now },

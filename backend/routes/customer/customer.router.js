@@ -1,8 +1,11 @@
 // Import router order
-import orderItemsRoute from "./order.route.js";
+import orderItemsRoute from "./order.router.js";
 
 // Import router comment
 import commentRouter from "./comment.router.js";
+
+// Import router checkingOrder
+import checkingOrderRoute from "./checkingOrder.router.js";
 
 // Import authentication middleware
 import { authenticate, authorizeRoles } from "../../middleware/user/authentication.js";
@@ -14,6 +17,8 @@ function webInitRouterCustomer(app) {
     app.use("/customer/order", orderItemsRoute);
 
     app.use("/customer/comment", commentRouter);
+
+    app.use("/customer/checkingOrder", checkingOrderRoute);
 }
 
 export default webInitRouterCustomer;
