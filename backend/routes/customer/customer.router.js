@@ -12,7 +12,7 @@ import { authenticate, authorizeRoles } from "../../middleware/user/authenticati
 
 function webInitRouterCustomer(app) {
     // Middleware authentication
-    app.use("/customer", authenticate, authorizeRoles("customer"));
+    app.use("/customer", authenticate, authorizeRoles("customer", "seller"));
 
     app.use("/customer/order", orderItemsRoute);
 

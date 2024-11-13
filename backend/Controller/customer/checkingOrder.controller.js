@@ -11,7 +11,7 @@ import { pagination } from "../../helper/pagination.js";
 const getOrder = async (req, res) => {
     try {
         // Get user id
-        const userId = req.user._id;
+        const userId = req.body.userId;
 
         // Get type of order
         const status = req.query.status;
@@ -35,37 +35,45 @@ const getOrder = async (req, res) => {
             .limit(objectPagination.limit);
 
         // Create new orders
+        let newOrders = [];
         for (let order of orders) {
+            // Convert order to object
+            order = order.toObject();
+
             // Get id restaurant from order
             const idRestaurant = order.restaurantId;
+            console.log(idRestaurant);
 
             // Get name restaurant
-            const nameRestaurant = await Restaurant.findById(idRestaurant);
+            const nameRestaurant = await Restaurant.findById(idRestaurant).select("name");
             order.nameRestaurant = nameRestaurant;
+            console.log(order);
 
             // Get listItemsOrder
-            let listItemsOrder = order.listItemsOrder;
+            let listItemsOrder = order.items;
             let newListItemsOrder = [];
 
             // Loop listItemsOrder
-            for (item of listItemsOrder) {
+            for (let item of listItemsOrder) {
                 // Get id food from food
                 const idFood = item.menuItemId;
 
                 // Get food
-                const food = await MenuItem.find({ _id: idFood }).select("_id title price");
+                const food = await MenuItem.findOne({ _id: idFood }).select("_id title price");
 
                 newListItemsOrder.push({
                     food: food,
                     quantity: item.quantity,
                 });
             }
-            order.listItemsOrder = newListItemsOrder;
+            // Add new listItemsOrder to order
+            order.items = newListItemsOrder;
+            newOrders.push(order);
         }
 
         // Return Json
         return res.status(200).json({
-            orders: orders,
+            orders: newOrders,
             pagination: objectPagination,
         });
     } catch (error) {
@@ -87,11 +95,16 @@ const postEvaluation = async (req, res) => {
 
         // Get order
         const order = await Order.findById(idOrder);
-        const restaurant = await Restaurant.findById(order.restaurantId);
 
         // Check if order is null
-        if (!order || !restaurant) {
+        if (!order) {
             return res.status(200).json({ message: "Order not found" });
+        }
+
+        const restaurant = await Restaurant.findById(order.restaurantId);
+
+        if (!restaurant) {
+            return res.status(200).json({ message: "Restaurant not found" });
         }
 
         // Check if listFood is null
@@ -119,9 +132,12 @@ const postEvaluation = async (req, res) => {
             // Create comment for user
             const review = new Review({
                 accountId: userId,
-                restaurantId: restaurantId,
+                restaurantId: order.restaurantId,
                 reviewText: comment,
             });
+
+            // Save comment
+            await review.save();
         }
 
         const countQuantity = 0;
@@ -133,18 +149,18 @@ const postEvaluation = async (req, res) => {
             const star = food.star;
 
             // Get food
-            const food = await MenuItem.findById(idFood);
-            if (!food) {
+            const oldfood = await MenuItem.findById(idFood);
+            if (!oldfood) {
                 continue;
             }
             // calculate rating
             countQuantity += quantity;
             countRating += star * quantity;
-            food.starMedium =
-                (food.starMedium * food.quantitySolded + star * quantity) /
-                (quantity + food.quantitySolded);
+            oldfood.starMedium =
+                (oldfood.starMedium * oldfood.quantitySolded + star * quantity) /
+                (quantity + oldfood.quantitySolded);
 
-            await food.save();
+            await oldfood.save();
         }
 
         // Calculate rating for restaurant
