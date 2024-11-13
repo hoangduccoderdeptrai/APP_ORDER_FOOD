@@ -142,8 +142,8 @@ const postEvaluation = async (req, res) => {
             await review.save();
         }
 
-        const countQuantity = 0;
-        const countRating = 0;
+        let countQuantity = 0;
+        let countRating = 0;
         // Calculate rating for each food
         for (let food of listFood) {
             // Get id food and star food
