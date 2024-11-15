@@ -39,8 +39,8 @@ const signIn = async (req, res) => {
             if (account.password_account === passwordSended) {
                 // Create token
                 const token = createToken(account);
-
                 console.log(token);
+
                 // Return Json
                 return res
                     .status(200)
@@ -56,7 +56,7 @@ const signIn = async (req, res) => {
                         },
                     });
             } else {
-                return res.status(400).json({ msg: "Password is incorrect" });
+                return res.status(200).json({ msg: "Password is incorrect" });
             }
         }
     } catch (err) {

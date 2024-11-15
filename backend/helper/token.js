@@ -1,22 +1,25 @@
 // Import libraries
 import crypto from "crypto";
-import { base64Url } from "./base64Url.js";
+import { base64Url, base64UrlDecode } from "./base64Url.js";
 function createToken(user) {
     // Create token
     const jwtSecret = process.env.JWT_SECRET;
-  
+
     const header = {
         type: "JWT",
         alg: "HS256",
     };
 
     const payload = {
-        email:user.email,
-        role:user.role,
-        userId:user._id,
-        username:user.name,
+        email: user.email,
+        role: user.role,
+        userId: user._id,
+        username: user.name,
         exp: Date.now() + 60 * 60 * 1000,
     };
+
+    console.log(JSON.stringify(header));
+    console.log(JSON.stringify(payload));
 
     // Encode header and payload base64
     const encodedHeader = base64Url(JSON.stringify(header));
@@ -48,8 +51,8 @@ function verifytoken(token) {
         const tokenData = `${header}.${payload}`;
 
         // Decode payload signature
-        const decodedPayload = JSON.parse(atob(payload));
-        console.log(decodedPayload,'decode')
+        const decodedPayload = JSON.parse(base64UrlDecode(payload));
+        console.log(decodedPayload, "decode");
 
         const jwtSecret = process.env.JWT_SECRET; // get secret key
 
@@ -60,7 +63,7 @@ function verifytoken(token) {
             .digest("base64url");
 
         // Check signature is valid
-        if (signature === signatureCheck && Date.now() <= decodedPayload.exp*1000) {
+        if (signature === signatureCheck && Date.now() <= decodedPayload.exp * 1000) {
             return decodedPayload;
         } else {
             return null;
