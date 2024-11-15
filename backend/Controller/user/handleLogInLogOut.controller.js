@@ -161,7 +161,7 @@ const signUp = async (req, res) => {
                 // Loop to save image to cloudinary
                 for (let image of arrImages) {
                     const result = await Cloudinary.uploader.upload(image.path, {
-                        upload_preset: process.env.UPLOAD_PRESET,
+                        upload_preset: "dtyyxogjq",
                     });
 
                     // Image source
