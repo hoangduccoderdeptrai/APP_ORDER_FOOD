@@ -130,7 +130,7 @@ const signUp = async (req, res) => {
             });
 
             // Loop to check error
-            for (restaurant of restaurants) {
+            for (let restaurant of restaurants) {
                 if (restaurant.phone === infoRestaurant.phone) {
                     arrError.push("Phone restaurant has exist");
                 }
