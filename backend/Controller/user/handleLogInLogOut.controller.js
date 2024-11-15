@@ -85,13 +85,13 @@ const signUp = async (req, res) => {
 
         accounts.forEach((account) => {
             if (account.email === infoAccount.email) {
-                arrError.push("Email has exist");
+                arrError.push("Email account has exist");
             }
             if (account.phone === infoAccount.phone) {
-                arrError.push("Phone has exist");
+                arrError.push("Phone account has exist");
             }
             if (account.name_account === infoAccount.name_account) {
-                arrError.push("Name account has exist");
+                arrError.push("Name account account has exist");
             }
         });
 
@@ -161,7 +161,7 @@ const signUp = async (req, res) => {
                 // Loop to save image to cloudinary
                 for (let image of arrImages) {
                     const result = await Cloudinary.uploader.upload(image.path, {
-                        upload_preset: "dtyyxogjq",
+                        folder: "Item_images",
                     });
 
                     // Image source
