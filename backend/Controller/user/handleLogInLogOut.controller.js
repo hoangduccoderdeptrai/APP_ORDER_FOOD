@@ -69,7 +69,7 @@ const signIn = async (req, res) => {
 const signUp = async (req, res) => {
     try {
         // Get account from form
-        const infoAccount = req.body.infoAccount;
+        const infoAccount = JSON.parse(req.body.infoAccount);
 
         // Check account exist
         const accounts = await Account.find({
@@ -117,7 +117,7 @@ const signUp = async (req, res) => {
             const email = infoAccount.email;
 
             // Get inforrestaurant from form
-            const infoRestaurant = req.body.infoRestaurant;
+            const infoRestaurant = JSON.parse(req.body.infoRestaurant);
 
             // Check infoRestaurant is empty
             if (Object.keys(infoRestaurant).length === 0) {
