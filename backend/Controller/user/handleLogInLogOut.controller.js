@@ -159,7 +159,7 @@ const signUp = async (req, res) => {
                 const images = req.files.images;
                 const arrImages = [avatar, ...images];
                 // Loop to save image to cloudinary
-                for (image of arrImages) {
+                for (let image of arrImages) {
                     const result = await Cloudinary.uploader.upload(image.path, {
                         upload_preset: process.env.UPLOAD_PRESET,
                     });
