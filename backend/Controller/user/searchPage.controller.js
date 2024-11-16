@@ -16,6 +16,13 @@ const searchPage = async (req, res) => {
         // Get information search
         const infoSearch = req.body;
 
+        // Check have information search
+        if (!infoSearch) {
+            return res.status(200).json({
+                msg: "Not found information search",
+            });
+        }
+
         // Find condition
         let findFood = {};
         let findRestaurant = {
