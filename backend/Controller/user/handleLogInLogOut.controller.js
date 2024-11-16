@@ -39,8 +39,8 @@ const signIn = async (req, res) => {
             if (account.password_account === passwordSended) {
                 // Create token
                 const token = createToken(account);
-
                 console.log(token);
+
                 // Return Json
                 return res
                     .status(200)
@@ -56,7 +56,7 @@ const signIn = async (req, res) => {
                         },
                     });
             } else {
-                return res.status(400).json({ msg: "Password is incorrect" });
+                return res.status(200).json({ msg: "Password is incorrect" });
             }
         }
     } catch (err) {
@@ -69,7 +69,7 @@ const signIn = async (req, res) => {
 const signUp = async (req, res) => {
     try {
         // Get account from form
-        const infoAccount = req.body.infoAccount;
+        const infoAccount = JSON.parse(req.body.infoAccount);
 
         // Check account exist
         const accounts = await Account.find({
@@ -85,13 +85,13 @@ const signUp = async (req, res) => {
 
         accounts.forEach((account) => {
             if (account.email === infoAccount.email) {
-                arrError.push("Email has exist");
+                arrError.push("Email account has exist");
             }
             if (account.phone === infoAccount.phone) {
-                arrError.push("Phone has exist");
+                arrError.push("Phone account has exist");
             }
             if (account.name_account === infoAccount.name_account) {
-                arrError.push("Name account has exist");
+                arrError.push("Name account account has exist");
             }
         });
 
@@ -117,7 +117,7 @@ const signUp = async (req, res) => {
             const email = infoAccount.email;
 
             // Get inforrestaurant from form
-            const infoRestaurant = req.body.infoRestaurant;
+            const infoRestaurant = JSON.parse(req.body.infoRestaurant);
 
             // Check infoRestaurant is empty
             if (Object.keys(infoRestaurant).length === 0) {
@@ -130,7 +130,7 @@ const signUp = async (req, res) => {
             });
 
             // Loop to check error
-            for (restaurant of restaurants) {
+            for (let restaurant of restaurants) {
                 if (restaurant.phone === infoRestaurant.phone) {
                     arrError.push("Phone restaurant has exist");
                 }
@@ -159,9 +159,9 @@ const signUp = async (req, res) => {
                 const images = req.files.images;
                 const arrImages = [avatar, ...images];
                 // Loop to save image to cloudinary
-                for (image of arrImages) {
+                for (let image of arrImages) {
                     const result = await Cloudinary.uploader.upload(image.path, {
-                        upload_preset: process.env.UPLOAD_PRESET,
+                        folder: "Item_images",
                     });
 
                     // Image source

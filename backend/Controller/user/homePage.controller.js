@@ -70,12 +70,23 @@ const getHomePage = async (req, res) => {
 
         // Get 9 foods top rating
         const foods = await MenuItem.find({}).sort({ starMedium: -1 }).limit(9);
+        const newFoods = await Promise.all(
+            foods.map(async (food) => {
+                // Get restaurant of the food
+                const restaurantOfFood = await Restaurant.findById(food.restaurantId);
+                return {
+                    ...food._doc,
+                    restaurantName: restaurantOfFood.name,
+                    restaurantAddress: restaurantOfFood.address,
+                };
+            })
+        );
 
         // Rerturn all the results
         res.status(200).json({
             specialtyFoods: specialtyFoods,
             restaurants: restaurants,
-            foods: foods,
+            foods: newFoods,
         });
     } catch (err) {
         // Return error message

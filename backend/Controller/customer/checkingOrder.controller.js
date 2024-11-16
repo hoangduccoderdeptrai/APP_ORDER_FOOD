@@ -11,7 +11,7 @@ import { pagination } from "../../helper/pagination.js";
 const getOrder = async (req, res) => {
     try {
         // Get user id
-        const userId = req.body.userId;
+        const userId = req.user.userId;
 
         // Get type of order
         const status = req.query.status;
@@ -33,6 +33,8 @@ const getOrder = async (req, res) => {
             .sort({ orderDate: -1 })
             .skip(objectPagination.skip)
             .limit(objectPagination.limit);
+
+        console.log(orders);
 
         // Create new orders
         let newOrders = [];
@@ -86,7 +88,7 @@ const getOrder = async (req, res) => {
 const postEvaluation = async (req, res) => {
     try {
         // Get user id
-        const userId = req.user._id;
+        const userId = req.user.userId;
 
         // Get from evaluation of customer
         const comment = req.body.comment;
@@ -140,13 +142,14 @@ const postEvaluation = async (req, res) => {
             await review.save();
         }
 
-        const countQuantity = 0;
-        const countRating = 0;
+        let countQuantity = 0;
+        let countRating = 0;
         // Calculate rating for each food
         for (let food of listFood) {
             // Get id food and star food
             const idFood = food.idFood;
             const star = food.star;
+            const quantity = food.quantity;
 
             // Get food
             const oldfood = await MenuItem.findById(idFood);
@@ -181,7 +184,7 @@ const postEvaluation = async (req, res) => {
 const deleteOrder = async (req, res) => {
     try {
         // Get user id
-        const userId = req.user._id;
+        const userId = req.user.userId;
 
         // Get id order
         const idOrder = req.body.idOrder;

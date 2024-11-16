@@ -16,6 +16,6 @@ checkingOrderRoute.get("/", getOrder);
 checkingOrderRoute.post("/evaluation", postEvaluation);
 
 // Delete order
-checkingOrderRoute.delete("/canceled", deleteOrder);
+checkingOrderRoute.patch("/canceled", deleteOrder);
 
 export default checkingOrderRoute;
