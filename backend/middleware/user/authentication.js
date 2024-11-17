@@ -8,25 +8,19 @@ const authenticate = async (req, res, next) => {
         // Get token from header
        console.log('test',req.cookies.token)
         const token = req.cookies.token
-        
         console.log(token)
-
-        if(!token)return res.json({msg:"Unauthorization"})
         // console.log(token)
         if(!token){
             return res.status(401).json({msg:'No token, authorization denied'})
         }
         // Verify token
         let result = verifytoken(token);
-        
+        if(!result){
+            return res.status(403).json({msg:"Forbidden"})
+        }
         // Add id_restaurant
         const RestaurantId = await Restaurant.findOne({ ownerId: new mongoose.Types.ObjectId(`${result.userId}`) })
-
-
-
         console.log(RestaurantId, 'rest',result.userId)
-
-
         // Check result
         if (result) {
             // Set payload to req
@@ -52,6 +46,37 @@ const authorizeRoles =(...roles)=>{
     }
 }
 
+const getMe = async (req, res, next) => {
+    try {
+        // Get token from header
+       console.log('test',req.cookies.token)
+        const token = req.cookies.token
+        console.log(token)
+        // console.log(token)
+        if(!token){
+            return res.status(401).json({msg:'No token, authorization denied'})
+        }
+        // Verify token
+        let result = verifytoken(token);
+        if(!result){
+            return res.status(403).json({msg:"Forbidden"})
+        }
+        // Add id_restaurant
+        const RestaurantId = await Restaurant.findOne({ ownerId: new mongoose.Types.ObjectId(`${result.userId}`) })
+        console.log(RestaurantId, 'rest',result.userId)
+        // Check result
+       
+        // Set payload to req
+        result.restaurantId =RestaurantId ? RestaurantId._id:null
+        req.user = result;
+        return res.status(200).json({msg:"Token valid",user:result})
+        
+    } catch (err) {
+        res.status(500).json({ msg: err.message });
+    }
+};
+
+
 
 // Export middleware
-export { authenticate,authorizeRoles };
+export { authenticate,authorizeRoles,getMe };

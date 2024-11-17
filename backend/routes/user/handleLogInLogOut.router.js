@@ -14,7 +14,7 @@ import {
     changePassword,
     forgotPassword,
 } from "../../Controller/user/handleLogInLogOut.controller.js";
-
+import {getMe} from '../../middleware/user/authentication.js'
 // Sign in
 logInlogOutRouter.post("/signin", signIn);
 
@@ -33,5 +33,8 @@ logInlogOutRouter.patch("/change-password", changePassword);
 
 // Forgot password
 logInlogOutRouter.patch("/forgot-password", forgotPassword);
+
+// get me 
+logInlogOutRouter.get("/get-me",getMe);
 
 export default logInlogOutRouter;
