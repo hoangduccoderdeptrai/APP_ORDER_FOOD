@@ -144,7 +144,7 @@ const signUp = async (req, res) => {
                 return res.status(200).json({ msg: arrError });
             }
 
-            // Save account
+            // // Save account
             await newAccount.save();
 
             // Find account by email
@@ -153,24 +153,39 @@ const signUp = async (req, res) => {
 
             // Save image of restaurant to cloudinary
             const image_url = [];
+           
             if (req.files) {
+                // console.log(req.files['avatar'],req.files['images'])
                 // Get avatar restaurant
-                const avatar = req.files.avatar[0];
-                const images = req.files.images;
-                const arrImages = [avatar, ...images];
+                const avatar = req.files['avatar'];
+                const images = req.files['images'];
+                
+               
+                // console.log(avatar,images)
+                const arrImages = [...avatar, ...images];
+                // console.log(arrImages)
+                
                 // Loop to save image to cloudinary
                 for (let image of arrImages) {
-                    const result = await Cloudinary.uploader.upload(image.path, {
-                        folder: "Item_images",
-                    });
+                    try{
+                        // console.log('imaga',image)
+                        const result = await Cloudinary.uploader.upload(image.path, {
+                            // upload_preset: process.env.UPLOAD_PRESET,
+                            folder: "Item_images",
+                        });
 
-                    // Image source
-                    image_url.push({
-                        url: result.secure_url,
-                        public_id: result.public_id,
-                    });
+                        // Image source
+                        image_url.push({
+                            url: result.secure_url,
+                            public_id: result.public_id,
+                        });
+                    }catch(err){
+                        console.error('error uploading',err);
+                    }
                 }
+
             }
+            // console.log('test2')
 
             // Create restaurant
             const newRestaurant = new Restaurant({
@@ -182,10 +197,25 @@ const signUp = async (req, res) => {
                 time_close: infoRestaurant.time_close,
                 description: infoRestaurant.description,
                 imageUrl: image_url,
-            });
+                // ownerId:ownerId,
+                // name:"bo dời",
+                // address:{
+                //     street:"nga 3 chuồng chó",
+                //     city:"hcm",
+                //     borough:"quan 3",
+                //     zip:"123"
+                // },
+                // phone:"123456",
+                // time_open:"7h",
+                // time_close:"24h",
+                // description:"khong co",
+                // imageUrl:image_url
 
+            });
+            
             // Save restaurant
             await newRestaurant.save();
+            console.log('res',newRestaurant)
 
             // Return Json
             res.status(200).json({

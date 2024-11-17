@@ -155,7 +155,7 @@ const ManageItems = () => {
                 <div className='px-6 flex justify-between items-center min-h-[64px] h-[128px]'>
                     <div className='border-2 flex items-center rounded-md px-3 py-1  border-solid border-[#212B36] border-opacity-60'>
                         <div>
-                        <i className='bx bx-search-alt-2 text-2xl'></i>
+                            <i className='bx bx-search-alt-2 text-2xl'></i>
                         </div>
                         <input className=' outline-none placeholder:text-slate-400 px-3 py-2 box-border ' placeholder="Search user..."/>
                     </div>

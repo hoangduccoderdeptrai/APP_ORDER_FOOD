@@ -5,6 +5,7 @@ import { ToastContainer } from 'react-toastify'
 import { SuccessfulNotification,FailedNotification } from '../../component/common/Notification'
 import TablePagination from '@mui/material/TablePagination'
 import { getOrder,updateStatusOrder } from '../../features/manageOrder-slice'
+import DetailOrder from '../../component/Dashboard/commom/DetailOrder'
 const ManageOrders = () => {
     const [status,setStatus] =useState('pending')
     const [skipPage,setSkipPage] =useState(0) //0 is the first page
@@ -12,10 +13,18 @@ const ManageOrders = () => {
     const [rowsPerPage,setRowPerPage] =useState(5) //default rows per page
     const [orderId,setOrderId] =useState(null)
     const [orderStatus,setOrderStatus] =useState(null)
+    const [openForm,setOpenForm] =useState(false)
+    const [orders,setOrders] =useState(null)
     const restaurantId ="66f754127c954abda7c56d15"
     
     const {isLoading,error,orderList} =useSelector((state)=>state.RestaurantOders)
     const dispatch =useDispatch()
+    // handle form
+    const handleForm = (val)=>{
+        console.log(val)
+        setOrders(val)
+        setOpenForm(!openForm)
+    }
     // handle page change
     const handleChangePage = (event,newPage)=>{
         console.log(newPage,"thực sự nhớ em")
@@ -53,6 +62,7 @@ const ManageOrders = () => {
             if(result.meta.requestStatus === 'fulfilled'){
                 dispatch(getOrder({restaurantId,status,skipPage}))
                 console.log(orderList,'list')
+                setOpenForm(false)
                 SuccessfulNotification("Update Order'status")
             }
         }catch(err){
@@ -165,7 +175,7 @@ const ManageOrders = () => {
                                                 )
                                             }
                                         </td>
-                                        <td><button value={val} className=' bg-green-400 rounded-sm  p-[2px_5px] '>Detail</button></td>
+                                        <td><button className=' bg-green-400 rounded-sm  p-[2px_5px] ' onClick={()=>handleForm(val)}>Detail</button></td>
                                     </tr>
                                 ))
                             ):(
@@ -208,6 +218,15 @@ const ManageOrders = () => {
            
             
         </div>
+        <DetailOrder
+            className={`${!openForm ?"hidden":"block animation-form"}  max-w-[720px] z-[100] w-full px-5 text-left py-10 fixed mt-[70px]  left-[50%] -translate-x-[50%] bg-[#FFFFFF] text-[#212B36] shadow-[0_0_2px_0_(rgba(145,158,171,0.08),0_12px_24px_-4px_(rgba(145,158,171,0.08))]`}
+            orders ={orders}
+            setOpenForm={setOpenForm}
+            openForm ={openForm}
+            handleChangeStatus ={handleChangeStatus}
+            
+        />
+        <div className={`fixed ${openForm?"inset-0":""} bg-black opacity-20 z-10`}></div>
     </LoadingOverlay>
   )
 }
