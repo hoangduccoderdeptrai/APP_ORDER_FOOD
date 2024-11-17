@@ -10,9 +10,10 @@ const authenticate = async (req, res, next) => {
         const token = req.cookies.token
         console.log(token)
         // console.log(token)
-        if(!token){
-            return res.status(401).json({msg:'No token, authorization denied'})
+        if (!token) {
+            return res.status(401).json({ msg: "No token, authorization denied" });
         }
+
         // Verify token
         let result = verifytoken(token);
         if(!result){
@@ -24,7 +25,7 @@ const authenticate = async (req, res, next) => {
         // Check result
         if (result) {
             // Set payload to req
-            result.restaurantId =RestaurantId ? RestaurantId._id:null
+            result.restaurantId = RestaurantId ? RestaurantId._id : null;
             req.user = result;
             next();
         } else {
@@ -37,10 +38,10 @@ const authenticate = async (req, res, next) => {
 
 // Role-based authorization middleware
 
-const authorizeRoles =(...roles)=>{
-    return (req,res,next)=>{
-        if(!roles.includes(req.user.role)){
-            return res.status(403).json({msg:'Access denied'})
+const authorizeRoles = (...roles) => {
+    return (req, res, next) => {
+        if (!roles.includes(req.user.role)) {
+            return res.status(403).json({ msg: "Access denied" });
         }
         next()
     }

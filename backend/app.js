@@ -8,37 +8,33 @@ import webInitRouterAdmin from "./routes/admin/admin.router.js";
 import webInitRouterUser from "./routes/user/user.router.js";
 import "dotenv/config.js";
 import manageOderRoute from "./routes/seller/manageOrder.route.js";
-import orderItemsRoute from "./routes/customer/order.route.js";
+
 function run() {
     // Init server
     const app = express();
 
     // Middleware to handle data in request
-    app.use(cookieParser())
+    app.use(cookieParser());
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
     app.use(express.static("public"));
 
-    app.use(cors({
-        origin:'http://localhost:5173',
-        credentials:true
-    }));
+    app.use(
+        cors({
+            origin: "http://localhost:5173",
+            credentials: true,
+        })
+    );
     // Restaurant API
-    app.use('/api/restaurant',menuItemRoute)
-    app.use('/api/restaurant/order',manageOderRoute)
-    app.use('/order',orderItemsRoute)
-
-
-   
+    app.use("/api/restaurant", menuItemRoute);
+    app.use("/api/restaurant/order", manageOderRoute);
 
     // Use API
-    
     webInitRouterCustomer(app); // Customer
     webInitRouterAdmin(app); // Admin
     webInitRouterUser(app); // User
 
     // Init port
-
     app.listen("3000", () => {
         console.log("server is listening");
     });

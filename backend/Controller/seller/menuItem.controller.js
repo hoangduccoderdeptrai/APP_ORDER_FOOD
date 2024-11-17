@@ -7,8 +7,8 @@ import { hasUncaughtExceptionCaptureCallback } from "process";
 const createMenuItem = async (req, res) => {
     try {
         const files = req.files;
-        
-        console.log(files,'file')
+
+        console.log(files, "file");
         if (!files) return res.status(404).json({ msg: "Image files was required" });
         const { restaurantId, title, description, price, category } = req.body;
         const restaurant = await Restaurant.findById(restaurantId);
@@ -39,7 +39,7 @@ const createMenuItem = async (req, res) => {
         deleteTempFiles(files);
         return res.status(200).json({ msg: "Creating MenuItem was successful" });
     } catch (err) {
-        console.log(err.message)
+        console.log(err.message);
         res.status(500).json({ msg: err });
     }
 };
@@ -47,18 +47,17 @@ const createMenuItem = async (req, res) => {
 //update
 const updateMenuItem = async (req, res) => {
     try {
-        const { restaurantId, title, description, price, category, isAvailable } =
-            req.body;
-        
-        console.log(req.files,'files')
+        const { restaurantId, title, description, price, category, isAvailable } = req.body;
+
+        console.log(req.files, "files");
         const files = req.files;
-        const menuItemId =req.params.id      
+        const menuItemId = req.params.id;
         const menuItem = await MenuItem.findById(menuItemId);
-        console.log(menuItem)
+        console.log(menuItem);
         if (!menuItem) return res.status(404).json({ msg: "menuItem not found" });
         const restaurant = await Restaurant.findById(restaurantId);
         if (!restaurant) return res.status(404).json({ msg: "restaurant was not found" });
-        let img_url =null
+        let img_url = null;
         if (files && files.length > 0) {
             const imagePromises = files.map((file) => {
                 return Cloudinary.uploader.upload(file.path, {
@@ -93,7 +92,7 @@ const updateMenuItem = async (req, res) => {
         await menuItem.save();
         return res.status(200).json({ msg: "MenuItem updated successfully" });
     } catch (err) {
-        console.log(err.message)
+        console.log(err.message);
         return res.status(500).json({ msg: err.message });
     }
 };
@@ -111,7 +110,7 @@ const deleteMenuItem = async (req, res) => {
         await menuItem.deleteOne();
         return res.status(200).json({ msg: "deleting menuItem was successfull" });
     } catch (err) {
-        console.log(err.message)
+        console.log(err.message);
         res.status(500).json({ msg: err.message });
     }
 };
@@ -125,16 +124,14 @@ const deleteTempFiles = (files) => {
     });
 };
 // fetch all item
-const fetchAllItems =async(req,res)=>{
-    try{
-        const restaurantId =req.params.id
-        const menuItem = await MenuItem.find({restaurantId:restaurantId})
-        return res.status(200).json({data:menuItem})
-    }catch(err){
-        res.status(500).json({msg:err.message})
+const fetchAllItems = async (req, res) => {
+    try {
+        const restaurantId = req.params.id;
+        const menuItem = await MenuItem.find({ restaurantId: restaurantId });
+        return res.status(200).json({ data: menuItem });
+    } catch (err) {
+        res.status(500).json({ msg: err.message });
     }
+};
 
-    
-}
-
-export { deleteMenuItem, createMenuItem, updateMenuItem,fetchAllItems };
+export { deleteMenuItem, createMenuItem, updateMenuItem, fetchAllItems };

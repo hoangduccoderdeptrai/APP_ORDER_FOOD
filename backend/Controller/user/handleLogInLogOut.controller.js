@@ -22,8 +22,8 @@ const signIn = async (req, res) => {
         // Get email or phone and password
         const accountSended = req.body.email || req.body.phone;
         const passwordSended = md5(req.body.password);
-        if(!accountSended || !passwordSended){
-            return res.status(400).json({msg:"Email/Phone and Password are required"})
+        if (!accountSended || !passwordSended) {
+            return res.status(400).json({ msg: "Email/Phone and Password are required" });
         }
 
         // Find account by email or phone
@@ -39,27 +39,24 @@ const signIn = async (req, res) => {
             if (account.password_account === passwordSended) {
                 // Create token
                 const token = createToken(account);
-                
-                console.log(token)
+                console.log(token);
+
                 // Return Json
                 return res
                     .status(200)
-                    .cookie('token',token,{httpOnly:true,secure:true})
-                    .json({ 
-                        success:true,
-                        msg: "Login success", 
-                        user:{
-                            email:account.email,
-                            role:account.role,
-                            userId:account._id,
-                            username:account.name
-
-
-                        }
-                        
+                    .cookie("token", token, { httpOnly: true, secure: true })
+                    .json({
+                        success: true,
+                        msg: "Login success",
+                        user: {
+                            email: account.email,
+                            role: account.role,
+                            userId: account._id,
+                            username: account.name,
+                        },
                     });
             } else {
-                return res.status(400).json({ msg: "Password is incorrect" });
+                return res.status(200).json({ msg: "Password is incorrect" });
             }
         }
     } catch (err) {
@@ -72,10 +69,7 @@ const signIn = async (req, res) => {
 const signUp = async (req, res) => {
     try {
         // Get account from form
-        // const infoAccount = req.body.infoAccount;
-        const infoAccount = req.body
-        // console.log(req.files['avatar'],req.files['images'])
-        // const infoAccount = req.body;
+        const infoAccount = JSON.parse(req.body.infoAccount);
 
         // Check account exist
         const accounts = await Account.find({
@@ -91,13 +85,13 @@ const signUp = async (req, res) => {
 
         accounts.forEach((account) => {
             if (account.email === infoAccount.email) {
-                arrError.push("Email has exist");
+                arrError.push("Email account has exist");
             }
             if (account.phone === infoAccount.phone) {
-                arrError.push("Phone has exist");
+                arrError.push("Phone account has exist");
             }
             if (account.name_account === infoAccount.name_account) {
-                arrError.push("Name account has exist");
+                arrError.push("Name account account has exist");
             }
         });
 
@@ -123,7 +117,7 @@ const signUp = async (req, res) => {
             const email = infoAccount.email;
 
             // Get inforrestaurant from form
-            const infoRestaurant = req.body.infoRestaurant;
+            const infoRestaurant = JSON.parse(req.body.infoRestaurant);
 
             // Check infoRestaurant is empty
             if (Object.keys(infoRestaurant).length === 0) {
@@ -246,10 +240,8 @@ const signUp = async (req, res) => {
 const signOut = async (req, res) => {
     try {
         // Return Json
-        res.status(200)
-        .clearCookie("token")
-        .json({
-            success:true,
+        res.status(200).clearCookie("token").json({
+            success: true,
             msg: "Log out success",
         });
     } catch (err) {
