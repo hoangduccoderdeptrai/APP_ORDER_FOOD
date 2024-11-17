@@ -33,7 +33,7 @@ const searchPage = async (req, res) => {
         };
 
         // Search food
-        let caterogy = infoSearch.caterogy;
+        let caterogy = infoSearch.categories;
         let nameFood = infoSearch.nameFood;
 
         // Search restaurant
