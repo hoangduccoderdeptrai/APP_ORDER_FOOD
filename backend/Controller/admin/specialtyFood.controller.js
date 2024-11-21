@@ -79,9 +79,10 @@ const createSpecialtyFood = async (req, res) => {
 
         // Upload to cloudinary
         const file = req.file; // Get file img from request
+        console.log(file);
 
         const result = await Cloudinary.uploader.upload(file.path, {
-            upload_preset: process.env.UPLOAD_PRESET,
+            folder: "Item_images",
         }); // Upload to cloudinary
 
         // Image source

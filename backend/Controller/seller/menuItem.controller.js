@@ -6,19 +6,34 @@ import fs from "fs";
 import { hasUncaughtExceptionCaptureCallback } from "process";
 const createMenuItem = async (req, res) => {
     try {
+        // Get all files from request
         const files = req.files;
 
         console.log(files, "file");
+
+        // Check if files is empty
         if (!files) return res.status(404).json({ msg: "Image files was required" });
+
+        // Get all data from request
         const { restaurantId, title, description, price, category } = req.body;
+
+        // Get restaurant by id and check if it is exist
         const restaurant = await Restaurant.findById(restaurantId);
         if (!restaurant)
             return res.status(404).json({ msg: "restaurant not found when creating Item" });
-        const uploadPromises = files.map((file) => {
+
+        // Get fileds images from files
+        const images = files["images"];
+
+        console.log(images, "images");
+
+        // Upload all images to Cloudinary
+        const uploadPromises = images.map((file) => {
             return Cloudinary.uploader.upload(file.path, {
                 folder: "Item_images", //name of folder in Cloundinary that will store all images
             });
         });
+
         // Wait for all images to be uploaded at the same time
         const uploadedImages = await Promise.all(uploadPromises);
         const images_url = uploadedImages.map((image) => {
@@ -27,6 +42,8 @@ const createMenuItem = async (req, res) => {
                 public_id: image.public_id,
             };
         });
+
+        // Create new Item
         const newItem = new MenuItem({
             restaurantId,
             imageUrl: images_url,
@@ -35,12 +52,18 @@ const createMenuItem = async (req, res) => {
             price,
             category,
         });
+
+        // Save new Item to DB
         await newItem.save();
-        deleteTempFiles(files);
+
+        // Delete all temporary files
+        deleteTempFiles(images);
+
+        // Return response
         return res.status(200).json({ msg: "Creating MenuItem was successful" });
     } catch (err) {
         console.log(err.message);
-        res.status(500).json({ msg: err });
+        res.status(500).json({ msg: err.message });
     }
 };
 
@@ -123,6 +146,7 @@ const deleteTempFiles = (files) => {
         });
     });
 };
+
 // fetch all item
 const fetchAllItems = async (req, res) => {
     try {
