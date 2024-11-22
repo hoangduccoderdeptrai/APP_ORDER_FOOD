@@ -9,7 +9,7 @@ const createMenuItem = async (req, res) => {
         // Get all files from request
         const files = req.files;
 
-        console.log(files, "file");
+        console.log(files, "files");
 
         // Check if files is empty
         if (!files) return res.status(404).json({ msg: "Image files was required" });

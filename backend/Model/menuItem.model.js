@@ -30,7 +30,7 @@ const MenuItemSchema = new Schema({
         type: Number,
         required: true,
     },
-    caterogy: {
+    category: {
         type: String,
     },
     isAvailable: {
