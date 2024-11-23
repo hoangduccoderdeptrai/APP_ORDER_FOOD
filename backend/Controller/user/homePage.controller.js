@@ -60,16 +60,16 @@ const getKeySearchFood = async (req, res) => {
 // Get home page
 const getHomePage = async (req, res) => {
     try {
-        // Get 9 specialty foods
-        const specialtyFoods = await SpecialtyFood.find({}).limit(9);
+        // Get 8 specialty foods
+        const specialtyFoods = await SpecialtyFood.find({}).limit(8);
 
-        // Get 9 restaurants top rating
+        // Get 8 restaurants top rating
         const restaurants = await Restaurant.find({ status: "active" })
             .sort({ starMedium: -1 })
-            .limit(9);
+            .limit(8);
 
-        // Get 9 foods top rating
-        const foods = await MenuItem.find({}).sort({ starMedium: -1 }).limit(9);
+        // Get 8 foods top rating
+        const foods = await MenuItem.find({}).sort({ starMedium: -1 }).limit(8);
         const newFoods = await Promise.all(
             foods.map(async (food) => {
                 // Get restaurant of the food
