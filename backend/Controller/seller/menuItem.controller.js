@@ -4,22 +4,23 @@ import { Restaurant } from "../../Model/restaurant.model.js";
 import fs from "fs";
 import { hasUncaughtExceptionCaptureCallback } from "process";
 
+// Import deleteTermFiles helper function
+import { deleteTempFiles } from "../../helper/deleteFileInUpload.js";
+
 // Create new Item
 const createMenuItem = async (req, res) => {
     try {
         // Get all files from request
         const files = req.files;
 
-        // Check if files is empty
-        if (!files) return res.status(404).json({ msg: "Image files was required" });
-
         // Get all data from request
-        const { restaurantId, title, description, price, category } = req.body;
+        const { title, description, price, category } = req.body;
+        const restaurantId = req.user.restaurantId;
 
         // Get restaurant by id and check if it is exist
         const restaurant = await Restaurant.findById(restaurantId);
         if (!restaurant)
-            return res.status(404).json({ msg: "restaurant not found when creating Item" });
+            return res.status(404).json({ msg: "restaurant not found when creating item" });
 
         // Check restaurant is active
         if (restaurant.status !== "active")
@@ -27,6 +28,11 @@ const createMenuItem = async (req, res) => {
 
         // Get fileds images from files
         const images = files["images"];
+
+        // Check if images is exist
+        if (!images || images.length === 0) {
+            return res.status(400).json({ msg: "Images is empty" });
+        }
 
         // Upload all images to Cloudinary
         const uploadPromises = images.map((file) => {
@@ -71,19 +77,40 @@ const createMenuItem = async (req, res) => {
 // Update Item
 const updateMenuItem = async (req, res) => {
     try {
-        const { restaurantId, title, description, price, category, isAvailable } = req.body;
+        const { title, description, price, category, isAvailable, discount, quantity } = req.body;
+        const restaurantId = req.user.restaurantId;
 
+        // Get all files from request
         console.log(req.files, "files");
         const files = req.files;
+
+        // Find menuItem by id
         const menuItemId = req.params.id;
         const menuItem = await MenuItem.findById(menuItemId);
         console.log(menuItem);
+
+        // Check if menuItem is exist
         if (!menuItem) return res.status(404).json({ msg: "menuItem not found" });
+
+        // Check if restaurant is exist
         const restaurant = await Restaurant.findById(restaurantId);
         if (!restaurant) return res.status(404).json({ msg: "restaurant was not found" });
+
+        // Check if restaurant is active
+        if (restaurant.status !== "active") {
+            return res.status(400).json({ msg: "Restaurant is not active" });
+        }
+
+        // Check restaurantId is match with restaurantId in menuItem
+        if (restaurantId !== menuItem.restaurantId.toString()) {
+            return res.status(400).json({ msg: "restaurant has not this menuItem" });
+        }
+
+        // Upload images to Cloudinary
         let img_url = null;
-        if (files && files.length > 0) {
-            const imagePromises = files.map((file) => {
+        let listImages = files["images"];
+        if (listImages && listImages.length > 0) {
+            const imagePromises = listImages.map((file) => {
                 return Cloudinary.uploader.upload(file.path, {
                     folder: "Item_images",
                 });
@@ -96,7 +123,7 @@ const updateMenuItem = async (req, res) => {
                 };
             });
         }
-        // console.log(img_url);
+
         if (img_url && img_url.length > 0) {
             // delete url Cloudinary
             const url_Cloudinary = menuItem.imageUrl;
@@ -106,14 +133,20 @@ const updateMenuItem = async (req, res) => {
             await Promise.all(deletePromises);
             menuItem.imageUrl = img_url;
         }
-        if (title) {
-            menuItem.title = title;
-        }
+
+        // Update menuItem
+        if (title) menuItem.title = title;
         if (description) menuItem.description = description;
-        if (price) menuItem.price = price;
+        if (price) menuItem.price = parseInt(price);
+        if (quantity) menuItem.quantity = parseInt(quantity);
+        if (discount) menuItem.discount = parseInt(discount);
         if (category) menuItem.category = category;
         if (isAvailable !== undefined) menuItem.isAvailable = isAvailable;
+
+        // Save menuItem
         await menuItem.save();
+
+        // Return response
         return res.status(200).json({ msg: "MenuItem updated successfully" });
     } catch (err) {
         console.log(err.message);
@@ -121,17 +154,34 @@ const updateMenuItem = async (req, res) => {
     }
 };
 
-// delete
+// Delete Item
 const deleteMenuItem = async (req, res) => {
     try {
+        // Find menuItem by id
         const menuItemId = req.params.id;
         const menuItem = await MenuItem.findById(menuItemId);
         if (!menuItem) return res.status(404).json({ msg: "menuItem not found to delete" });
-        const public_Id_Arr = menuItem.imageUrl.map((val) => val.public_id);
 
+        // Get restaurantId from menuItem
+        const restaurantIdMenuItem = menuItem.restaurantId;
+
+        // Get restaurantId from user
+        const restaurantIdOwner = req.user.restaurantId;
+
+        // Check if restaurantId from menuItem is match with restaurantId from user
+        if (restaurantIdMenuItem.toString() !== restaurantIdOwner) {
+            return res.status(400).json({ msg: "restaurant has not this menuItem" });
+        }
+
+        // Delete all images in Cloudinary
+        const public_Id_Arr = menuItem.imageUrl.map((val) => val.public_id);
         const deleteImgCloundinary = public_Id_Arr.map((id) => Cloudinary.uploader.destroy(id));
         await Promise.all(deleteImgCloundinary);
+
+        // Delete menuItem in DB
         await menuItem.deleteOne();
+
+        // Return response
         return res.status(200).json({ msg: "deleting menuItem was successfull" });
     } catch (err) {
         console.log(err.message);
@@ -139,19 +189,10 @@ const deleteMenuItem = async (req, res) => {
     }
 };
 
-// delete temporary folder when uploading images to cloundinary
-const deleteTempFiles = (files) => {
-    files.forEach((file) => {
-        fs.unlink(file.path, (err) => {
-            if (err) console.log("Failed to delete file", file.path, err.message);
-        });
-    });
-};
-
 // fetch all item
 const fetchAllItems = async (req, res) => {
     try {
-        const restaurantId = req.params.id;
+        const restaurantId = req.user.restaurantId;
         const menuItem = await MenuItem.find({ restaurantId: restaurantId });
         return res.status(200).json({ data: menuItem });
     } catch (err) {

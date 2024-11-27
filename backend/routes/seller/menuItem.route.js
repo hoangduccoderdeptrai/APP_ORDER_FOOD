@@ -17,12 +17,15 @@ menuItemRoute.post(
     upload.fields([{ name: "images", maxCount: 3 }]),
     createMenuItem
 );
+
 menuItemRoute.delete("/delete-items/:id", deleteMenuItem);
+
 menuItemRoute.patch(
     "/update-items/:id",
     upload.fields([{ name: "images", maxCount: 3 }]),
     updateMenuItem
 );
+
 menuItemRoute.get("/all-items/:id", fetchAllItems);
 
 // Test authorization
