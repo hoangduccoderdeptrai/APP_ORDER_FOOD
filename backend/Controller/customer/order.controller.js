@@ -6,7 +6,8 @@ import { Order } from "../../Model/order.model.js";
 // Create Order
 const createOrder = async (req, res) => {
     try {
-        const { accountId: userId, restaurantId, items, deliveryAddress } = req.body;
+        const { restaurantId, items, deliveryAddress } = req.body;
+        const userId = req.user.userId;
         const ItemArr = [];
         let totalPrice = 0;
 
@@ -49,8 +50,11 @@ const createOrder = async (req, res) => {
             deliveryAddress,
             status: "pending",
         });
+
+        // Save order
         await newOrder.save();
 
+        // Return response
         return res.status(200).json({ data: newOrder });
     } catch (err) {
         res.status(500).json({ msg: err.message });

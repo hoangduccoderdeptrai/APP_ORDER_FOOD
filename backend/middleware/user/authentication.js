@@ -7,7 +7,6 @@ import { Restaurant } from "../../Model/restaurant.model.js";
 const authenticate = async (req, res, next) => {
     try {
         // Get token from header
-        // console.log("test", req.cookies.token);
         const token = req.cookies.token;
         // console.log(token);
         if (!token) {
