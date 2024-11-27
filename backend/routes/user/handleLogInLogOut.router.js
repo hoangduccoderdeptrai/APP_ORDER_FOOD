@@ -14,11 +14,15 @@ import {
     changePassword,
     forgotPassword,
 } from "../../Controller/user/handleLogInLogOut.controller.js";
-import {getMe} from '../../middleware/user/authentication.js'
-// Sign in
-logInlogOutRouter.post("/signin", signIn);
+
+// Import getMe middleware
+import { getMe } from "../../middleware/user/authentication.js";
+
 // Import middleware authentication
 import { authenticate } from "../../middleware/user/authentication.js";
+
+// Sign in
+logInlogOutRouter.post("/signin", signIn);
 
 // Sign up
 const cpUpload = upload.fields([
@@ -31,12 +35,12 @@ logInlogOutRouter.post("/signup", cpUpload, signUp);
 logInlogOutRouter.get("/signout", signOut);
 
 // Change password
-logInlogOutRouter.patch("/change-password",authenticate, changePassword);
+logInlogOutRouter.patch("/change-password", authenticate, changePassword);
 
 // Forgot password
 logInlogOutRouter.patch("/forgot-password", forgotPassword);
 
-// get me 
-logInlogOutRouter.get("/get-me",getMe);
+// Get me
+logInlogOutRouter.get("/get-me", getMe);
 
 export default logInlogOutRouter;

@@ -11,6 +11,7 @@
     "author": "le hoang duc",
     "license": "ISC",
     "dependencies": {
+        "@google/generative-ai": "^0.21.0",
         "cloudinary": "^2.5.0",
         "cookie-parser": "^1.4.7",
         "cors": "^2.8.5",
