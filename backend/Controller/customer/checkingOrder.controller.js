@@ -58,7 +58,9 @@ const getOrder = async (req, res) => {
                 const idFood = item.menuItemId;
 
                 // Get food
-                const food = await MenuItem.findOne({ _id: idFood }).select("_id title price");
+                const food = await MenuItem.findOne({ _id: idFood }).select(
+                    "_id title price starMedium"
+                );
 
                 newListItemsOrder.push({
                     food: food,
