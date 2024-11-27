@@ -15,10 +15,8 @@ const OrderSchema = new Schema({
         required: true,
     },
     deliveryAddress: {
-        street: { type: String, required: true },
-        city: { type: String, required: true },
-        borough: { type: String, required: true },
-        zip: { type: String },
+        type: String,
+        required: true,
     },
     items: [
         {
