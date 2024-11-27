@@ -34,8 +34,6 @@ const getOrder = async (req, res) => {
             .skip(objectPagination.skip)
             .limit(objectPagination.limit);
 
-        console.log(orders);
-
         // Create new orders
         let newOrders = [];
         for (let order of orders) {
@@ -49,7 +47,6 @@ const getOrder = async (req, res) => {
             // Get name restaurant
             const nameRestaurant = await Restaurant.findById(idRestaurant).select("name");
             order.nameRestaurant = nameRestaurant;
-            console.log(order);
 
             // Get listItemsOrder
             let listItemsOrder = order.items;
@@ -103,8 +100,8 @@ const postEvaluation = async (req, res) => {
             return res.status(200).json({ message: "Order not found" });
         }
 
+        // Get restaurant
         const restaurant = await Restaurant.findById(order.restaurantId);
-
         if (!restaurant) {
             return res.status(200).json({ message: "Restaurant not found" });
         }
@@ -118,7 +115,7 @@ const postEvaluation = async (req, res) => {
         const accountId = order.accountId;
 
         // Check is correct user
-        if (userId != accountId) {
+        if (userId != accountId.toString()) {
             return res
                 .status(200)
                 .json({ message: "You are not allowed to comment on this order" });
@@ -148,8 +145,8 @@ const postEvaluation = async (req, res) => {
         for (let food of listFood) {
             // Get id food and star food
             const idFood = food.idFood;
-            const star = food.star;
-            const quantity = food.quantity;
+            const star = partInt(food.star);
+            const quantity = partInt(food.quantity);
 
             // Get food
             const oldfood = await MenuItem.findById(idFood);
@@ -163,6 +160,7 @@ const postEvaluation = async (req, res) => {
                 (oldfood.starMedium * oldfood.quantitySolded + star * quantity) /
                 (quantity + oldfood.quantitySolded);
 
+            // Save food
             await oldfood.save();
         }
 
@@ -170,6 +168,8 @@ const postEvaluation = async (req, res) => {
         restaurant.starMedium =
             (restaurant.starMedium * restaurant.quantitySolded + countRating) /
             (countQuantity + restaurant.quantitySolded);
+
+        // Save restaurant
         await restaurant.save();
 
         // Return Json
@@ -201,7 +201,7 @@ const deleteOrder = async (req, res) => {
         const accountId = order.accountId;
 
         // Check is correct user
-        if (userId != accountId) {
+        if (userId != accountId.toString()) {
             return res.status(200).json({ message: "You are not allowed to cancel this order" });
         }
 
@@ -212,6 +212,8 @@ const deleteOrder = async (req, res) => {
 
         // Cancel order
         order.status = "canceled";
+
+        // Save order
         await order.save();
 
         // Return Json
