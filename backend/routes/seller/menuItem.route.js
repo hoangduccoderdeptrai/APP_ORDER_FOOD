@@ -1,5 +1,6 @@
-import multer from "multer";
 import express from "express";
+const menuItemRoute = express.Router();
+import multer from "multer";
 import { authenticate, authorizeRoles } from "../../middleware/user/authentication.js";
 import {
     createMenuItem,
@@ -7,8 +8,8 @@ import {
     updateMenuItem,
     fetchAllItems,
 } from "../../Controller/seller/menuItem.controller.js";
+
 //Temporory storage before Cloundinary upload
-const menuItemRoute = express.Router();
 const upload = multer({ dest: "uploads/" });
 
 menuItemRoute.post(
@@ -17,7 +18,11 @@ menuItemRoute.post(
     createMenuItem
 );
 menuItemRoute.delete("/delete-items/:id", deleteMenuItem);
-menuItemRoute.patch("/update-items/:id", upload.array("images", 3), updateMenuItem);
+menuItemRoute.patch(
+    "/update-items/:id",
+    upload.fields([{ name: "images", maxCount: 3 }]),
+    updateMenuItem
+);
 menuItemRoute.get("/all-items/:id", fetchAllItems);
 
 // Test authorization
@@ -27,4 +32,5 @@ menuItemRoute.get("/test-auth", authenticate, authorizeRoles("admin", "seller"),
 menuItemRoute.get("/test-author-user", authenticate, (req, res) => {
     return res.status(200).json({ user: req.user });
 });
+
 export default menuItemRoute;

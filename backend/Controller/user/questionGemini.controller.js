@@ -18,7 +18,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 // 1. Ask for the information of a restaurant - API function
 async function informationRestaurant(restaurantName, borough) {
     try {
-        // Find the restaurant if have the same name and borough
+        // Find condition
         let find = {
             status: "active",
         };
@@ -34,15 +34,15 @@ async function informationRestaurant(restaurantName, borough) {
         }
 
         // Find the restaurant
-        const restaurant = await Restaurant.find(find).select(
+        const restaurants = await Restaurant.find(find).select(
             "name address phone time_open time_close starMedium"
         );
 
         // If the restaurant is not found
-        if (!restaurant || restaurant.length === 0) {
+        if (!restaurants || restaurants.length === 0) {
             return "Không tìm thấy nhà hàng";
         }
-        return restaurant;
+        return restaurants;
     } catch (error) {
         return "Đã xảy ra lỗi khi tìm kiếm nhà hàng. Vui lòng thử lại sau.";
     }
@@ -69,12 +69,134 @@ const informationRestaurantDeclaration = {
     },
 };
 
-// 2
+// 2 Recommend restaurant fot user - API function
+async function recommendedRestaurant(borough, street, rating, time_open, time_close, categories) {
+    try {
+        // Find condition
+        let find = {
+            status: "active",
+        };
+
+        // Recommend restaurant by information that user give
+        const objectSearchBorough = search(borough);
+        const objectSearchStreet = search(street);
+        const starMedium = parseInt(rating);
+        const objectSearchTimeOpen = search(time_open);
+        const objectSearchTimeClose = search(time_close);
+
+        if (objectSearchBorough.regex) {
+            find["address.borough"] = objectSearchBorough.regex;
+        }
+        if (objectSearchStreet.regex) {
+            find["address.street"] = objectSearchStreet.regex;
+        }
+        if (starMedium) {
+            find["starMedium"] = { $gte: starMedium };
+        }
+        if (objectSearchTimeOpen.regex) {
+            find.time_open = objectSearchTimeOpen.regex;
+        }
+        if (objectSearchTimeClose.regex) {
+            find.time_close = objectSearchTimeClose.regex;
+        }
+
+        // Find the restaurant
+        const restaurants = await Restaurant.find(find).select("name address");
+
+        if (categories && categories.length > 0) {
+            // New categories array
+            const newCategories = categories.map((category) => {
+                return search(category).regex;
+            });
+
+            // Find the food of the restaurant
+            const promiseRestaurant = restaurants.map(async (restaurant) => {
+                // Get id of the restaurant
+                const restaurantId = restaurant._id;
+
+                // Find the food of the restaurant
+                const foods = await MenuItem.find({
+                    restaurantId: restaurantId,
+                    category: { $in: newCategories },
+                }).select("title");
+
+                return {
+                    ...restaurant._doc,
+                    foods: foods,
+                };
+            });
+
+            // Wait for all promise
+            restaurants = await Promise.all(promiseRestaurant);
+        }
+
+        // If the restaurant is not found
+        if (!restaurants || restaurants.length === 0) {
+            return "Không tìm thấy nhà hàng";
+        }
+
+        return restaurants;
+    } catch (error) {
+        return "Đã xảy ra lỗi khi tìm kiếm nhà hàng. Vui lòng thử lại sau.";
+    }
+}
+
+// 2.1 Create fuction declarations for the recommend restaurant
+const recommendedRestaurantDeclaration = {
+    name: "recommendRestaurantForUser",
+    description:
+        "Gợi ý các nhà hàng và kèm theo món ăn của nhà hàng nếu có dựa trên thông tin người dùng cung cấp",
+    parameters: {
+        type: "object",
+        description:
+            "Gợi ý các nhà hàng và kèm theo món ăn của nhà hàng nếu có theo yêu cầu của người dùng cung cấp",
+        properties: {
+            borough: {
+                type: "string",
+                description: "Quận",
+            },
+            street: {
+                type: "string",
+                description: "Đường",
+            },
+            rating: {
+                type: "number",
+                description: "Đánh giá sao trung bình của nhà hàng",
+            },
+            time_open: {
+                type: "string",
+                description: "Thời gian mở cửa của nhà hàng",
+            },
+            time_close: {
+                type: "string",
+                description: "Thời gian đóng cửa của nhà hàng",
+            },
+            categories: {
+                type: "array",
+                description: "Danh mục món ăn của nhà hàng",
+                items: {
+                    type: "string",
+                    description: "Tên loại món ăn",
+                },
+            },
+        },
+    },
+};
 
 // Create list of function
 const functions = {
     informationOfRestaurant: ({ restaurantName, borough }) => {
         return informationRestaurant(restaurantName, borough);
+    },
+    recommendRestaurantForUser: ({
+        borough,
+        street,
+        rating,
+        time_open,
+        time_close,
+        categories,
+    }) => {
+        return recommendedRestaurant(borough, street, rating, time_open, time_close, categories);
     },
 };
 
@@ -86,7 +208,7 @@ const generatetiveModel = genAI.getGenerativeModel({
     systemInstruction:
         "Bạn là một chatbot của ứng dụng Yummy. Nhiệm vụ của bạn là hỗ trợ người dùng tìm hiểu về thông tin của website Yummy. Website Yummy là trang web cho phép mọi người đặt và bán đồ ăn, thức uống. Những thông tin cơ bản mà người dùng cần chủ yếu là các thông tin của món ăn và nhà hàng, đơn đặt hàng của họ.Bạn có thể giúp tôi không?",
     tools: {
-        functionDeclarations: [informationRestaurantDeclaration],
+        functionDeclarations: [informationRestaurantDeclaration, recommendedRestaurantDeclaration],
     },
 });
 

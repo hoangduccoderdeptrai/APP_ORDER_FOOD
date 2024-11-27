@@ -2,6 +2,7 @@
 import mongoose from "mongoose";
 import { verifytoken } from "../../helper/token.js";
 import { Restaurant } from "../../Model/restaurant.model.js";
+
 // Middleware to authenticate user
 const authenticate = async (req, res, next) => {
     try {
@@ -23,8 +24,6 @@ const authenticate = async (req, res, next) => {
             ownerId: new mongoose.Types.ObjectId(`${result.userId}`),
         });
 
-        // console.log(RestaurantId, "rest", result.userId);
-
         // Check result
         if (result) {
             // Set payload to req
@@ -40,7 +39,6 @@ const authenticate = async (req, res, next) => {
 };
 
 // Role-based authorization middleware
-
 const authorizeRoles = (...roles) => {
     return (req, res, next) => {
         if (!roles.includes(req.user.role)) {

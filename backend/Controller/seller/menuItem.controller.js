@@ -1,15 +1,14 @@
 import { Cloudinary } from "../../config/cloundinaryCofig.js";
 import { MenuItem } from "../../Model/menuItem.model.js";
 import { Restaurant } from "../../Model/restaurant.model.js";
-import multer from "multer";
 import fs from "fs";
 import { hasUncaughtExceptionCaptureCallback } from "process";
+
+// Create new Item
 const createMenuItem = async (req, res) => {
     try {
         // Get all files from request
         const files = req.files;
-
-        console.log(files, "files");
 
         // Check if files is empty
         if (!files) return res.status(404).json({ msg: "Image files was required" });
@@ -22,10 +21,12 @@ const createMenuItem = async (req, res) => {
         if (!restaurant)
             return res.status(404).json({ msg: "restaurant not found when creating Item" });
 
+        // Check restaurant is active
+        if (restaurant.status !== "active")
+            return res.status(400).json({ msg: "Restaurant is not active" });
+
         // Get fileds images from files
         const images = files["images"];
-
-        console.log(images, "images");
 
         // Upload all images to Cloudinary
         const uploadPromises = images.map((file) => {
@@ -67,7 +68,7 @@ const createMenuItem = async (req, res) => {
     }
 };
 
-//update
+// Update Item
 const updateMenuItem = async (req, res) => {
     try {
         const { restaurantId, title, description, price, category, isAvailable } = req.body;

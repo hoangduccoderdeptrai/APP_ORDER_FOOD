@@ -1,12 +1,13 @@
-import { model } from "mongoose";
 import { Order } from "../../Model/order.model.js";
+
+// Get order pending
 const getOrderPending = async (req, res) => {
     try {
         const status = req.query.status || "pending";
         console.log(status, req.query.status);
         const skipPage = parseInt(req.query.skip) || 0;
         const restaurantId = req.params.id;
-        //    console.log(skipPage,status)
+        //console.log(skipPage,status)
         const orders = await Order.find({ restaurantId: restaurantId, status: status })
             .sort({ orderDate: -1 })
             .limit(10)
@@ -19,10 +20,11 @@ const getOrderPending = async (req, res) => {
         res.status(500).json({ msg: err.message });
     }
 };
+
+// Update status order
 const updateStatusOrder = async (req, res) => {
     try {
         // console.log('test update status',req.query)
-
         const restaurantId = req.params.id;
         const { orderId, status } = req.body;
 
