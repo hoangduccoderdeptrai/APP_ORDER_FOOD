@@ -59,7 +59,7 @@ const getOrder = async (req, res) => {
 
                 // Get food
                 const food = await MenuItem.findOne({ _id: idFood }).select(
-                    "_id title price starMedium"
+                    "_id title price starMedium imageUrl"
                 );
 
                 newListItemsOrder.push({
