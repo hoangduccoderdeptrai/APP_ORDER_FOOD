@@ -1,5 +1,6 @@
 import { Order } from "../../Model/order.model.js";
 import { Restaurant } from "../../Model/restaurant.model.js";
+import { MenuItem } from "../../Model/menuItem.model.js";
 
 // Get order pending
 const getOrderPending = async (req, res) => {
@@ -57,12 +58,26 @@ const updateStatusOrder = async (req, res) => {
                 return res.status(404).json({ msg: "Not found Restaurant" });
             }
 
-            // Update profit and quantity solded
+            // Update profit and quantity solded of restaurant
             let totalPrice = order.totalPrice;
             let quantitySolded = 0;
-            order.items.forEach((item) => {
+            promiseOrders = order.items.map(async (item) => {
+                // Get menuItem by id
+                const menuItem = await MenuItem.findById(item.menuItemId);
+
+                // Update quantity solded
+                menuItem.quantitySolded += item.quantity;
+
+                // Save menuItem
+                await menuItem.save();
+
                 quantitySolded += item.quantity;
             });
+
+            // Wait for all promises
+            await Promise.all(promiseOrders);
+
+            // Update profit and quantity solded
             restaurant.profit += totalPrice;
             restaurant.quantitySolded += quantitySolded;
 

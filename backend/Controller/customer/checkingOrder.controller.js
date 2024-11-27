@@ -147,8 +147,10 @@ const postEvaluation = async (req, res) => {
         for (let food of listFood) {
             // Get id food and star food
             const idFood = food.idFood;
-            const star = partInt(food.star);
-            const quantity = partInt(food.quantity);
+
+            // convert star and quantity to number
+            const star = parseInt(food.star);
+            const quantity = parseInt(food.quantity);
 
             // Get food
             const oldfood = await MenuItem.findById(idFood);
