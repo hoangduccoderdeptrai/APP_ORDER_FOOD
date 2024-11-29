@@ -44,6 +44,10 @@ const RestaurantSchema = new Schema({
         },
     ],
     slug: { type: String, slug: "name", unique: true },
+    review: {
+        type: Number,
+        default: 0,
+    },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
 });

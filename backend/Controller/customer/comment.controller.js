@@ -22,17 +22,21 @@ const createComment = async (req, res) => {
             return res.status(404).json({ msg: "Restaurant not found" });
         }
 
+        // Check if rating is valid
         if (rating) {
-            rating = parseInt(rating);
+            try {
+                rating = parseInt(rating);
+            } catch (error) {
+                return res.status(200).json({ msg: "Rating must be a number" });
+            }
             if (rating < 1 || rating > 5) {
                 return res.status(200).json({ msg: "Rating must be between 1 and 5" });
             }
 
             // Update startMedium of restaurant
             restaurant.starMedium =
-                (restaurant.starMedium * restaurant.quantitySolded + rating) /
-                (restaurantquantitySolded + 1);
-            restaurant.quantitySolded += 1;
+                (restaurant.starMedium * restaurant.review + rating) / (restaurant.review + 1);
+            restaurant.review += 1;
 
             // Save restaurant
             await restaurant.save();

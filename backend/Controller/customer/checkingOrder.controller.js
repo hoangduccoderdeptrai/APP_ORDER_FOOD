@@ -34,6 +34,10 @@ const getOrder = async (req, res) => {
             .skip(objectPagination.skip)
             .limit(objectPagination.limit);
 
+        if (!orders || orders.length === 0) {
+            return res.status(200).json({ message: "No order found" });
+        }
+
         // Create new orders
         let newOrders = [];
         for (let order of orders) {
@@ -118,6 +122,24 @@ const postEvaluation = async (req, res) => {
             return res.status(200).json({ message: "Order is not completed" });
         }
 
+        // Validate listFood is in order
+        if (listFood.length !== order.items.length) {
+            return res.status(200).json({ message: "List food is not match with order" });
+        }
+        for (let food of listFood) {
+            let check = false;
+            for (let item of order.items) {
+                if (food.idFood == item.menuItemId.toString()) {
+                    food.quantity = item.quantity;
+                    check = true;
+                    break;
+                }
+            }
+            if (!check) {
+                return res.status(200).json({ message: "List food is not match with order" });
+            }
+        }
+
         let countQuantity = 0;
         let countRating = 0;
         // Calculate rating for each food
@@ -126,8 +148,12 @@ const postEvaluation = async (req, res) => {
             const idFood = food.idFood;
 
             // convert star and quantity to number
-            const star = parseInt(food.star);
-            const quantity = parseInt(food.quantity);
+            let star = 0;
+            try {
+                star = parseInt(food.star);
+            } catch (error) {
+                return res.status(400).json({ message: "Star is not number" });
+            }
 
             // Get food
             const oldfood = await MenuItem.findById(idFood);
@@ -146,20 +172,17 @@ const postEvaluation = async (req, res) => {
             await oldfood.save();
         }
 
+        let ratingOrder = countRating / countQuantity;
         // Calculate rating for restaurant
         restaurant.starMedium =
-            (restaurant.starMedium * restaurant.quantitySolded + countRating) /
-            restaurant.quantitySolded;
+            (restaurant.starMedium * restaurant.review + ratingOrder) / (restaurant.review + 1);
+        restaurant.review += 1;
 
         // Save restaurant
         await restaurant.save();
 
         // Check if user has already commented
         if (comment) {
-            let ratingOrder = 0;
-            if (countQuantity > 0) {
-                ratingOrder = countRating / countQuantity;
-            }
             // Create comment for user
             const review = new Review({
                 accountId: userId,
