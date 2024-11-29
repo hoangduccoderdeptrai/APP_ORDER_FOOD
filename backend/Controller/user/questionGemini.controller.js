@@ -41,7 +41,8 @@ async function informationRestaurant(listRestaurantName) {
         if (!restaurants || restaurants.length === 0) {
             return "Không tìm thấy nhà hàng";
         }
-        // Get the hot food of the restaurant
+
+        // Get some hot food of the restaurant
         const promiseRestaurant = restaurants.map(async (restaurant) => {
             // Convert the restaurant to object
             restaurant = restaurant.toObject();
@@ -96,7 +97,16 @@ const informationRestaurantDeclaration = {
 };
 
 // 2. Recommend restaurant fot user - API function
-async function recommendedRestaurant(borough, street, rating, time_open, time_close, categories) {
+async function recommendedRestaurant(
+    borough,
+    street,
+    rating,
+    time_open,
+    time_close,
+    categories,
+    description,
+    blackList
+) {
     try {
         // Find condition
         let find = {
@@ -108,8 +118,18 @@ async function recommendedRestaurant(borough, street, rating, time_open, time_cl
         const objectSearchStreet = search(street);
         const objectSearchTimeOpen = search(time_open);
         const objectSearchTimeClose = search(time_close);
+        const objectSearchDescription = search(description);
+        if (blackList && blackList.length > 0) {
+            const newBlackList = blackList.map((restaurantName) => {
+                return search(restaurantName).regex;
+            });
+            find.name = { $nin: newBlackList };
+        }
         if (objectSearchBorough.regex) {
             find["address.borough"] = objectSearchBorough.regex;
+        }
+        if (objectSearchDescription.regex) {
+            find.name = objectSearchDescription.regex;
         }
         if (objectSearchStreet.regex) {
             find["address.street"] = objectSearchStreet.regex;
@@ -146,7 +166,7 @@ async function recommendedRestaurant(borough, street, rating, time_open, time_cl
                     restaurantId: restaurantId,
                     category: { $in: newCategories },
                 })
-                    .sort({ starMedium: -1 })
+                    .sort({ quantitySolded: -1, starMedium: -1 })
                     .limit(3)
                     .select("title");
 
@@ -210,15 +230,38 @@ const recommendedRestaurantDeclaration = {
                     description: "Tên loại món ăn",
                 },
             },
+            description: {
+                type: "string",
+                description: "Mô tả chi tiết nhà hàng",
+            },
+            blackList: {
+                type: "array",
+                description: "Danh sách nhà hàng mà người dùng không muốn xem",
+                items: {
+                    type: "string",
+                    description: "Tên của từng nhà hàng",
+                },
+            },
         },
     },
 };
 
 // 3. Find specialty food - API function
-async function specialtyFood() {
+async function specialtyFood(blackList) {
     try {
+        // Find condition
+        let find = {};
+
+        // Search the specialty food by name
+        const newBlackList = blackList.map((foodName) => {
+            return search(foodName).regex;
+        });
+
+        if (blackList && blackList.length > 0) {
+            find.name = { $nin: newBlackList };
+        }
         // Find the specialty food
-        const specialtyFoods = await SpecialtyFood.find({}).limit(5).select("name");
+        const specialtyFoods = await SpecialtyFood.find({}).limit(3).select("name");
 
         // If the specialty food is not found
         if (!specialtyFoods || specialtyFoods.length === 0) {
@@ -240,9 +283,13 @@ const specialtyFoodDeclaration = {
         type: "object",
         description: "Tìm kiếm món ăn đặc biệt của trang web Yummy",
         properties: {
-            name: {
-                type: "string",
-                description: "Tên món ăn đặc biệt",
+            blackList: {
+                type: "array",
+                description: "Danh sách món ăn mà người dùng không muốn xem",
+                items: {
+                    type: "string",
+                    description: "Tên của từng món ăn",
+                },
             },
         },
     },
@@ -250,13 +297,13 @@ const specialtyFoodDeclaration = {
 
 // 4. Recommended food by name - API function
 async function recommendedFoods(
-    name,
     description,
     minPrice = 0,
     maxprice = 1e9,
     categories,
     discount,
-    starMedium
+    starMedium,
+    blackList
 ) {
     try {
         // Find condition
@@ -265,13 +312,15 @@ async function recommendedFoods(
         };
 
         // Search information of list food
-        const objectSearchName = search(name);
         const objectSearchDescription = search(description);
         const newCategories = categories.map((category) => {
             return search(category).regex;
         });
-        if (objectSearchName.regex) {
-            find.title = objectSearchName.regex;
+        if (blackList && blackList.length > 0) {
+            const newBlackList = blackList.map((foodName) => {
+                return search(foodName).regex;
+            });
+            find.title = { $nin: newBlackList };
         }
         if (objectSearchDescription.regex) {
             find.description = objectSearchDescription.regex;
@@ -314,10 +363,6 @@ const recommendedFoodsDeclaration = {
         type: "object",
         description: "Gợi ý các món ăn dựa vào tên, mô tả, giá, loại món ăn, giảm giá, đánh giá",
         properties: {
-            name: {
-                type: "string",
-                description: "Tên món ăn",
-            },
             description: {
                 type: "string",
                 description: "Mô tả chi tiết món ăn",
@@ -345,6 +390,14 @@ const recommendedFoodsDeclaration = {
             starMedium: {
                 type: "number",
                 description: "Đánh giá sao trung bình của món ăn",
+            },
+            blackList: {
+                type: "array",
+                description: "Danh sách món ăn mà người dùng không muốn xem",
+                items: {
+                    type: "string",
+                    description: "Tên của từng món ăn",
+                },
             },
         },
     },
@@ -415,29 +468,40 @@ const functions = {
         time_open,
         time_close,
         categories,
+        description,
+        blackList,
     }) => {
-        return recommendedRestaurant(borough, street, rating, time_open, time_close, categories);
+        return recommendedRestaurant(
+            borough,
+            street,
+            rating,
+            time_open,
+            time_close,
+            categories,
+            description,
+            blackList
+        );
     },
-    specialtyFood: () => {
-        return specialtyFood();
+    specialtyFood: ({ blackList }) => {
+        return specialtyFood(blackList);
     },
     recommendedFoods: ({
-        name,
         description,
         minPrice,
         maxPrice,
         categories,
         discount,
         starMedium,
+        blackList,
     }) => {
         return recommendedFoods(
-            name,
             description,
             minPrice,
             maxPrice,
             categories,
             discount,
-            starMedium
+            starMedium,
+            blackList
         );
     },
     informationOfFoods: ({ listFoodName }) => {
