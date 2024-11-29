@@ -1,4 +1,3 @@
-import { Account } from "../../Model/account.model.js";
 import { Restaurant } from "../../Model/restaurant.model.js";
 import { MenuItem } from "../../Model/menuItem.model.js";
 import { Order } from "../../Model/order.model.js";
@@ -10,10 +9,6 @@ const createOrder = async (req, res) => {
         const userId = req.user.userId;
         const ItemArr = [];
         let totalPrice = 0;
-
-        // Check if the user exists
-        const user = await Account.findById({ _id: userId });
-        if (!user) return res.status(404).jsono({ msg: "Not found user" });
 
         // Check if the restaurant exists
         const restaurant = await Restaurant.findById({ _id: restaurantId });
@@ -32,12 +27,18 @@ const createOrder = async (req, res) => {
             const menuItem = await MenuItem.findById(menuItemId);
             if (!menuItem) return res.status(404).json({ msg: "Item not found" });
 
+            quantity = parseInt(quantity);
+            if (!Number.isInteger(quantity))
+                return res.status(400).json({ msg: "Quantity have to interger" });
+            if (quantity <= 0)
+                return res.status(400).json({ msg: "Quantity have to greater than 0" });
+
             // Calculate total price
-            const itemprice = parseInt(menuItem.price) * parseInt(quantity);
+            const itemprice = menuItem.price * quantity;
             totalPrice += itemprice;
             ItemArr.push({
                 menuItemId: menuItemId,
-                quantity: Number(quantity),
+                quantity: quantity,
             });
             console.log(ItemArr);
         }
@@ -47,7 +48,7 @@ const createOrder = async (req, res) => {
             restaurantId,
             items: ItemArr,
             totalPrice: totalPrice,
-            deliveryAddress,
+            deliveryAddress: deliveryAddress || "",
             status: "pending",
         });
 
