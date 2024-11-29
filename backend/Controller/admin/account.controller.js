@@ -36,7 +36,7 @@ const getPageAccount = async (req, res) => {
 
         // Find all account and remove password_account and address, name_account
         const accounts = await Account.find(find)
-            .select("-password_account -address name_account")
+            .select("-password_account -address -name_account")
             .limit(objectPagination.limit)
             .skip(objectPagination.skip);
 
@@ -65,7 +65,7 @@ const getDetailAccount = async (req, res) => {
 
         // Find user by id and remove password_account
         const account = await Account.findById(id).select(
-            "-password_account -address name_account"
+            "-password_account -address -name_account"
         );
 
         // Check account is null
