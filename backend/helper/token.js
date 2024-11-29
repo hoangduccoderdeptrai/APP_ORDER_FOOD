@@ -52,7 +52,7 @@ function verifytoken(token) {
 
         // Decode payload signature
         const decodedPayload = JSON.parse(base64UrlDecode(payload));
-        console.log(decodedPayload, "decode");
+        // console.log(decodedPayload, "decode");
 
         const jwtSecret = process.env.JWT_SECRET; // get secret key
 
