@@ -13,7 +13,7 @@ const createOrder = async (req, res) => {
 
         // Check if the user exists
         const user = await Account.findById({ _id: userId });
-        if (!user) return res.status(404).jsono({ msg: "Not found user" });
+        if (!user) return res.status(404).json({ msg: "Not found user" });
 
         // Check if the restaurant exists
         const restaurant = await Restaurant.findById({ _id: restaurantId });
