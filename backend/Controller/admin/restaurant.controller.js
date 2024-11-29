@@ -78,7 +78,9 @@ const getDetailRetaurant = async (req, res) => {
         const ownerId = restaurant.ownerId;
 
         // Find account by ownerId
-        const owner = await Account.findById(ownerId).select("-password_account");
+        const owner = await Account.findById(ownerId).select(
+            "-password_account -address name_account"
+        );
 
         // Count all menuItems of restaurant
         const numberMenuItems = await MenuItem.countDocuments({ restaurantId: id });
@@ -113,7 +115,9 @@ const changeStatusRestaurant = async (req, res) => {
         const ownerId = restaurant.ownerId;
 
         // Find account by ownerId
-        const owner = await Account.findById(ownerId).select("-password_account");
+        const owner = await Account.findById(ownerId).select(
+            "-password_account -address name_account"
+        );
 
         // Get mail of account
         const emailOwner = owner.email;
@@ -121,8 +125,11 @@ const changeStatusRestaurant = async (req, res) => {
         // Set status of restaurant
         if (restaurant.status == "inactive") {
             restaurant.status = "active";
-        } else {
+        } else if (restaurant.status == "active") {
             restaurant.status = "inactive";
+        } else {
+            // status is not valid
+            return res.status(400).json({ msg: "Status is not valid" });
         }
 
         // Text content
@@ -226,13 +233,12 @@ const acceptOrDenyRestaurant = async (req, res) => {
             const ownerId = restaurant.ownerId;
 
             // Find account by ownerId
-            const owner = await Account.findById(ownerId).select("-password_account");
+            const owner = await Account.findById(ownerId).select(
+                "-password_account -address name_account"
+            );
 
             // Get mail of account
             const emailOwner = owner.email;
-
-            // Delte restaurant in DB
-            await Restaurant.deleteOne({ _id: id_restaurant });
 
             // Text content
             const textContent = `Nhà hàng ${restaurant.name} của bạn đã bị từ chối hoạt động. Vui lòng liên hệ với chúng tôi qua số điện thoại ${process.env.PHONE} để biết thêm thông tin`;
