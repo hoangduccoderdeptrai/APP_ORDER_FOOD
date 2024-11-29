@@ -144,7 +144,7 @@ const signUp = async (req, res) => {
                 return res.status(200).json({ msg: arrError });
             }
 
-            // // Save account
+            // Save account
             await newAccount.save();
 
             // Find account by email
@@ -177,7 +177,7 @@ const signUp = async (req, res) => {
                             public_id: result.public_id,
                         });
                     } catch (err) {
-                        console.error("error uploading", err);
+                        console.error("error uploading", err.message);
                     }
                 }
             }
@@ -248,8 +248,6 @@ const forgotPassword = async (req, res) => {
             // Create new password
             const newPassword = Math.random().toString(36).slice(-8);
 
-            console.log(newPassword);
-
             // Update password
             account.password_account = md5(newPassword);
 
@@ -273,10 +271,15 @@ const forgotPassword = async (req, res) => {
 const changePassword = async (req, res) => {
     try {
         // account from authentication
-        const accountId = req.body.payload.sub;
+        const accountId = req.user.userId;
 
         // Get account
         const account = await Account.findById(accountId);
+
+        // Check account
+        if (!account) {
+            return res.status(404).json({ msg: "Account does not exist" });
+        }
 
         // Get old password from form
         const oldPasswordSended = md5(req.body.oldPassword);

@@ -24,7 +24,9 @@ const searchPage = async (req, res) => {
         }
 
         // Find condition
-        let findFood = {};
+        let findFood = {
+            isAvailable: true,
+        };
         let findRestaurant = {
             status: "active",
         };
@@ -126,6 +128,10 @@ const searchPage = async (req, res) => {
         // Get id food for each restaurant if have list food
         if (listFood.length > 0) {
             const newRestaurants = restaurants.map((restaurant) => {
+                // Convert restaurant to object
+                restaurant = restaurant.toObject();
+
+                // Assign list id food for restaurant
                 restaurant["listIdFood"] = listFood
                     .filter((food) => {
                         return food.restaurantId.toString() === restaurant._id.toString();

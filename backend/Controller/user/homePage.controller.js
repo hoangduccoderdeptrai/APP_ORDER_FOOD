@@ -34,11 +34,14 @@ const getKeySearchFood = async (req, res) => {
         if (nameRestaurant) {
             find["name"] = objectSearch.regex;
             // Find all the restaurants that contain the keyword
-            menuItems = await Restaurant.find(find).select("name");
+            menuItems = await Restaurant.find(find)
+                .sort({ starMedium: -1 })
+                .limit(6)
+                .select("name");
         } else {
             find["title"] = objectSearch.regex;
             // Find all the food that contain the keyword
-            menuItems = await MenuItem.find(find).select("title");
+            menuItems = await MenuItem.find(find).sort({ starMedium: -1 }).limit(8).select("title");
         }
 
         // Loop through all the menuItems
