@@ -66,10 +66,7 @@ const createSpecialtyFood = async (req, res) => {
         const name = req.body.name;
 
         // Get all specialtyFood
-        const specialtyFoods = await SpecialtyFood.find();
-
-        // Check if name specialtyFood is exist
-        const specialtyFood = specialtyFoods.find((specialtyFood) => specialtyFood.name === name);
+        const specialtyFood = await SpecialtyFood.findOne({ name: name });
 
         if (specialtyFood) {
             return res.status(400).json({
@@ -79,7 +76,6 @@ const createSpecialtyFood = async (req, res) => {
 
         // Upload to cloudinary
         const file = req.file; // Get file img from request
-        console.log(file);
 
         const result = await Cloudinary.uploader.upload(file.path, {
             folder: "Item_images",
@@ -217,13 +213,6 @@ const deleteSpecialtyFood = async (req, res) => {
 
         // Find specialtyFood by id and delete
         await SpecialtyFood.findByIdAndDelete(id);
-
-        // Return error if specialtyFood is not exist
-        if (!specialtyFood) {
-            return res.status(200).json({
-                msg: "SpecialtyFood is not exist",
-            });
-        }
 
         // Return response
         res.status(200).json({
