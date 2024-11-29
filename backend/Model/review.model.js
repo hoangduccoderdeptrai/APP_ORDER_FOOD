@@ -17,6 +17,10 @@ const ReviewSchema = new Schema({
     reviewText: {
         type: String,
     },
+    rating: {
+        type: Number,
+        default: 0,
+    },
     createdAt: {
         type: Date,
         default: Date.now,

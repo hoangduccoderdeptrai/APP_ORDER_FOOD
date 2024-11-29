@@ -7,7 +7,7 @@ import { Restaurant } from "../../Model/restaurant.model.js";
 // Import pagination helper
 import { pagination } from "../../helper/pagination.js";
 
-// Get order that is pending
+// Get order of user
 const getOrder = async (req, res) => {
     try {
         // Get user id
@@ -28,7 +28,7 @@ const getOrder = async (req, res) => {
             limit: 4,
         });
 
-        // Get all orders that are pending
+        // Get all orders via status
         const orders = await Order.find({ status: status, accountId: userId })
             .sort({ orderDate: -1 })
             .skip(objectPagination.skip)
@@ -95,7 +95,7 @@ const postEvaluation = async (req, res) => {
         const listFood = req.body.listFood;
 
         // Get order
-        const order = await Order.findById(idOrder);
+        const order = await Order.findOne({ _id: idOrder, accountId: userId });
 
         // Check if order is null
         if (!order) {
@@ -113,32 +113,9 @@ const postEvaluation = async (req, res) => {
             return res.status(200).json({ message: "List food is empty" });
         }
 
-        // Get userId from order
-        const accountId = order.accountId;
-
-        // Check is correct user
-        if (userId != accountId.toString()) {
-            return res
-                .status(200)
-                .json({ message: "You are not allowed to comment on this order" });
-        }
-
         // Check if order is completed
         if (order.status != "completed") {
             return res.status(200).json({ message: "Order is not completed" });
-        }
-
-        // Check if user has already commented
-        if (comment) {
-            // Create comment for user
-            const review = new Review({
-                accountId: userId,
-                restaurantId: order.restaurantId,
-                reviewText: comment,
-            });
-
-            // Save comment
-            await review.save();
         }
 
         let countQuantity = 0;
@@ -156,13 +133,14 @@ const postEvaluation = async (req, res) => {
             const oldfood = await MenuItem.findById(idFood);
             if (!oldfood) {
                 continue;
-            }
+            } // if food not found because food is deleted
+
             // calculate rating
             countQuantity += quantity;
             countRating += star * quantity;
             oldfood.starMedium =
                 (oldfood.starMedium * oldfood.quantitySolded + star * quantity) /
-                (quantity + oldfood.quantitySolded);
+                (oldfood.quantitySolded + quantity);
 
             // Save food
             await oldfood.save();
@@ -171,13 +149,31 @@ const postEvaluation = async (req, res) => {
         // Calculate rating for restaurant
         restaurant.starMedium =
             (restaurant.starMedium * restaurant.quantitySolded + countRating) /
-            (countQuantity + restaurant.quantitySolded);
+            restaurant.quantitySolded;
 
         // Save restaurant
         await restaurant.save();
 
+        // Check if user has already commented
+        if (comment) {
+            let ratingOrder = 0;
+            if (countQuantity > 0) {
+                ratingOrder = countRating / countQuantity;
+            }
+            // Create comment for user
+            const review = new Review({
+                accountId: userId,
+                restaurantId: order.restaurantId,
+                reviewText: comment,
+                rating: ratingOrder,
+            });
+
+            // Save comment
+            await review.save();
+        }
+
         // Return Json
-        return res.status(200).json({ message: "Comment successfully" });
+        return res.status(200).json({ message: "valuate your order successfully" });
     } catch (error) {
         // return error message
         return res.status(500).json({ message: error.message });
@@ -194,19 +190,11 @@ const deleteOrder = async (req, res) => {
         const idOrder = req.body.idOrder;
 
         // Get order
-        const order = await Order.findById(idOrder);
+        const order = await Order.findByOne({ _id: idOrder, accountId: userId });
 
         // Check if order is null
         if (!order) {
             return res.status(200).json({ message: "Order not found" });
-        }
-
-        // Get userId from order
-        const accountId = order.accountId;
-
-        // Check is correct user
-        if (userId != accountId.toString()) {
-            return res.status(200).json({ message: "You are not allowed to cancel this order" });
         }
 
         // Check if order is pending
