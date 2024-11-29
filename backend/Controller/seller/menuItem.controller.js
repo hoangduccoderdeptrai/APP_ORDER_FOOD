@@ -137,11 +137,11 @@ const updateMenuItem = async (req, res) => {
         // Update menuItem
         if (title) menuItem.title = title;
         if (description) menuItem.description = description;
-        if (price) menuItem.price = parseInt(price);
-        if (quantity) menuItem.quantity = parseInt(quantity);
-        if (discount) menuItem.discount = parseInt(discount);
+        if (price) menuItem.price = parseInt(price) || menuItem.price;
+        if (quantity) menuItem.quantity = parseInt(quantity) || menuItem.quantity;
+        if (discount) menuItem.discount = parseInt(discount) || menuItem.discount;
         if (category) menuItem.category = category;
-        if (isAvailable !== undefined) menuItem.isAvailable = isAvailable;
+        if (isAvailable) menuItem.isAvailable = isAvailable;
 
         // Save menuItem
         await menuItem.save();
@@ -179,7 +179,7 @@ const deleteMenuItem = async (req, res) => {
         await Promise.all(deleteImgCloundinary);
 
         // Delete menuItem in DB
-        await menuItem.deleteOne();
+        await MenuItem.findByIdAndDelete(menuItemId);
 
         // Return response
         return res.status(200).json({ msg: "deleting menuItem was successfull" });

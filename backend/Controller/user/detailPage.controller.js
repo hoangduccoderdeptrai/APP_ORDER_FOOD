@@ -22,7 +22,7 @@ const detailRestaurant = async (req, res) => {
         // Get restaurant
         const restaurant = await Restaurant.findById(idRestaurant);
 
-        if (!restaurant || restaurant.length === 0) {
+        if (!restaurant) {
             return res.status(404).json({
                 msg: "Restaurant not found",
             });
@@ -40,7 +40,7 @@ const detailRestaurant = async (req, res) => {
             limit: 5,
         });
         const listComment = await Review.find({ restaurantId: idRestaurant })
-            .sort({ rating: -1 })
+            .sort({ createdAt: -1 })
             .skip(objectPagination.skip)
             .limit(objectPagination.limit);
 
