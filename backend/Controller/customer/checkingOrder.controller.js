@@ -162,11 +162,11 @@ const postEvaluation = async (req, res) => {
             } // if food not found because food is deleted
 
             // calculate rating
-            countQuantity += quantity;
+            countQuantity += food.quantity;
             countRating += star * food.quantity;
             oldfood.starMedium =
-                (oldfood.starMedium * oldfood.quantitySolded + star * quantity) /
-                (oldfood.quantitySolded + quantity);
+                (oldfood.starMedium * oldfood.quantitySolded + star * food.quantity) /
+                (oldfood.quantitySolded + food.quantity);
 
             // Save food
             await oldfood.save();
