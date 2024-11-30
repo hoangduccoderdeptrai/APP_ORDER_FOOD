@@ -14,9 +14,10 @@ function App() {
   
 
   return (
-   
+    <>
     <Routes>
       <Route path='/v2/dashboard/'
+
         element={
           // add checkAuth
           <Layout/>
@@ -37,6 +38,10 @@ function App() {
         
       </Route>
     </Routes>
+    <Routes>
+
+    </Routes>
+    </>
    
   )
 }

@@ -20,9 +20,15 @@ import { sendemail } from "../../helper/sendemail.js";
 const getPageRestaurants = async (req, res) => {
     try {
         // Find condition
+        const skipPage =req.query.skip||0
+        const limit =parseInt(req.query.limit)||5
+        console.log(req.query.status,"status")
         let find = {
-            status: "active",
+            // status: req.query?.status !=="all"?req.query.status:"active",
         };
+        if(req.query?.status !=="all"){
+            find.status =req.query.status
+        } 
 
         let objectSearch = search(req.query.keyword);
 
@@ -32,16 +38,18 @@ const getPageRestaurants = async (req, res) => {
         }
 
         // Pagination
-        const numberRestaurants = await Restaurant.countDocuments(find); // Count all restaurant
-        const objectPagination = pagination(req.query, numberRestaurants, {
-            currentPage: 1,
-            limit: 4,
-        }); // objectPagination
+        // const numberRestaurants = await Restaurant.countDocuments(find); // Count all restaurant
+        // const objectPagination = pagination(req.query, numberRestaurants, {
+        //     currentPage: 1,
+        //     limit: 4,
+        // }); // objectPagination
 
         // Find all restaurants
+        const number_row = await Restaurant.countDocuments(find)
         const restaurants = await Restaurant.find(find)
-            .limit(objectPagination.limit)
-            .skip(objectPagination.skip);
+            .sort({updatedAt:-1})
+            .limit(limit)
+            .skip(skipPage*limit);
 
         // Check if restaurants is empty
         if (!restaurants || restaurants.length == 0) {
@@ -50,9 +58,9 @@ const getPageRestaurants = async (req, res) => {
 
         // Return Json
         res.status(200).json({
-            restaurants: restaurants,
-            objectPagination: objectPagination,
-            keySearch: objectSearch.keyword,
+            data: {restaurants,number_row}
+
+
         });
     } catch (err) {
         // Notificate Error

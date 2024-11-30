@@ -25,5 +25,19 @@ export const FailedNotification =(name)=>{
     })
 }
 
+export const FailedAccess =async(name)=>{
+    
+    return toast.error(`${name} access.Redirecting to login.`,{
+        position:'top-center',
+        autoClose:5000,
+        closeOnClick:true,
+        hideProgressBar:true,
+        
+    })
+
+   
+    
+}
+
 
   

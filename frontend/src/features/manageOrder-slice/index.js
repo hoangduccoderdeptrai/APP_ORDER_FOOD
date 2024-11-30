@@ -16,7 +16,8 @@ export const getOrder =createAsyncThunk(
             {
                 params:{
                     status,
-                    skip:skipPage
+                    skip:skipPage,
+                    
                 }
             }
         )
@@ -49,6 +50,7 @@ const RestaurantOrderSlice =createSlice({
             }
         ).addCase(
             getOrder.fulfilled,(state,action)=>{
+                
                 state.isLoading=false,
                 state.orderList =action.payload?.data
             }

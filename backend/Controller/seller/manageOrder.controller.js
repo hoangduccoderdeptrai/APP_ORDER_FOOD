@@ -11,7 +11,7 @@ const getOrderPending = async (req, res) => {
             .sort({ orderDate: -1 })
             .limit(10)
             .skip(skipPage * 10)
-            .populate({ path: "items.menuItemId", model: "MenuItem" })
+            .populate({ path: "items.menuItemId",select:"name", model: "MenuItem" })
             .populate({ path: "accountId", select: "name phone", model: "Account" });
         return res.status(200).json({ data: orders });
     } catch (err) {
