@@ -163,7 +163,7 @@ const postEvaluation = async (req, res) => {
 
             // calculate rating
             countQuantity += quantity;
-            countRating += star * quantity;
+            countRating += star * food.quantity;
             oldfood.starMedium =
                 (oldfood.starMedium * oldfood.quantitySolded + star * quantity) /
                 (oldfood.quantitySolded + quantity);
