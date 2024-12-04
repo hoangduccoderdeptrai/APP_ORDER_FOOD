@@ -2,12 +2,9 @@
 import express from "express";
 const manageOderRoute = express.Router();
 
-import {
-    getOrderPending,
-    updateStatusOrder,
-} from "../../Controller/seller/manageOrder.controller.js";
+import { getOrder, updateStatusOrder } from "../../Controller/seller/manageOrder.controller.js";
 
-manageOderRoute.get("/:id", getOrderPending);
+manageOderRoute.get("/:id", getOrder);
 manageOderRoute.patch("/:id", updateStatusOrder);
 
 export default manageOderRoute;

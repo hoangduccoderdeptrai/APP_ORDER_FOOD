@@ -3,7 +3,7 @@ import { Restaurant } from "../../Model/restaurant.model.js";
 import { MenuItem } from "../../Model/menuItem.model.js";
 
 // Get order pending
-const getOrderPending = async (req, res) => {
+const getOrder = async (req, res) => {
     try {
         // Get status and skip page
         const status = req.query.status || "pending";
@@ -100,4 +100,4 @@ const updateStatusOrder = async (req, res) => {
     }
 };
 
-export { getOrderPending, updateStatusOrder };
+export { getOrder, updateStatusOrder };
