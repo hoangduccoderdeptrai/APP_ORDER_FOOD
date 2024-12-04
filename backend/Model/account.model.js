@@ -19,7 +19,10 @@ const AccountSchema = new Schema({
         type: String,
         required: true,
     },
-
+    avatar: {
+        url: String,
+        public_id: String,
+    },
     role: {
         type: String,
         enum: ["admin", "seller", "customer", "user"],

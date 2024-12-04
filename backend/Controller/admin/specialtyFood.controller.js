@@ -174,7 +174,7 @@ const editSpecialtyFood = async (req, res) => {
 
         // Upload new file to cloudinary
         const result = await Cloudinary.uploader.upload(file.path, {
-            upload_preset: process.env.UPLOAD_PRESET,
+            folder: "Item_images",
         });
 
         // Image source
