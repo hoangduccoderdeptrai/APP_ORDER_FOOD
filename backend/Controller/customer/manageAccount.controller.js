@@ -44,8 +44,8 @@ const updateAccount = async (req, res) => {
 
         // Update account
         if (phone) {
-            let regExp = /^(\([0-9]{3}\) |[0-9]{3}-)[0-9]{3}-[0-9]{4}/;
-            let phoneValid = phone.match(regExp);
+            const regExp = /^(\+?[0-9]{1,3}[- ]?)?([0-9]{2,4}[- ]?)?[0-9]{3,4}[- ]?[0-9]{3,4}$/;
+            let phoneValid = regExp.test(phone);
             if (!phoneValid) {
                 return res.status(200).json({ msg: "Phone number is invalid" });
             }
@@ -55,6 +55,7 @@ const updateAccount = async (req, res) => {
 
             // Check if another account exists
             if (anotherAccount && anotherAccount._id.toString() != userId) {
+                console.log("Phone number is already in use");
                 return res.status(200).json({ msg: "Phone number is already in use" });
             }
             account.phone = phone;
@@ -86,7 +87,7 @@ const updateAccount = async (req, res) => {
         // Save account
         await account.save();
 
-        return json.status(200).json({ msg: "Account updated" });
+        return res.status(200).json({ msg: "Account updated" });
     } catch (error) {
         return res.status(500).json({ msg: error.message });
     }
