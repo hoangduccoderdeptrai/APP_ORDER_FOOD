@@ -20,7 +20,9 @@ const detailRestaurant = async (req, res) => {
         const listIdFood = [] || req.body.listIdFood;
 
         // Get restaurant
-        const restaurant = await Restaurant.findById(idRestaurant);
+        const restaurant = await Restaurant.findById(idRestaurant).select(
+            "_id name address phone time_open time_close description imageUrl starMedium review"
+        );
 
         if (!restaurant) {
             return res.status(404).json({
