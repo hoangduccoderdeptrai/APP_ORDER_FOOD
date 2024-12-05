@@ -5,10 +5,16 @@ import { Order } from "../../Model/order.model.js";
 // Create Order
 const createOrder = async (req, res) => {
     try {
-        const { restaurantId, items, deliveryAddress } = req.body;
+        const { restaurantId, items, deliveryAddress, phone } = req.body;
         const userId = req.user.userId;
         const ItemArr = [];
         let totalPrice = 0;
+
+        if (!restaurantId || !deliveryAddress || !phone)
+            return res.status(400).json({ msg: "Information is not fully" });
+
+        // Check if the items exist
+        if (!items || items.length == 0) return res.status(404).json({ msg: "Items not exist" });
 
         // Check if the restaurant exists
         const restaurant = await Restaurant.findById({ _id: restaurantId });
@@ -17,9 +23,6 @@ const createOrder = async (req, res) => {
         // Check if the restaurant is active
         if (restaurant.status !== "active")
             return res.status(400).json({ msg: "Restaurant is not active" });
-
-        // Check if the items exist
-        if (!items || items.length == 0) return res.status(404).json({ msg: "Items not exist" });
 
         // Handle order items for customer
         for (const val of items) {
@@ -48,7 +51,8 @@ const createOrder = async (req, res) => {
             restaurantId,
             items: ItemArr,
             totalPrice: totalPrice,
-            deliveryAddress: deliveryAddress || "",
+            deliveryAddress: deliveryAddress,
+            phone: phone,
             status: "pending",
         });
 
