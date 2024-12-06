@@ -53,6 +53,8 @@ const signIn = async (req, res) => {
                             role: account.role,
                             userId: account._id,
                             username: account.name,
+                            address: account.address,
+                            phone: account.phone,
                         },
                     });
             } else {
