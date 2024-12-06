@@ -1,22 +1,65 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import LoadingOverlay from 'react-loading-overlay-ts'
+import { useSelector,useDispatch } from 'react-redux'
 import { ToastContainer } from 'react-toastify'
+import TablePagination from '@mui/material/TablePagination'
 import hero from '../../assets/hero.png'
+import { fetchRestaurants } from '../../features/manageRestaurant-slice'
+import { FailedAccess} from '../../component/common/Notification.jsx'
 const ManageRestaurant = () => {
   const [status,setStatus] =useState('all')
   const [openStatus,setOpenStatus] =useState(false)
+  const [skipPage,setSkipPage] =useState(0) //0 is the first page
+  const [idRest,setIdRest] =useState(null)
+  // const [page,setPage] =useState(0) //0 is the first page
+  const [rowsPerPage,setRowPerPage] =useState(5) //default rows per page
+  const {isLoading,error,checkAuth,restaurantList} =useSelector((state)=>state.ManageRestaurant)
+  const dispatch =useDispatch()
+  const navigate =useNavigate()
+
+   // handle page change
+  const handleChangePage = (event,newPage)=>{
+    console.log(newPage,"thực sự nhớ em")
+    setSkipPage(newPage)
+  }
+  // handle rows per page change
+  const handleChangeRowsPerPage =(event)=>{
+      setRowPerPage(parseInt(event.target.value,10))
+      setSkipPage(0)
+  }
   const handleChangeStatus =(status)=>{
     console.log(status)
     setStatus(status)
   }
-  const handleOpenStatus =()=>{
+  const handleOpenStatus =(id)=>{
     console.log("test 3")
-    setOpenStatus(!openStatus)
+    if(id !==idRest)setOpenStatus(openStatus)
+    else setOpenStatus(!openStatus)
+    setIdRest(id)
+    
+    
   }
-  
+  useEffect(()=>{
+    dispatch(fetchRestaurants({status,skipPage,rowsPerPage}))
+    console.log('test 4')
+  },[dispatch,status,rowsPerPage,skipPage])
+
+  useEffect(()=>{
+    console.log(error)
+    if(error &&(checkAuth=="Unauthorized"||checkAuth=='Forbidden')){
+      FailedAccess(`${checkAuth} access.Redirecting to login within the next 3 seconds`)
+      setTimeout(()=>{
+        navigate('/login')
+      },3000)
+      
+     
+    }
+  },[error,navigate,checkAuth])
+  console.log(restaurantList)
   return (
     <LoadingOverlay
-      active={false}
+      active={isLoading}
       spinner
       Text="Loading ..."
       className='h-[650px]'
@@ -66,7 +109,58 @@ const ManageRestaurant = () => {
                       </tr>
                   </thead>
                   <tbody>
-                      <tr>
+                      {restaurantList?.length>0 && !isLoading ?
+                        (
+                            restaurantList.map((rest)=>{
+                                return (
+                                  <tr key={rest._id}>
+                                      <td >
+                                        <div className='flex  col-span-1 items-start gap-3'>
+                                          <img src={rest?.imageUrl[0]?.url||hero} className='w-[200px]' />
+                                          <div className='flex flex-col text-start'>
+                                            <p className='font-semibold font-sans  text-[#333333]'>{rest?.name}</p>
+                                            <p className='opacity-50'>ID Nhà hàng: {rest?._id}</p>
+                                          </div>
+                                          
+                                        </div>
+
+                                      </td>
+                                      <td>
+                                          {rest?.phone}
+                                      </td>
+                                      <td style={{color:rest?.state =='pending'?"yellow":rest?.status=='active'?"green":"brown"}}>{rest?.status}</td>
+                                      <td>
+                                        <div className='flex flex-col gap-2'>
+                                          <div className='relative'>
+                                            <button onClick={()=>handleOpenStatus(rest?._id)} className='cursor-pointer text-blue-400'>Cập nhật</button>
+                                            <div  style={{display:openStatus==true&& rest?._id ==idRest?"block":"none"}} className='relative ms-auto bg-[#d6cdcd] mt-[10px] w-[80px] py-2  flex flex-col gap-1 transition-all '>
+                                                <button className='hover:text-blue-500 text-start w-full'>
+
+                                                  <span className='ms-2'>Active</span>
+                                                </button>
+                                                <button className='hover:text-blue-500 text-start w-full'>
+                                                  <span className='ms-2'>Inactive</span>
+                                                  
+                                                </button>
+                                            </div>
+                                          </div>
+                                          <div>
+                                            <button className='cursor-pointer text-blue-400'>Xem thêm</button>
+                                          </div>
+                                          
+                                        </div>
+                                        
+                                      </td>
+                                    </tr>
+                                )
+                            })
+                        ):(
+                            <tr>
+                              <td colSpan="5" className="text-center">No items found</td>
+                            </tr>
+                        )
+                      }
+                      {/* <tr>
                         <td >
                           <div className='flex  col-span-1 items-start gap-3'>
                             <img src={hero} className='w-[200px]' />
@@ -104,9 +198,31 @@ const ManageRestaurant = () => {
                           </div>
                           
                         </td>
-                      </tr>
+                      </tr> */}
                   </tbody>
               </table>
+            </div>
+            <div className='px-6 pb-6'>
+              <div className=' rounded-b-2xl z-10'>
+                  <div className='w-full'></div>
+                  <TablePagination
+                      style={{
+                          
+                          fontWeight: 'bold',
+                          borderRadius: '4px',
+                          padding: '10px',
+                          fontSize:'1rem',
+                      }}
+                      page={skipPage}
+                      component="div"
+                      count={restaurantList?.length ||0}
+                      rowsPerPage={rowsPerPage}
+                      onPageChange={handleChangePage}
+                      rowsPerPageOptions={[5, 10, 25]}
+                      onRowsPerPageChange={handleChangeRowsPerPage}
+                  />
+
+              </div>
             </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import React from 'react'
+import React,{memo} from 'react'
 import UseResponsive from '../../hooks/useResponsive'
 import Search from './commom/Search'
 const Header = ({handleOpen}) => {
@@ -25,4 +25,4 @@ const Header = ({handleOpen}) => {
   )
 }
 
-export default Header
+export default memo(Header)
