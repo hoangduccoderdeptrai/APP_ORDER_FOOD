@@ -20,15 +20,15 @@ import { sendemail } from "../../helper/sendemail.js";
 const getPageRestaurants = async (req, res) => {
     try {
         // Find condition
-        const skipPage =req.query.skip||0
-        const limit =parseInt(req.query.limit)||5
-        console.log(req.query.status,"status")
+        const skipPage = req.query.skip || 0;
+        const limit = parseInt(req.query.limit) || 5;
+        console.log(req.query.status, "status");
         let find = {
             // status: req.query?.status !=="all"?req.query.status:"active",
         };
-        if(req.query?.status !=="all"){
-            find.status =req.query.status
-        } 
+        if (req.query?.status !== "all") {
+            find.status = req.query.status;
+        }
 
         let objectSearch = search(req.query.keyword);
 
@@ -45,11 +45,11 @@ const getPageRestaurants = async (req, res) => {
         // }); // objectPagination
 
         // Find all restaurants
-        const number_row = await Restaurant.countDocuments(find)
+        const number_row = await Restaurant.countDocuments(find);
         const restaurants = await Restaurant.find(find)
-            .sort({updatedAt:-1})
+            .sort({ updatedAt: -1 })
             .limit(limit)
-            .skip(skipPage*limit);
+            .skip(skipPage * limit);
 
         // Check if restaurants is empty
         if (!restaurants || restaurants.length == 0) {
@@ -58,9 +58,7 @@ const getPageRestaurants = async (req, res) => {
 
         // Return Json
         res.status(200).json({
-            data: {restaurants,number_row}
-
-
+            data: { restaurants, number_row },
         });
     } catch (err) {
         // Notificate Error
@@ -108,8 +106,8 @@ const changeStatusRestaurant = async (req, res) => {
     try {
         // Get id restaurant from params
         const id = req.params.id;
-        const status =req.body.status
-        console.log(status)
+        const status = req.body.status;
+        console.log(status);
         // Find restaurant by id
         const restaurant = await Restaurant.findById(id);
 
@@ -128,10 +126,10 @@ const changeStatusRestaurant = async (req, res) => {
         const emailOwner = owner.email;
 
         // Set status of restaurant
-        if (restaurant.status ==status) {
-            return res.status(200).json({msg:'No change'})
+        if (restaurant.status == status) {
+            return res.status(200).json({ msg: "No change" });
         }
-        restaurant.status =status
+        restaurant.status = status;
 
         // Text content
         const textContent = `Nhà hàng ${restaurant.name} của bạn đã ${
