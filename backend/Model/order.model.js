@@ -34,6 +34,8 @@ const OrderSchema = new Schema({
         enum: ["pending", "in-progress", "completed", "canceled"],
         default: "pending",
     },
+    phone: { type: String, required: true },
+    note: { type: String },
     orderDate: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
 });

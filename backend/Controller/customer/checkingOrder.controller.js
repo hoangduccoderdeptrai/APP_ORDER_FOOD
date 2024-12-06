@@ -166,7 +166,7 @@ const postEvaluation = async (req, res) => {
             countRating += star * food.quantity;
             oldfood.starMedium =
                 (oldfood.starMedium * oldfood.quantitySolded + star * food.quantity) /
-                (oldfood.quantitySolded + food.quantity);
+                oldfood.quantitySolded;
 
             // Save food
             await oldfood.save();

@@ -3,7 +3,7 @@ import { Restaurant } from "../../Model/restaurant.model.js";
 import { MenuItem } from "../../Model/menuItem.model.js";
 
 // Get order pending
-const getOrderPending = async (req, res) => {
+const getOrder = async (req, res) => {
     try {
         // Get status and skip page
         const status = req.query.status || "pending";
@@ -51,7 +51,7 @@ const updateStatusOrder = async (req, res) => {
         }
 
         // If status is completed, calculate profit and quantity solded
-        if (status.toLowerCase() === "completed") {
+        if (status.toLowerCase() === "completed" && order.status == "in-progress") {
             // Get restaurant
             const restaurant = await Restaurant.findById(restaurantId);
             if (!restaurant) {
@@ -67,6 +67,7 @@ const updateStatusOrder = async (req, res) => {
 
                 // Update quantity solded
                 menuItem.quantitySolded += item.quantity;
+                menuItem.quantity -= item.quantity;
 
                 // Save menuItem
                 await menuItem.save();
@@ -99,4 +100,4 @@ const updateStatusOrder = async (req, res) => {
     }
 };
 
-export { getOrderPending, updateStatusOrder };
+export { getOrder, updateStatusOrder };

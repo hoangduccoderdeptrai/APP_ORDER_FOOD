@@ -53,6 +53,8 @@ const signIn = async (req, res) => {
                             role: account.role,
                             userId: account._id,
                             username: account.name,
+                            address: account.address,
+                            phone: account.phone,
                         },
                     });
             } else {
@@ -144,13 +146,6 @@ const signUp = async (req, res) => {
                 return res.status(200).json({ msg: arrError });
             }
 
-            // Save account
-            await newAccount.save();
-
-            // Find account by email
-            const account = await Account.findOne({ email: email });
-            const ownerId = account._id;
-
             // Save image of restaurant to cloudinary
             const image_url = [];
 
@@ -181,6 +176,13 @@ const signUp = async (req, res) => {
                     }
                 }
             }
+
+            // Save account
+            await newAccount.save();
+
+            // Find account by email
+            const account = await Account.findOne({ email: email });
+            const ownerId = account._id;
 
             // Create restaurant
             const newRestaurant = new Restaurant({

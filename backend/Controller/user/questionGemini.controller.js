@@ -252,14 +252,14 @@ async function specialtyFood(blackList) {
         // Find condition
         let find = {};
 
-        // Search the specialty food by name
-        const newBlackList = blackList.map((foodName) => {
-            return search(foodName).regex;
-        });
-
         if (blackList && blackList.length > 0) {
+            // Search the specialty food by name
+            const newBlackList = blackList.map((foodName) => {
+                return search(foodName).regex;
+            });
             find.name = { $nin: newBlackList };
         }
+
         // Find the specialty food
         const specialtyFoods = await SpecialtyFood.find({}).limit(3).select("name");
 
@@ -313,9 +313,6 @@ async function recommendedFoods(
 
         // Search information of list food
         const objectSearchDescription = search(description);
-        const newCategories = categories.map((category) => {
-            return search(category).regex;
-        });
         if (blackList && blackList.length > 0) {
             const newBlackList = blackList.map((foodName) => {
                 return search(foodName).regex;
@@ -329,6 +326,9 @@ async function recommendedFoods(
             find.starMedium = { $gte: starMedium };
         }
         if (categories && categories.length > 0) {
+            const newCategories = categories.map((category) => {
+                return search(category).regex;
+            });
             find.category = { $in: newCategories };
         }
         if (discount) {

@@ -1,4 +1,4 @@
-// Import review model
+// Import model
 import { Review } from "../../Model/review.model.js";
 import { Restaurant } from "../../Model/restaurant.model.js";
 
