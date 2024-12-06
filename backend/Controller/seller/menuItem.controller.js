@@ -14,7 +14,7 @@ const createMenuItem = async (req, res) => {
         const files = req.files;
 
         // Get all data from request
-        const { title, description, price, category } = req.body;
+        const { title, description, price, category, quantity, discount } = req.body;
         const restaurantId = req.user.restaurantId;
 
         // Get restaurant by id and check if it is exist
@@ -58,6 +58,8 @@ const createMenuItem = async (req, res) => {
             description,
             price,
             category,
+            quantity: quantity || 0,
+            discount: discount || 0,
         });
 
         // Save new Item to DB
