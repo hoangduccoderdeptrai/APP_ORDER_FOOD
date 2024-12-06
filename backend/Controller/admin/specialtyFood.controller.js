@@ -32,7 +32,7 @@ const getAllSpecialtyFood = async (req, res) => {
 
         const objectPagination = pagination(req.query, numSpecialtyFoods, {
             currentPage: 1,
-            limit: 4,
+            limit: 8,
         }); // Get pagination object
 
         const specialtyFoods = await SpecialtyFood.find(find)
