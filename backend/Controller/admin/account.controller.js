@@ -31,7 +31,7 @@ const getPageAccount = async (req, res) => {
         const numberAccounts = await Account.countDocuments(find); // Count all account
         const objectPagination = pagination(req.query, numberAccounts, {
             currentPage: 1,
-            limit: 4,
+            limit: 100,
         }); // Get objectPagiantion
 
         // Find all account and remove password_account and address, name_account
