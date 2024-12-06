@@ -23,9 +23,9 @@ const getPageRestaurants = async (req, res) => {
         const skipPage = req.query.skip || 0;
         const limit = parseInt(req.query.limit) || 5;
         console.log(req.query.status, "status");
-        let find = {
-            // status: req.query?.status !=="all"?req.query.status:"active",
-        };
+
+        // Find condition
+        let find = {};
         if (req.query?.status !== "all") {
             find.status = req.query.status;
         }
