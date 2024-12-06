@@ -35,6 +35,7 @@ const OrderSchema = new Schema({
         default: "pending",
     },
     phone: { type: String, required: true },
+    note: { type: String },
     orderDate: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
 });

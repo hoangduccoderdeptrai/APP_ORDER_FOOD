@@ -5,7 +5,7 @@ import { Order } from "../../Model/order.model.js";
 // Create Order
 const createOrder = async (req, res) => {
     try {
-        const { restaurantId, items, deliveryAddress, phone } = req.body;
+        const { restaurantId, items, deliveryAddress, phone, note } = req.body;
         const userId = req.user.userId;
         const ItemArr = [];
         let totalPrice = 0;
@@ -53,6 +53,7 @@ const createOrder = async (req, res) => {
             totalPrice: totalPrice,
             deliveryAddress: deliveryAddress,
             phone: phone,
+            note: note || "",
             status: "pending",
         });
 
