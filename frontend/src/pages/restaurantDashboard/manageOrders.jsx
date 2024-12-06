@@ -36,7 +36,6 @@ const ManageOrders = () => {
         setSkipPage(0)
     }
     const handleStatus =async(event)=>{
-        console.log('anh yêu')
         try{
             const newStatus =event.target.value
             console.log(newStatus)
