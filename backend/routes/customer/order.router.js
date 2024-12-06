@@ -1,8 +1,7 @@
+import express from "express";
+import { createOrder } from "../../Controller/customer/order.controller.js";
+const orderItemsRoute = express.Router();
 
-import express from 'express'
-import { createOrder } from '../../Controller/customer/order.controller.js'
-const orderItemsRoute =express.Router()
+orderItemsRoute.post("/", createOrder);
 
-orderItemsRoute.post('/',createOrder)
-
-export default orderItemsRoute
+export default orderItemsRoute;

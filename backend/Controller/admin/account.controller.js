@@ -1,17 +1,8 @@
 // Import User (seller, admin, customer, shipper) model
 import { Account } from "../../Model/account.model.js";
 
-// Import Role model
-import { Role } from "../../Model/role.model.js";
-
 // Import restaurant model
 import { Restaurant } from "../../Model/restaurant.model.js";
-
-// Import InvoiceUser model
-import { InvoiceUser } from "../../Model/invoiceUser.model.js";
-
-// Import Order model
-import { Order } from "../../Model/order.model.js";
 
 // Import searchHelper
 import { search } from "../../helper/search.js";
@@ -43,9 +34,9 @@ const getPageAccount = async (req, res) => {
             limit: 4,
         }); // Get objectPagiantion
 
-        // Find all account and remove email and password_account
+        // Find all account and remove password_account and address, name_account
         const accounts = await Account.find(find)
-            .select("-password_account")
+            .select("-password_account -address -name_account")
             .limit(objectPagination.limit)
             .skip(objectPagination.skip);
 
@@ -73,20 +64,18 @@ const getDetailAccount = async (req, res) => {
         const id = req.params.id;
 
         // Find user by id and remove password_account
-        const account = await Account.findById(id).select("-password_account");
+        const account = await Account.findById(id).select(
+            "-password_account -address -name_account"
+        );
 
         // Check account is null
         if (!account) {
             return res.status(400).json({ msg: "Account not found" });
         }
 
-        // Find role by id
-        const role = await Role.findById(account.role_id);
-
         // Return Json
         res.status(200).json({
             account: account,
-            role: role,
         });
     } catch (err) {
         // Notificate Error
@@ -110,9 +99,6 @@ const deleteAccount = async (req, res) => {
 
         // Delete user by id
         await Account.findByIdAndDelete(id);
-
-        // Delete incoice of account
-        await InvoiceUser.deleteMany({ accountId: id });
 
         // Delete restaurant of user if user is seller
         await Restaurant.deleteOne({ ownerId: id });

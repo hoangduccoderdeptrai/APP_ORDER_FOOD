@@ -2,12 +2,11 @@ import express from "express";
 import connect from "./DB_Mongoose/connect_BD.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import menuItemRoute from "./routes/seller/menuItem.route.js";
 import webInitRouterCustomer from "./routes/customer/customer.router.js";
 import webInitRouterAdmin from "./routes/admin/admin.router.js";
 import webInitRouterUser from "./routes/user/user.router.js";
+import webInitRouterSeller from "./routes/seller/seller.route.js";
 import "dotenv/config.js";
-import manageOderRoute from "./routes/seller/manageOrder.route.js";
 
 function run() {
     // Init server
@@ -18,18 +17,15 @@ function run() {
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
     app.use(express.static("public"));
-
     app.use(
         cors({
             origin: "http://localhost:5173",
             credentials: true,
         })
     );
-    // Restaurant API
-    app.use("/api/restaurant", menuItemRoute);
-    app.use("/api/restaurant/order", manageOderRoute);
 
     // Use API
+    webInitRouterSeller(app); // Seller
     webInitRouterCustomer(app); // Customer
     webInitRouterAdmin(app); // Admin
     webInitRouterUser(app); // User

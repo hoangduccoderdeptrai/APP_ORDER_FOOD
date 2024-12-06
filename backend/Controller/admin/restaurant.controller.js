@@ -108,7 +108,8 @@ const changeStatusRestaurant = async (req, res) => {
     try {
         // Get id restaurant from params
         const id = req.params.id;
-
+        const status =req.body.status
+        console.log(status)
         // Find restaurant by id
         const restaurant = await Restaurant.findById(id);
 
@@ -127,11 +128,10 @@ const changeStatusRestaurant = async (req, res) => {
         const emailOwner = owner.email;
 
         // Set status of restaurant
-        if (restaurant.status == "inactive") {
-            restaurant.status = "active";
-        } else {
-            restaurant.status = "inactive";
+        if (restaurant.status ==status) {
+            return res.status(200).json({msg:'No change'})
         }
+        restaurant.status =status
 
         // Text content
         const textContent = `Nhà hàng ${restaurant.name} của bạn đã ${

@@ -7,7 +7,7 @@ import { Restaurant } from "../../Model/restaurant.model.js";
 // Import pagination helper
 import { pagination } from "../../helper/pagination.js";
 
-// Get order that is pending
+// Get order of user
 const getOrder = async (req, res) => {
     try {
         // Get user id
@@ -28,13 +28,15 @@ const getOrder = async (req, res) => {
             limit: 4,
         });
 
-        // Get all orders that are pending
+        // Get all orders via status
         const orders = await Order.find({ status: status, accountId: userId })
             .sort({ orderDate: -1 })
             .skip(objectPagination.skip)
             .limit(objectPagination.limit);
 
-        console.log(orders);
+        if (!orders || orders.length === 0) {
+            return res.status(200).json({ message: "No order found" });
+        }
 
         // Create new orders
         let newOrders = [];
@@ -49,7 +51,6 @@ const getOrder = async (req, res) => {
             // Get name restaurant
             const nameRestaurant = await Restaurant.findById(idRestaurant).select("name");
             order.nameRestaurant = nameRestaurant;
-            console.log(order);
 
             // Get listItemsOrder
             let listItemsOrder = order.items;
@@ -61,7 +62,9 @@ const getOrder = async (req, res) => {
                 const idFood = item.menuItemId;
 
                 // Get food
-                const food = await MenuItem.findOne({ _id: idFood }).select("_id title price");
+                const food = await MenuItem.findOne({ _id: idFood }).select(
+                    "_id title price starMedium imageUrl"
+                );
 
                 newListItemsOrder.push({
                     food: food,
@@ -96,15 +99,15 @@ const postEvaluation = async (req, res) => {
         const listFood = req.body.listFood;
 
         // Get order
-        const order = await Order.findById(idOrder);
+        const order = await Order.findOne({ _id: idOrder, accountId: userId });
 
         // Check if order is null
         if (!order) {
             return res.status(200).json({ message: "Order not found" });
         }
 
+        // Get restaurant
         const restaurant = await Restaurant.findById(order.restaurantId);
-
         if (!restaurant) {
             return res.status(200).json({ message: "Restaurant not found" });
         }
@@ -114,32 +117,27 @@ const postEvaluation = async (req, res) => {
             return res.status(200).json({ message: "List food is empty" });
         }
 
-        // Get userId from order
-        const accountId = order.accountId;
-
-        // Check is correct user
-        if (userId != accountId) {
-            return res
-                .status(200)
-                .json({ message: "You are not allowed to comment on this order" });
-        }
-
         // Check if order is completed
         if (order.status != "completed") {
             return res.status(200).json({ message: "Order is not completed" });
         }
 
-        // Check if user has already commented
-        if (comment) {
-            // Create comment for user
-            const review = new Review({
-                accountId: userId,
-                restaurantId: order.restaurantId,
-                reviewText: comment,
-            });
-
-            // Save comment
-            await review.save();
+        // Validate listFood is in order
+        if (listFood.length !== order.items.length) {
+            return res.status(200).json({ message: "List food is not match with order" });
+        }
+        for (let food of listFood) {
+            let check = false;
+            for (let item of order.items) {
+                if (food.idFood == item.menuItemId.toString()) {
+                    food.quantity = item.quantity;
+                    check = true;
+                    break;
+                }
+            }
+            if (!check) {
+                return res.status(200).json({ message: "List food is not match with order" });
+            }
         }
 
         let countQuantity = 0;
@@ -148,32 +146,57 @@ const postEvaluation = async (req, res) => {
         for (let food of listFood) {
             // Get id food and star food
             const idFood = food.idFood;
-            const star = food.star;
-            const quantity = food.quantity;
+
+            // convert star and quantity to number
+            let star = 0;
+            try {
+                star = parseInt(food.star);
+            } catch (error) {
+                return res.status(400).json({ message: "Star is not number" });
+            }
 
             // Get food
             const oldfood = await MenuItem.findById(idFood);
             if (!oldfood) {
                 continue;
-            }
-            // calculate rating
-            countQuantity += quantity;
-            countRating += star * quantity;
-            oldfood.starMedium =
-                (oldfood.starMedium * oldfood.quantitySolded + star * quantity) /
-                (quantity + oldfood.quantitySolded);
+            } // if food not found because food is deleted
 
+            // calculate rating
+            countQuantity += food.quantity;
+            countRating += star * food.quantity;
+            oldfood.starMedium =
+                (oldfood.starMedium * oldfood.quantitySolded + star * food.quantity) /
+                (oldfood.quantitySolded + food.quantity);
+
+            // Save food
             await oldfood.save();
         }
 
+        let ratingOrder = countRating / countQuantity;
         // Calculate rating for restaurant
         restaurant.starMedium =
-            (restaurant.starMedium * restaurant.quantitySolded + countRating) /
-            (countQuantity + restaurant.quantitySolded);
+            (restaurant.starMedium * restaurant.review + ratingOrder) / (restaurant.review + 1);
+        restaurant.review += 1;
+
+        // Save restaurant
         await restaurant.save();
 
+        // Check if user has already commented
+        if (comment) {
+            // Create comment for user
+            const review = new Review({
+                accountId: userId,
+                restaurantId: order.restaurantId,
+                reviewText: comment,
+                rating: ratingOrder,
+            });
+
+            // Save comment
+            await review.save();
+        }
+
         // Return Json
-        return res.status(200).json({ message: "Comment successfully" });
+        return res.status(200).json({ message: "valuate your order successfully" });
     } catch (error) {
         // return error message
         return res.status(500).json({ message: error.message });
@@ -190,19 +213,11 @@ const deleteOrder = async (req, res) => {
         const idOrder = req.body.idOrder;
 
         // Get order
-        const order = await Order.findById(idOrder);
+        const order = await Order.findByOne({ _id: idOrder, accountId: userId });
 
         // Check if order is null
         if (!order) {
             return res.status(200).json({ message: "Order not found" });
-        }
-
-        // Get userId from order
-        const accountId = order.accountId;
-
-        // Check is correct user
-        if (userId != accountId) {
-            return res.status(200).json({ message: "You are not allowed to cancel this order" });
         }
 
         // Check if order is pending
@@ -212,6 +227,8 @@ const deleteOrder = async (req, res) => {
 
         // Cancel order
         order.status = "canceled";
+
+        // Save order
         await order.save();
 
         // Return Json

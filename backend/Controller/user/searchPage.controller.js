@@ -24,7 +24,9 @@ const searchPage = async (req, res) => {
         }
 
         // Find condition
-        let findFood = {};
+        let findFood = {
+            isAvailable: true,
+        };
         let findRestaurant = {
             status: "active",
         };
@@ -33,7 +35,7 @@ const searchPage = async (req, res) => {
         };
 
         // Search food
-        let caterogy = infoSearch.categories;
+        let category = infoSearch.categories;
         let nameFood = infoSearch.nameFood;
 
         // Search restaurant
@@ -69,13 +71,13 @@ const searchPage = async (req, res) => {
         // list food
         let listFood = [];
 
-        if (caterogy || nameFood) {
+        if (category || nameFood) {
             // Create object search nameFood
             const objectSearchName = search(nameFood);
 
-            if (caterogy && caterogy.length > 0) {
-                findFood["caterogy"] = {
-                    $in: caterogy,
+            if (category && category.length > 0) {
+                findFood["category"] = {
+                    $in: category,
                 };
             }
 
@@ -126,6 +128,10 @@ const searchPage = async (req, res) => {
         // Get id food for each restaurant if have list food
         if (listFood.length > 0) {
             const newRestaurants = restaurants.map((restaurant) => {
+                // Convert restaurant to object
+                restaurant = restaurant.toObject();
+
+                // Assign list id food for restaurant
                 restaurant["listIdFood"] = listFood
                     .filter((food) => {
                         return food.restaurantId.toString() === restaurant._id.toString();
