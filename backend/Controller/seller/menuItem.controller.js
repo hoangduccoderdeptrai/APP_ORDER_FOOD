@@ -103,8 +103,10 @@ const updateMenuItem = async (req, res) => {
             return res.status(400).json({ msg: "Restaurant is not active" });
         }
 
+        console.log(restaurantId, "nhà hàng");
+        console.log(menuItem.restaurantId.toString(), "id món ăn");
         // Check restaurantId is match with restaurantId in menuItem
-        if (restaurantId !== menuItem.restaurantId.toString()) {
+        if (restaurantId.toString() !== menuItem.restaurantId.toString()) {
             return res.status(400).json({ msg: "restaurant has not this menuItem" });
         }
 
