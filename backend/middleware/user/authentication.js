@@ -73,6 +73,7 @@ const getMe = async (req, res, next) => {
         const account = await Account.findById(result.userId);
         result.address = account.address;
         result.phone = account.phone;
+        result.avatar = account.avatar;
 
         // Set payload to req
         result.restaurantId = RestaurantId ? RestaurantId._id : null;

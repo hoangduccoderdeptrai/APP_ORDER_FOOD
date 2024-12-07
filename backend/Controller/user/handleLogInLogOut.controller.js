@@ -55,6 +55,7 @@ const signIn = async (req, res) => {
                             username: account.name,
                             address: account.address,
                             phone: account.phone,
+                            avatar: account.avatar,
                         },
                     });
             } else {
