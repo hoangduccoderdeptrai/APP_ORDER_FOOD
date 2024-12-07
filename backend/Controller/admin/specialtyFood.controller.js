@@ -35,9 +35,7 @@ const getAllSpecialtyFood = async (req, res) => {
             limit: 8,
         }); // Get pagination object
 
-        const specialtyFoods = await SpecialtyFood.find(find)
-            .limit(objectPagination.limit)
-            .skip(objectPagination.skip);
+        const specialtyFoods = await SpecialtyFood.find(find).skip(objectPagination.skip);
 
         // Check if specialtyFoods is empty
         if (!specialtyFoods || specialtyFoods.length === 0) {
