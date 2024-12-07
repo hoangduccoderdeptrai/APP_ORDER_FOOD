@@ -173,7 +173,7 @@ const deleteMenuItem = async (req, res) => {
         const restaurantIdOwner = req.user.restaurantId;
 
         // Check if restaurantId from menuItem is match with restaurantId from user
-        if (restaurantIdMenuItem.toString() !== restaurantIdOwner) {
+        if (restaurantIdMenuItem.toString() !== restaurantIdOwner.toString()) {
             return res.status(400).json({ msg: "restaurant has not this menuItem" });
         }
 
