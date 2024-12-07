@@ -20,11 +20,17 @@ const getPageAccount = async (req, res) => {
         let find = {};
 
         // Get title role when user search
-        const objectSearch = search(req.query.keyword);
+        const objectSearchName = search(req.query.name);
+        const objectSearchRole = search(req.query.role);
 
         // Check objectSearch has regex
-        if (objectSearch.regex) {
-            find["name"] = objectSearch.regex;
+        if (objectSearchName.regex) {
+            find["name"] = objectSearchName.regex;
+        }
+
+        // Check objectSearch has regex
+        if (objectSearchRole.regex) {
+            find["role"] = objectSearchRole.regex;
         }
 
         // Pagination
