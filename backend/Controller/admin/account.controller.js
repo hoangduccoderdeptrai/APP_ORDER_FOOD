@@ -55,7 +55,8 @@ const getPageAccount = async (req, res) => {
         res.status(200).json({
             accounts: accounts,
             objectPagination: objectPagination,
-            keyword: objectSearch.keyword,
+            role: objectSearchRole.keyword,
+            name: objectSearchName.keyword,
         });
     } catch (err) {
         // Notificate Error
