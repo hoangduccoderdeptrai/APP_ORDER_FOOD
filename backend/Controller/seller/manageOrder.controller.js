@@ -1,8 +1,9 @@
 import { Order } from "../../Model/order.model.js";
 import { Restaurant } from "../../Model/restaurant.model.js";
 import { MenuItem } from "../../Model/menuItem.model.js";
-
+import { getIo } from "../../config/socket.js";
 // Get order pending
+
 const getOrder = async (req, res) => {
     try {
         // Get status and skip page
@@ -17,7 +18,7 @@ const getOrder = async (req, res) => {
             .sort({ orderDate: -1 })
             .limit(10)
             .skip(skipPage * 10)
-            .populate({ path: "items.menuItemId",select:"name", model: "MenuItem" })
+            .populate({ path: "items.menuItemId", model: "MenuItem" })
             .populate({ path: "accountId", select: "name phone", model: "Account" });
         return res.status(200).json({ data: orders });
     } catch (err) {
@@ -30,6 +31,7 @@ const getOrder = async (req, res) => {
 const updateStatusOrder = async (req, res) => {
     try {
         // Get restaurant ID, order ID, and status
+        const io =getIo()
         const restaurantId = req.user.restaurantId;
         const { orderId, status } = req.body;
 
@@ -91,6 +93,7 @@ const updateStatusOrder = async (req, res) => {
 
         // Save order
         await order.save();
+        io.emit("updateRestaurantData", order);
 
         // Return response
         return res.status(200).json({ msg: "Order was updated " });
