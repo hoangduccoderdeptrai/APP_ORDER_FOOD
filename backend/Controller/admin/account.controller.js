@@ -20,18 +20,24 @@ const getPageAccount = async (req, res) => {
         let find = {};
 
         // Get title role when user search
-        const objectSearch = search(req.query.keyword);
+        const objectSearchName = search(req.query.name);
+        const objectSearchRole = search(req.query.role);
 
         // Check objectSearch has regex
-        if (objectSearch.regex) {
-            find["name"] = objectSearch.regex;
+        if (objectSearchName.regex) {
+            find["name"] = objectSearchName.regex;
+        }
+
+        // Check objectSearch has regex
+        if (objectSearchRole.regex) {
+            find["role"] = objectSearchRole.regex;
         }
 
         // Pagination
         const numberAccounts = await Account.countDocuments(find); // Count all account
         const objectPagination = pagination(req.query, numberAccounts, {
             currentPage: 1,
-            limit: 4,
+            limit: 6,
         }); // Get objectPagiantion
 
         // Find all account and remove password_account and address, name_account
@@ -49,7 +55,8 @@ const getPageAccount = async (req, res) => {
         res.status(200).json({
             accounts: accounts,
             objectPagination: objectPagination,
-            keyword: objectSearch.keyword,
+            role: objectSearchRole.keyword,
+            name: objectSearchName.keyword,
         });
     } catch (err) {
         // Notificate Error
