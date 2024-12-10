@@ -26,7 +26,7 @@ menuItemRoute.patch(
     updateMenuItem
 );
 
-menuItemRoute.get("/all-items/:id", fetchAllItems);
+menuItemRoute.get("/all-items", fetchAllItems);
 
 // Test authorization
 menuItemRoute.get("/test-auth", authenticate, authorizeRoles("admin", "seller"), (req, res) => {

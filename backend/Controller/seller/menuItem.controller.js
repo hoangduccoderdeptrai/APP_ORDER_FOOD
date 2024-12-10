@@ -14,7 +14,7 @@ const createMenuItem = async (req, res) => {
         const files = req.files;
 
         // Get all data from request
-        const { title, description, price, category } = req.body;
+        const { title, description, price, category, quantity, discount } = req.body;
         const restaurantId = req.user.restaurantId;
 
         // Get restaurant by id and check if it is exist
@@ -58,6 +58,8 @@ const createMenuItem = async (req, res) => {
             description,
             price,
             category,
+            quantity: quantity || 0,
+            discount: discount || 0,
         });
 
         // Save new Item to DB
@@ -101,8 +103,10 @@ const updateMenuItem = async (req, res) => {
             return res.status(400).json({ msg: "Restaurant is not active" });
         }
 
+        console.log(restaurantId, "nhà hàng");
+        console.log(menuItem.restaurantId.toString(), "id món ăn");
         // Check restaurantId is match with restaurantId in menuItem
-        if (restaurantId !== menuItem.restaurantId.toString()) {
+        if (restaurantId.toString() !== menuItem.restaurantId.toString()) {
             return res.status(400).json({ msg: "restaurant has not this menuItem" });
         }
 
@@ -169,7 +173,7 @@ const deleteMenuItem = async (req, res) => {
         const restaurantIdOwner = req.user.restaurantId;
 
         // Check if restaurantId from menuItem is match with restaurantId from user
-        if (restaurantIdMenuItem.toString() !== restaurantIdOwner) {
+        if (restaurantIdMenuItem.toString() !== restaurantIdOwner.toString()) {
             return res.status(400).json({ msg: "restaurant has not this menuItem" });
         }
 

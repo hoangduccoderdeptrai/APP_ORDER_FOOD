@@ -33,7 +33,7 @@ const RestaurantSchema = new Schema({
     starMedium: { type: Number, default: 0 },
     status: {
         type: String,
-        enum: ["pending", "active", "inactive"],
+        enum: ["pending", "active", "inactive", "deny"],
         default: "pending",
     },
     description: { type: String },

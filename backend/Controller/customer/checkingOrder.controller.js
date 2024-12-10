@@ -213,7 +213,7 @@ const deleteOrder = async (req, res) => {
         const idOrder = req.body.idOrder;
 
         // Get order
-        const order = await Order.findByOne({ _id: idOrder, accountId: userId });
+        const order = await Order.findOne({ _id: idOrder, accountId: userId });
 
         // Check if order is null
         if (!order) {

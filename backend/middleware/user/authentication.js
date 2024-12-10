@@ -2,6 +2,7 @@
 import mongoose from "mongoose";
 import { verifytoken } from "../../helper/token.js";
 import { Restaurant } from "../../Model/restaurant.model.js";
+import { Account } from "../../Model/account.model.js";
 
 // Middleware to authenticate user
 const authenticate = async (req, res, next) => {
@@ -67,7 +68,12 @@ const getMe = async (req, res, next) => {
             ownerId: new mongoose.Types.ObjectId(`${result.userId}`),
         });
         console.log(RestaurantId, "rest", result.userId);
-        // Check result
+
+        // Get address and phone number of customer
+        const account = await Account.findById(result.userId);
+        result.address = account.address;
+        result.phone = account.phone;
+        result.avatar = account.avatar;
 
         // Set payload to req
         result.restaurantId = RestaurantId ? RestaurantId._id : null;
