@@ -158,35 +158,36 @@ const editSpecialtyFood = async (req, res) => {
 
         // Get file from request
         const file = req.file;
+        if (file) {
+            // check name is exist that not of specialtyFood
+            const oldSpecialtyFood = await SpecialtyFood.findOne({ name: name });
+            if (oldSpecialtyFood && oldSpecialtyFood._id.toString() !== id) {
+                return res.status(400).json({
+                    msg: "SpecialtyFood's name is exist",
+                });
+            }
 
-        // check name is exist that not of specialtyFood
-        const oldSpecialtyFood = await SpecialtyFood.findOne({ name: name });
-        if (oldSpecialtyFood && oldSpecialtyFood._id.toString() !== id) {
-            return res.status(400).json({
-                msg: "SpecialtyFood's name is exist",
+            // Delete file in cloudinary
+            await Cloudinary.uploader.destroy(specialtyFood.imageUrl.public_id);
+
+            // Upload new file to cloudinary
+            const result = await Cloudinary.uploader.upload(file.path, {
+                folder: "Item_images",
             });
+
+            // Image source
+            const image_url = {
+                url: result.secure_url,
+                public_id: result.public_id,
+            };
+            specialtyFood.imageUrl = image_url;
+
+            // Delete file temporarity
+            deleteTempFiles([file]);
         }
-
-        // Delete file in cloudinary
-        await Cloudinary.uploader.destroy(specialtyFood.imageUrl.public_id);
-
-        // Upload new file to cloudinary
-        const result = await Cloudinary.uploader.upload(file.path, {
-            folder: "Item_images",
-        });
-
-        // Image source
-        const image_url = {
-            url: result.secure_url,
-            public_id: result.public_id,
-        };
-
-        // Delete file temporarity
-        deleteTempFiles([file]);
 
         // Update specialtyFood
         specialtyFood.name = name;
-        specialtyFood.imageUrl = image_url;
 
         // Save specialtyFood
         await specialtyFood.save();
