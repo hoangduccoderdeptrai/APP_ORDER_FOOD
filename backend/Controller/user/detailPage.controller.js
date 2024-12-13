@@ -17,7 +17,7 @@ const detailRestaurant = async (req, res) => {
         const idRestaurant = req.params.id;
 
         // Get list id food of restaurant
-        const listIdFood = [] || req.body.listIdFood;
+        const listIdFood = req.body.listIdFood || [];
 
         // Get restaurant
         const restaurant = await Restaurant.findById(idRestaurant).select(
@@ -31,7 +31,7 @@ const detailRestaurant = async (req, res) => {
         }
 
         // Get list food of restaurant
-        const listAllFood = await MenuItem.find({
+        let listAllFood = await MenuItem.find({
             restaurantId: idRestaurant,
         });
 
@@ -47,10 +47,16 @@ const detailRestaurant = async (req, res) => {
             .limit(objectPagination.limit);
 
         // Arrange list food that food has id in listIdFood will be first
-        if (listIdFood.length > 0) {
-            const listFoodFirt = listAllFood.filter((food) =>
-                listIdFood.includes(food._id.toString())
-            );
+        if (listAllFood.length > 0) {
+            const listFoodFirt = listAllFood.filter((food) => {
+                let idFood = food._id.toString();
+                console.log(idFood);
+                console.log(listIdFood);
+                console.log(listIdFood.includes(idFood));
+                return listIdFood.includes(idFood);
+            });
+            console.log(listFoodFirt);
+
             const listFoodSecond = listAllFood.filter(
                 (food) => !listIdFood.includes(food._id.toString())
             );
