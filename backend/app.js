@@ -1,6 +1,6 @@
 import express from "express";
-import http from 'http';
-import {Server} from "socket.io"
+import http from "http";
+import { Server } from "socket.io";
 import connect from "./DB_Mongoose/connect_BD.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -11,8 +11,7 @@ import webInitRouterSeller from "./routes/seller/seller.route.js";
 import "dotenv/config.js";
 import { initSocket } from "./config/socket.js";
 // Init server
-const app = express()
-
+const app = express();
 
 // Middleware to handle data in request
 app.use(cookieParser());
@@ -26,9 +25,8 @@ app.use(
     })
 );
 
-const server =http.createServer(app)
-initSocket(server) //Initalize io
-
+const server = http.createServer(app);
+initSocket(server); //Initalize io
 
 // Use API
 webInitRouterSeller(app); // Seller
@@ -38,14 +36,12 @@ webInitRouterUser(app); // User
 
 // Connect to DB
 (async () => {
-    try{
+    try {
         await connect(process.env.URI);
-        server.listen(3000,()=>{
-            console.log("serve is listening")
-        })
-    }catch(err){
+        server.listen(3000, () => {
+            console.log("server is listening");
+        });
+    } catch (err) {
         console.error("Failed to start the server:", err);
     }
-    
-    
 })();

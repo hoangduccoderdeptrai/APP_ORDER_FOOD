@@ -107,7 +107,7 @@ const changeStatusRestaurant = async (req, res) => {
         // Get id restaurant from params
         const id = req.params.id;
         const status = req.body.status;
-        console.log(status);
+
         // Find restaurant by id
         const restaurant = await Restaurant.findById(id);
 

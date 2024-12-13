@@ -1,3 +1,23 @@
+const createVietnameseRegex = (keyword) => {
+    const vietnameseMap = {
+        a: "[aáàảãạâấầẩẫậăắằẳẵặ]",
+        e: "[eéèẻẽẹêếềểễệ]",
+        i: "[iíìỉĩị]",
+        o: "[oóòỏõọôốồổỗộơớờởỡợ]",
+        u: "[uúùủũụưứừửữự]",
+        y: "[yýỳỷỹỵ]",
+        d: "[dđ]",
+    };
+
+    // Replace character in keyword
+    let processedKeyword = keyword;
+    Object.keys(vietnameseMap).forEach((char) => {
+        processedKeyword = processedKeyword.replace(new RegExp(char, "g"), vietnameseMap[char]);
+    });
+
+    return processedKeyword;
+};
+
 function search(keyword) {
     // Define object search
     let objectSearch = {
@@ -10,8 +30,10 @@ function search(keyword) {
 
     // Check if has keyword
     if (objectSearch.keyword) {
+        const processedKeyword = createVietnameseRegex(objectSearch.keyword.toLocaleLowerCase());
+
         // Use regex to convert
-        objectSearch.regex = new RegExp(objectSearch.keyword, "i");
+        objectSearch.regex = new RegExp(processedKeyword, "i");
     }
 
     return objectSearch;

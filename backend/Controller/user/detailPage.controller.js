@@ -50,12 +50,8 @@ const detailRestaurant = async (req, res) => {
         if (listAllFood.length > 0) {
             const listFoodFirt = listAllFood.filter((food) => {
                 let idFood = food._id.toString();
-                console.log(idFood);
-                console.log(listIdFood);
-                console.log(listIdFood.includes(idFood));
                 return listIdFood.includes(idFood);
             });
-            console.log(listFoodFirt);
 
             const listFoodSecond = listAllFood.filter(
                 (food) => !listIdFood.includes(food._id.toString())

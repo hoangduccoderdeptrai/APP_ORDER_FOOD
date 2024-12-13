@@ -195,6 +195,7 @@ const signUp = async (req, res) => {
                 time_close: infoRestaurant.time_close,
                 description: infoRestaurant.description,
                 imageUrl: image_url,
+                starMedium: 3.5,
             });
 
             // Save restaurant

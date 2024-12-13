@@ -17,7 +17,7 @@ const searchPage = async (req, res) => {
         const infoSearch = req.body;
 
         // Check have information search
-        if (!infoSearch) {
+        if (Object.keys(infoSearch).length == 0) {
             return res.status(200).json({
                 msg: "Not found information search",
             });
@@ -35,8 +35,8 @@ const searchPage = async (req, res) => {
         };
 
         // Search food
-        let category = infoSearch.categories;
-        let nameFood = infoSearch.nameFood;
+        let categories = infoSearch.categories || [];
+        let nameFood = infoSearch.nameFood || "";
 
         // Search restaurant
         let nameRestaurant = infoSearch.nameRestaurant;
@@ -71,11 +71,11 @@ const searchPage = async (req, res) => {
         // list food
         let listFood = [];
 
-        if (category || nameFood) {
+        if ((categories && categories.length > 0) || nameFood) {
             // Create object search nameFood
             const objectSearchName = search(nameFood);
 
-            if (category && category.length > 0) {
+            if (categories && categories.length > 0) {
                 findFood["category"] = {
                     $in: category,
                 };
@@ -92,7 +92,7 @@ const searchPage = async (req, res) => {
         // Check have list food
         if (listFood.length > 0) {
             // Get list id restaurant
-            const listIdRestaurant = listFood.map((food) => food.restaurantId);
+            let listIdRestaurant = listFood.map((food) => food.restaurantId.toString());
 
             // Filter unique id restaurant
             listIdRestaurant = [...new Set(listIdRestaurant)];
@@ -109,8 +109,6 @@ const searchPage = async (req, res) => {
             currentPage: 1,
             limit: 20,
         }); // Object pagination
-
-        console.log(findRestaurant);
 
         // Find restaurant
         let restaurants = await Restaurant.find(findRestaurant)
@@ -136,7 +134,9 @@ const searchPage = async (req, res) => {
                     .filter((food) => {
                         return food.restaurantId.toString() === restaurant._id.toString();
                     })
-                    .map((food) => food._id);
+                    .map((food) => food._id.toString());
+
+                return restaurant;
             });
 
             // Assign new value for restaurants

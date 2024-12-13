@@ -73,7 +73,7 @@ const editRestaurant = async (req, res) => {
 
         // Check status of restaurant
         currentStatus = restaurant.status;
-        if (currentStatus === "pending" || currentStatus === "inactive") {
+        if (currentStatus === "deny" || currentStatus === "inactive") {
             restaurant.status = "pending";
         }
 
