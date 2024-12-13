@@ -4,6 +4,31 @@ import { Cloudinary } from "../../config/cloundinaryCofig.js";
 // Import deleteTempFiles helper
 import { deleteTempFiles } from "../../helper/deleteFileInUpload.js";
 
+const getRestaurant = async (req, res) => {
+    try {
+        // Get restaurant
+        const restaurantId = req.user.restaurantId;
+
+        // Find restaurant by id
+        const restaurant = await Restaurant.findById(restaurantId);
+
+        // Check if restaurant exist
+        if (!restaurant) {
+            return res.status(404).json({
+                msg: "Restaurant not found",
+            });
+        }
+
+        return res.status(200).json({
+            restaurant: restaurant,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            msg: error.message,
+        });
+    }
+};
+
 const editRestaurant = async (req, res) => {
     try {
         // Get information of restaurant
@@ -90,4 +115,4 @@ const editRestaurant = async (req, res) => {
     }
 };
 
-export { editRestaurant };
+export { editRestaurant, getRestaurant };
