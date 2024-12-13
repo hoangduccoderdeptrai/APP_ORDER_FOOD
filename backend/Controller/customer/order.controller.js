@@ -26,7 +26,7 @@ const createOrder = async (req, res) => {
 
         // Handle order items for customer
         for (const val of items) {
-            const { menuItemId, quantity } = val;
+            let { menuItemId, quantity } = val;
             const menuItem = await MenuItem.findById(menuItemId);
             if (!menuItem) return res.status(404).json({ msg: "Item not found" });
 
@@ -43,7 +43,6 @@ const createOrder = async (req, res) => {
                 menuItemId: menuItemId,
                 quantity: quantity,
             });
-            console.log(ItemArr);
         }
 
         const newOrder = new Order({
