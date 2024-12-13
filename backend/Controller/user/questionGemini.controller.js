@@ -13,6 +13,9 @@ import { search } from "../../helper/search.js";
 // Import gemini model
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
+// Import moment
+import moment from "moment";
+
 // Calling function to ask question to the generative model
 
 // 1. Ask for the information of a restaurant - API function
@@ -101,8 +104,8 @@ async function recommendedRestaurant(
     borough,
     street,
     rating,
-    time_open,
-    time_close,
+    time_open = "00:00",
+    time_close = "23:59",
     categories,
     description,
     blackList
@@ -116,8 +119,6 @@ async function recommendedRestaurant(
         // Recommend restaurant by information that user give
         const objectSearchBorough = search(borough);
         const objectSearchStreet = search(street);
-        const objectSearchTimeOpen = search(time_open);
-        const objectSearchTimeClose = search(time_close);
         const objectSearchDescription = search(description);
         if (blackList && blackList.length > 0) {
             const newBlackList = blackList.map((restaurantName) => {
@@ -137,12 +138,12 @@ async function recommendedRestaurant(
         if (rating) {
             find["starMedium"] = { $gte: rating };
         }
-        if (objectSearchTimeOpen.regex) {
-            find.time_open = objectSearchTimeOpen.regex;
-        }
-        if (objectSearchTimeClose.regex) {
-            find.time_close = objectSearchTimeClose.regex;
-        }
+
+        // Format time open and time close follow H:mm
+        const timeOpen = moment(time_open, "H:mm");
+        const timeClose = moment(time_close, "H:mm");
+        find.time_open = { $lte: timeOpen };
+        find.time_close = { $gte: timeClose };
 
         // Find the restaurant
         const restaurants = await Restaurant.find(find).select("name address").limit(5);

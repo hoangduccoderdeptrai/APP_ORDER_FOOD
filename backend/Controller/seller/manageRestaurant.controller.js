@@ -71,6 +71,12 @@ const editRestaurant = async (req, res) => {
             deleteTempFiles(arrImages);
         }
 
+        // Check status of restaurant
+        currentStatus = restaurant.status;
+        if (currentStatus === "pending" || currentStatus === "inactive") {
+            restaurant.status = "pending";
+        }
+
         // Save restaurant
         await restaurant.save();
 
