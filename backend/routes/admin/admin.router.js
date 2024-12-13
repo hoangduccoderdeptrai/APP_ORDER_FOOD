@@ -12,7 +12,7 @@ import { authenticate, authorizeRoles } from "../../middleware/user/authenticati
 
 function webInitRouterAdmin(app) {
     // Middleware authentication
-    // app.use("/admin", authenticate, authorizeRoles("admin"));
+    app.use("/admin", authenticate, authorizeRoles("admin"));
 
     app.use("/admin/restaurant", restaurantRouter);
 

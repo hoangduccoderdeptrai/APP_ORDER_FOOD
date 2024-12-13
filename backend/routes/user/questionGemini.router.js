@@ -9,7 +9,7 @@ import { questionGemini } from "../../Controller/user/questionGemini.controller.
 import { authenticate } from "../../middleware/user/authentication.js";
 
 // Handle the post request from user to ask Yummy chatbot
-questionGeminiRouter.post("/", authenticate, questionGemini);
+questionGeminiRouter.post("/", questionGemini);
 
 // Export the questionGeminiRouter
 export default questionGeminiRouter;
