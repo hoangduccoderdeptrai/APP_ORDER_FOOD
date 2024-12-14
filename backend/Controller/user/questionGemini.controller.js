@@ -81,17 +81,18 @@ async function informationRestaurant(listRestaurantName) {
 // 1.1 Create fuction declarations for the information of a restaurant
 const informationRestaurantDeclaration = {
     name: "informationOfRestaurant",
-    description: "Tìm kiếm thông tin của một nhà hàng dựa vào tên và thêm quận nếu có",
+    description:
+        "Lấy ra thông tin các nhà hàng dựa vào danh sách tên nhà hàng được cung cấp bởi người dùng.",
     parameters: {
         type: "object",
-        description: "Tìm kiếm thông tin của một nhà hàng",
+        description: "Chứa yêu cầu để tìm kiếm nhà hàng và lấy thông tin nhà hàng",
         properties: {
             listRestaurantName: {
                 type: "array",
                 description: "Danh sách tên nhà hàng khách hàng muốn tìm kiếm",
                 items: {
                     type: "string",
-                    description: "Tên của từng nhà hàng",
+                    description: "Tên của từng nhà hàng người dùng muốn tìm hiểu thông tin",
                 },
             },
         },
@@ -121,10 +122,7 @@ async function recommendedRestaurant(
         const objectSearchStreet = search(street);
         const objectSearchDescription = search(description);
         if (blackList && blackList.length > 0) {
-            const newBlackList = blackList.map((restaurantName) => {
-                return search(restaurantName).regex;
-            });
-            find.name = { $nin: newBlackList };
+            find.name = { $nin: blackList };
         }
         if (objectSearchBorough.regex) {
             find["address.borough"] = objectSearchBorough.regex;
@@ -140,27 +138,34 @@ async function recommendedRestaurant(
         }
 
         // Format time open and time close follow H:mm
-        const timeOpen = moment(time_open, "H:mm");
-        const timeClose = moment(time_close, "H:mm");
-        find.time_open = { $lte: timeOpen };
-        find.time_close = { $gte: timeClose };
+        const timeOpen = moment(time_open, "HH:mm").format("HH:mm");
+        const timeClose = moment(time_close, "HH:mm").format("HH:mm");
+        find.time_open = { $gte: timeOpen };
+        find.time_close = { $lte: timeClose };
+        console.log(find);
 
         // Find the restaurant
-        const restaurants = await Restaurant.find(find).select("name address").limit(5);
+        let restaurants = await Restaurant.find(find)
+            .sort({
+                quantitySolded: -1,
+                starMedium: -1,
+            })
+            .select("name address")
+            .limit(3);
 
         if (categories && categories.length > 0) {
             // New categories array
             const newCategories = categories.map((category) => {
                 return search(category).regex;
             });
-
+            console.log(newCategories);
             // Find the food of the restaurant
             const promiseRestaurant = restaurants.map(async (restaurant) => {
                 // Convert the restaurant to object
                 restaurant = restaurant.toObject();
 
                 // Get id of the restaurant
-                const restaurantId = restaurant._id;
+                const restaurantId = restaurant._id.toString();
 
                 // Find the food of the restaurant
                 const foods = await MenuItem.find({
@@ -170,6 +175,7 @@ async function recommendedRestaurant(
                     .sort({ quantitySolded: -1, starMedium: -1 })
                     .limit(3)
                     .select("title");
+                console.log(foods);
 
                 return {
                     ...restaurant,
@@ -217,18 +223,20 @@ const recommendedRestaurantDeclaration = {
             },
             time_open: {
                 type: "string",
-                description: "Thời gian mở cửa của nhà hàng",
+                description: "Thời gian mở cửa của nhà hàng ví dụ như là 8:00",
             },
             time_close: {
                 type: "string",
-                description: "Thời gian đóng cửa của nhà hàng",
+                description: "Thời gian đóng cửa của nhà hàng ví dụ như là 23:00",
             },
             categories: {
                 type: "array",
-                description: "Danh sách loại món ăn",
+                description:
+                    "Danh sách các danh mục món ăn như là: món ăn vặt, đồ uống, trà sữa, món chay, bún phở, cơm, món á,..",
                 items: {
                     type: "string",
-                    description: "Tên loại món ăn",
+                    description:
+                        "Tên danh mục món ăn như: món ăn vặt, đồ uống, trà sữa, món chay, bún phở, cơm, món á,..",
                 },
             },
             description: {
@@ -255,14 +263,11 @@ async function specialtyFood(blackList) {
 
         if (blackList && blackList.length > 0) {
             // Search the specialty food by name
-            const newBlackList = blackList.map((foodName) => {
-                return search(foodName).regex;
-            });
-            find.name = { $nin: newBlackList };
+            find.name = { $nin: blackList };
         }
 
         // Find the specialty food
-        const specialtyFoods = await SpecialtyFood.find({}).limit(3).select("name");
+        const specialtyFoods = await SpecialtyFood.find(find).limit(3).select("name");
 
         // If the specialty food is not found
         if (!specialtyFoods || specialtyFoods.length === 0) {
@@ -279,14 +284,15 @@ async function specialtyFood(blackList) {
 // 3.1 Create fuction declarations for the specialty food
 const specialtyFoodDeclaration = {
     name: "specialtyFood",
-    description: "Tìm kiếm món ăn đặc biệt của trang web Yummy",
+    description:
+        "Tìm kiếm món ăn đặc biệt, đặc trưng nhất của trang web Yummy, những món ăn này là đại diện cho website không phải của bất cứ nhà hàng nào",
     parameters: {
         type: "object",
         description: "Tìm kiếm món ăn đặc biệt của trang web Yummy",
         properties: {
             blackList: {
                 type: "array",
-                description: "Danh sách món ăn mà người dùng không muốn xem",
+                description: "Danh sách món ăn đặc biệt mà người dùng không muốn xem lại",
                 items: {
                     type: "string",
                     description: "Tên của từng món ăn",
@@ -315,10 +321,7 @@ async function recommendedFoods(
         // Search information of list food
         const objectSearchDescription = search(description);
         if (blackList && blackList.length > 0) {
-            const newBlackList = blackList.map((foodName) => {
-                return search(foodName).regex;
-            });
-            find.title = { $nin: newBlackList };
+            find.title = { $nin: blackList };
         }
         if (objectSearchDescription.regex) {
             find.description = objectSearchDescription.regex;
@@ -378,10 +381,11 @@ const recommendedFoodsDeclaration = {
             },
             categories: {
                 type: "array",
-                description: "Danh sách loại món ăn",
+                description:
+                    "Danh sách các danh mục món ăn như: ăn vặt, đồ uống, trà sữa, món chay,...",
                 items: {
                     type: "string",
-                    description: "Tên loại món ăn",
+                    description: "Tên danh mục món ăn như: bún phở, cơm, món á,...",
                 },
             },
             discount: {
@@ -532,6 +536,9 @@ const questionGemini = async (req, res) => {
     // Get hisstory from the request body
     const historyChat = req.body.history;
     const newQuestion = req.body.question;
+    for (let history of historyChat) {
+        console.log(history.parts[0].text);
+    }
 
     // Start chat with the generative model
     const chat = generatetiveModel.startChat({

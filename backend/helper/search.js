@@ -1,21 +1,29 @@
-const createVietnameseRegex = (keyword) => {
-    const vietnameseMap = {
-        a: "[aáàảãạâấầẩẫậăắằẳẵặ]",
-        e: "[eéèẻẽẹêếềểễệ]",
-        i: "[iíìỉĩị]",
-        o: "[oóòỏõọôốồổỗộơớờởỡợ]",
-        u: "[uúùủũụưứừửữự]",
-        y: "[yýỳỷỹỵ]",
-        d: "[dđ]",
+const normalizeString = (str) => {
+    // Replace accented characters with non-accented equivalents
+    const accentsMap = {
+        a: /[àáâãäåāă]/g,
+        e: /[èéêëēĕ]/g,
+        i: /[ìíîïīĭ]/g,
+        o: /[òóôõöōŏ]/g,
+        u: /[ùúûüūŭ]/g,
+        y: /[ýÿ]/g,
+        d: /đ/g,
+        A: /[ÀÁÂÃÄÅĀĂ]/g,
+        E: /[ÈÉÊËĒĔ]/g,
+        I: /[ÌÍÎÏĪĬ]/g,
+        O: /[ÒÓÔÕÖŌŎ]/g,
+        U: /[ÙÚÛÜŪŬ]/g,
+        Y: /[ÝŸ]/g,
+        D: /Đ/g,
     };
 
-    // Replace character in keyword
-    let processedKeyword = keyword;
-    Object.keys(vietnameseMap).forEach((char) => {
-        processedKeyword = processedKeyword.replace(new RegExp(char, "g"), vietnameseMap[char]);
+    // Normalize the string
+    let normalizedStr = str.trim().toLowerCase();
+    Object.keys(accentsMap).forEach((key) => {
+        normalizedStr = normalizedStr.replace(accentsMap[key], key);
     });
 
-    return processedKeyword;
+    return normalizedStr;
 };
 
 function search(keyword) {
@@ -30,10 +38,8 @@ function search(keyword) {
 
     // Check if has keyword
     if (objectSearch.keyword) {
-        const processedKeyword = createVietnameseRegex(objectSearch.keyword.toLocaleLowerCase());
-
         // Use regex to convert
-        objectSearch.regex = new RegExp(processedKeyword, "i");
+        objectSearch.regex = new RegExp(keyword, "i");
     }
 
     return objectSearch;
