@@ -60,7 +60,7 @@ const editRestaurant = async (req, res) => {
             restaurant.name = name;
         }
         if (address) {
-            restaurant.address = address;
+            restaurant.address = JSON.parse(address);
         }
         if (phone) {
             restaurant.phone = phone;
