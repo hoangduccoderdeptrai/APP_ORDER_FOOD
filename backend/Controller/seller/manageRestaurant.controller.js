@@ -75,10 +75,18 @@ const editRestaurant = async (req, res) => {
             restaurant.description = description;
         }
         // Get image from request
-        const avatar = req.files.avatar || [null];
-        const images = req.files.images || [];
+        let avatar = req.files.avatar || [null];
+        let images = req.files.images || [];
         console.log(avatar);
         console.log(images);
+        images = images.map((image) => {
+            // Check if image is String
+            if (typeof image === "string") {
+                return null;
+            } else {
+                return image;
+            }
+        });
 
         // Merge array images
         const arrImages = [...avatar, ...images];
@@ -93,7 +101,7 @@ const editRestaurant = async (req, res) => {
         await Promise.all(promiseDeleteImage);
 
         // Upload new images
-        const promiseuploadNewImages = restaurant.imageUrl.map(async (image, index) => {
+        const promiseUploadNewImages = restaurant.imageUrl.map(async (image, index) => {
             if (arrImages[index] && index <= arrImages.length - 1) {
                 let result = await Cloudinary.uploader.upload(arrImages[index].path, {
                     folder: "Item_images",
@@ -102,11 +110,10 @@ const editRestaurant = async (req, res) => {
                     url: result.secure_url,
                     public_id: result.public_id,
                 };
-            }
-            return image;
+            } else return image;
         });
 
-        const newImageUrl = await Promise.all(promiseuploadNewImages);
+        const newImageUrl = await Promise.all(promiseUploadNewImages);
 
         // Update imageUrl
         restaurant.imageUrl = newImageUrl;
