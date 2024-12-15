@@ -20,7 +20,7 @@ manageRestaurantRoute.patch(
     "/edit-restaurant",
     upload.fields([
         { name: "avatar", maxCount: 1 },
-        { name: "images", maxCount: 3 },
+        { name: "images", maxCount: 4 },
     ]),
     editRestaurant
 );
