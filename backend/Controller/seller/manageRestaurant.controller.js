@@ -47,6 +47,14 @@ const editRestaurant = async (req, res) => {
             });
         }
 
+        // Check name of restaurant is unique
+        const restaurantName = await Restaurant.findOne({ name: name }).select("_id");
+        if (restaurantName && restaurantName._id.toString() !== restaurantId.toString()) {
+            return res.status(400).json({
+                msg: "Restaurant name is already exist",
+            });
+        }
+
         // Update restaurant information
         if (name) {
             restaurant.name = name;
@@ -66,38 +74,46 @@ const editRestaurant = async (req, res) => {
         if (description) {
             restaurant.description = description;
         }
-        if (req.files) {
-            // Get image from request
-            const avatar = req.files.avatar;
-            const images = req.files.images;
+        // Get image from request
+        const avatar = req.files.avatar || null;
+        const images = req.files.images || [];
 
-            // Merge array images
-            const arrImages = [...avatar, ...images];
+        // Merge array images
+        const arrImages = [avatar, ...images];
 
-            // Delete old image
-            promiseDeleteImage = restaurant.imageUrl.map((image) => {
-                return Cloudinary.uploader.destroy(image.public_id);
-            });
-            await Promise.all(promiseDeleteImage);
+        // Delete old images in cloudinary
+        const promiseDeleteImage = restaurant.imageUrl.map(async (image, index) => {
+            if (arrImages[index]) {
+                console.log(image);
+                return await Cloudinary.uploader.destroy(image.public_id);
+            }
+        });
+        await Promise.all(promiseDeleteImage);
 
-            // Upload new image
-            promiseuploadNewImages = arrImages.map((image) => {
-                return Cloudinary.uploader.upload(image.path, {
+        // Upload new images
+        const promiseuploadNewImages = arrImages.map(async (image, index) => {
+            if (image !== null) {
+                let result = await Cloudinary.uploader.upload(image.path, {
                     folder: "Item_images",
                 });
-            });
+                return {
+                    url: result.secure_url,
+                    public_id: result.public_id,
+                };
+            }
+            return restaurant.imageUrl[index];
+        });
 
-            const newImageUrl = await Promise.all(promiseuploadNewImages);
+        const newImageUrl = await Promise.all(promiseuploadNewImages);
 
-            // Update imageUrl
-            restaurant.imageUrl = newImageUrl;
+        // Update imageUrl
+        restaurant.imageUrl = newImageUrl;
 
-            // Delete temp files
-            deleteTempFiles(arrImages);
-        }
+        // Delete temp files
+        deleteTempFiles(arrImages);
 
         // Check status of restaurant
-        currentStatus = restaurant.status;
+        let currentStatus = restaurant.status;
         if (currentStatus === "deny" || currentStatus === "inactive") {
             restaurant.status = "pending";
         }
