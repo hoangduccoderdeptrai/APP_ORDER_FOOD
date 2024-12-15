@@ -39,6 +39,7 @@ const editRestaurant = async (req, res) => {
 
         // Find restaurant by id
         const restaurant = await Restaurant.findById(restaurantId);
+        console.log(restaurant);
 
         // Check if restaurant exist
         if (!restaurant) {
@@ -79,7 +80,7 @@ const editRestaurant = async (req, res) => {
         const images = req.files.images || [];
 
         // Merge array images
-        const arrImages = [avatar, ...images];
+        const arrImages = [...avatar, ...images];
 
         // Delete old images in cloudinary
         const promiseDeleteImage = restaurant.imageUrl.map(async (image, index) => {
