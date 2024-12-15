@@ -77,7 +77,7 @@ const searchPage = async (req, res) => {
 
             if (categories && categories.length > 0) {
                 findFood["category"] = {
-                    $in: category,
+                    $in: categories,
                 };
             }
 
