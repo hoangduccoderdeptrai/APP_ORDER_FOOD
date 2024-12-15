@@ -78,6 +78,7 @@ const editRestaurant = async (req, res) => {
         const avatar = req.files.avatar || [null];
         const images = req.files.images || [];
         console.log(avatar);
+        console.log(images);
 
         // Merge array images
         const arrImages = [...avatar, ...images];
@@ -94,7 +95,7 @@ const editRestaurant = async (req, res) => {
         // Upload new images
         const promiseuploadNewImages = restaurant.imageUrl.map(async (image, index) => {
             if (arrImages[index] && index <= arrImages.length - 1) {
-                let result = await Cloudinary.uploader.upload(image.path, {
+                let result = await Cloudinary.uploader.upload(arrImages[index].path, {
                     folder: "Item_images",
                 });
                 return {
