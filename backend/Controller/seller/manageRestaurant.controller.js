@@ -39,7 +39,6 @@ const editRestaurant = async (req, res) => {
 
         // Find restaurant by id
         const restaurant = await Restaurant.findById(restaurantId);
-        console.log(restaurant);
 
         // Check if restaurant exist
         if (!restaurant) {
@@ -76,15 +75,16 @@ const editRestaurant = async (req, res) => {
             restaurant.description = description;
         }
         // Get image from request
-        const avatar = req.files.avatar || null;
+        const avatar = req.files.avatar || [null];
         const images = req.files.images || [];
+        console.log(avatar);
 
         // Merge array images
         const arrImages = [...avatar, ...images];
 
         // Delete old images in cloudinary
         const promiseDeleteImage = restaurant.imageUrl.map(async (image, index) => {
-            if (arrImages[index]) {
+            if (arrImages[index] && index <= arrImages.length - 1) {
                 console.log(image);
                 return await Cloudinary.uploader.destroy(image.public_id);
             }
@@ -92,8 +92,8 @@ const editRestaurant = async (req, res) => {
         await Promise.all(promiseDeleteImage);
 
         // Upload new images
-        const promiseuploadNewImages = arrImages.map(async (image, index) => {
-            if (image !== null) {
+        const promiseuploadNewImages = restaurant.imageUrl.map(async (image, index) => {
+            if (arrImages[index] && index <= arrImages.length - 1) {
                 let result = await Cloudinary.uploader.upload(image.path, {
                     folder: "Item_images",
                 });
@@ -102,7 +102,7 @@ const editRestaurant = async (req, res) => {
                     public_id: result.public_id,
                 };
             }
-            return restaurant.imageUrl[index];
+            return image;
         });
 
         const newImageUrl = await Promise.all(promiseuploadNewImages);
