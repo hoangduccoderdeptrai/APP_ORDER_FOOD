@@ -15,7 +15,10 @@ const createComment = async (req, res) => {
         }
 
         // Find restaurant by id
-        const restaurant = await Restaurant.findById(restaurantId);
+        const restaurant = await Restaurant.findBy({
+            _id: restaurantId,
+            status: "active",
+        });
 
         // Check if restaurant exists
         if (!restaurant) {
