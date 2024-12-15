@@ -128,7 +128,7 @@ async function recommendedRestaurant(
             find["address.borough"] = objectSearchBorough.regex;
         }
         if (objectSearchDescription.regex) {
-            find.name = objectSearchDescription.regex;
+            find.description = objectSearchDescription.regex;
         }
         if (objectSearchStreet.regex) {
             find["address.street"] = objectSearchStreet.regex;
@@ -142,7 +142,20 @@ async function recommendedRestaurant(
         const timeClose = moment(time_close, "HH:mm").format("HH:mm");
         find.time_open = { $gte: timeOpen };
         find.time_close = { $lte: timeClose };
-        console.log(find);
+        let listFood = []; // List food has category
+        if (categories && categories.length > 0) {
+            const newCategories = categories.map((category) => {
+                return search(category).regex;
+            });
+
+            listFood = await MenuItem.find({ $in: newCategories }).select("restaurantId title");
+            let listIdRestaurantHasCategory = new Set(
+                listFood.map((food) => {
+                    return food.restaurantId.toString();
+                })
+            );
+            find._id = { $in: listIdRestaurantHasCategory };
+        }
 
         // Find the restaurant
         let restaurants = await Restaurant.find(find)
@@ -153,38 +166,29 @@ async function recommendedRestaurant(
             .select("name address")
             .limit(3);
 
-        if (categories && categories.length > 0) {
-            // New categories array
-            const newCategories = categories.map((category) => {
-                return search(category).regex;
-            });
-            console.log(newCategories);
+        if (listFood && listFood.length > 0) {
             // Find the food of the restaurant
-            const promiseRestaurant = restaurants.map(async (restaurant) => {
+            restaurants = restaurants.map(async (restaurant) => {
                 // Convert the restaurant to object
                 restaurant = restaurant.toObject();
 
-                // Get id of the restaurant
-                const restaurantId = restaurant._id.toString();
+                const foods = listFood.filter((food) => {
+                    return food.restaurantId.toString() === restaurant._id.toString();
+                });
 
-                // Find the food of the restaurant
-                const foods = await MenuItem.find({
-                    restaurantId: restaurantId,
-                    category: { $in: newCategories },
-                })
-                    .sort({ quantitySolded: -1, starMedium: -1 })
-                    .limit(3)
-                    .select("title");
-                console.log(foods);
+                // Sort foods by quantity solded and star medium
+                foods.sort((a, b) => {
+                    if (a.quantitySolded === b.quantitySolded) {
+                        return b.starMedium - a.starMedium;
+                    }
+                    return b.quantitySolded - a.quantitySolded;
+                });
 
                 return {
                     ...restaurant,
                     foods: foods,
                 };
             });
-
-            // Wait for all promise
-            restaurants = await Promise.all(promiseRestaurant);
         }
 
         // If the restaurant is not found
@@ -343,7 +347,7 @@ async function recommendedFoods(
         // Find the food
         const foods = await MenuItem.find(find)
             .sort({ starMedium: -1 })
-            .limit(5)
+            .limit(3)
             .select("title price category discount starMedium category");
 
         // If the food is not found
@@ -409,7 +413,7 @@ const recommendedFoodsDeclaration = {
 };
 
 // 5. Find information of a foods - API function
-async function informationFoods(listFoodName) {
+async function informationFoods(listFoodName, listRestaurantNameOfFood) {
     try {
         // Find condition
         let find = {
@@ -420,9 +424,20 @@ async function informationFoods(listFoodName) {
         const newListFoodName = listFoodName.map((foodName) => {
             return search(foodName).regex;
         });
+        find.title = { $in: newListFoodName };
 
-        if (newListFoodName && newListFoodName.length > 0) {
-            find.title = { $in: newListFoodName };
+        if (listRestaurantNameOfFood && listRestaurantNameOfFood.length > 0) {
+            const newListRestaurantNameOfFood = listRestaurantNameOfFood.map((restaurantName) => {
+                return search(restaurantName).regex;
+            });
+
+            const listIdRestaurant = await Restaurant.find({
+                name: { $in: newListRestaurantNameOfFood },
+            }).select("_id");
+            const newListIdRestaurant = listIdRestaurant.map((restaurant) => {
+                return restaurant._id.toString();
+            });
+            find.restaurantId = { $in: newListIdRestaurant };
         }
 
         // Find the food
@@ -450,10 +465,20 @@ const informationFoodsDeclaration = {
         properties: {
             listFoodName: {
                 type: "array",
-                description: "Danh sách tên món ăn khách hàng muốn tìm kiếm",
+                description:
+                    "Danh sách tên món ăn khách hàng muốn tìm kiếm được sắp xếp theo thứ tự ưu tiên. Ví dụ: bánh mochi, bánh tét thì tôi cần cung cấp danh sách như sau: ['bánh mochi', 'bánh tét']",
                 items: {
                     type: "string",
                     description: "Tên của từng món ăn",
+                },
+            },
+            listRestaurantNameOfFood: {
+                type: "array",
+                description:
+                    "Danh sách tên nhà hàng mà món ăn thuộc về. Ví dụ: bánh mochi quán A, bánh tét quán B thì tôi cần cung cấp danh sách như sau: ['A', 'B']",
+                items: {
+                    type: "string",
+                    description: "Tên của từng nhà hàng tướng ứng với món ăn thuộc về",
                 },
             },
         },
@@ -509,8 +534,8 @@ const functions = {
             blackList
         );
     },
-    informationOfFoods: ({ listFoodName }) => {
-        return informationFoods(listFoodName);
+    informationOfFoods: ({ listFoodName, listRestaurantNameOfFood }) => {
+        return informationFoods(listFoodName, listRestaurantNameOfFood);
     },
 };
 
