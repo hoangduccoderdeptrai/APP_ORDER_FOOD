@@ -1,3 +1,4 @@
+import { console } from "inspector/promises";
 import { Restaurant } from "../../Model/restaurant.model.js";
 import { Cloudinary } from "../../config/cloundinaryCofig.js";
 
@@ -32,7 +33,7 @@ const getRestaurant = async (req, res) => {
 const editRestaurant = async (req, res) => {
     try {
         // Get information of restaurant
-        const { name, address, phone, time_open, time_close, description } = req.body;
+        const { name, address, phone, time_open, time_close, description, index } = req.body;
 
         // Get restaurant id
         const restaurantId = req.user.restaurantId;
@@ -77,33 +78,31 @@ const editRestaurant = async (req, res) => {
         // Get image from request
         let avatar = req.files.avatar || [null];
         let images = req.files.images || [];
-        console.log(avatar);
-        console.log(images);
-        images = images.map((image) => {
-            // Check if image is String
-            if (typeof image === "string") {
-                return null;
-            } else {
-                return image;
-            }
-        });
+        let arrIndexEdit = JSON.parse(index) || [];
 
         // Merge array images
-        const arrImages = [...avatar, ...images];
+        const arrImages = [...images];
+        if (avatar[0]) {
+            arrIndexEdit.unshift(-1);
+            arrImages = [...avatar, ...images];
+        }
+        arrIndexEdit = arrIndexEdit.map((index) => index + 1);
 
         // Delete old images in cloudinary
-        const promiseDeleteImage = restaurant.imageUrl.map(async (image, index) => {
-            if (arrImages[index] && index <= arrImages.length - 1) {
-                console.log(image);
-                return await Cloudinary.uploader.destroy(image.public_id);
-            }
+        const promiseDeleteImage = arrIndexEdit.map(async (value) => {
+            if (!value) return;
+            let public_id = restaurant.imageUrl[value].public_id;
+            await Cloudinary.uploader.destroy(public_id);
         });
         await Promise.all(promiseDeleteImage);
 
         // Upload new images
+        let indexUpload = 0;
         const promiseUploadNewImages = restaurant.imageUrl.map(async (image, index) => {
-            if (arrImages[index] && index <= arrImages.length - 1) {
-                let result = await Cloudinary.uploader.upload(arrImages[index].path, {
+            if (arrIndexEdit.includes(index)) {
+                console.log(index);
+                console.log(arrImages[indexUpload]);
+                let result = await Cloudinary.uploader.upload(arrImages[indexUpload++].path, {
                     folder: "Item_images",
                 });
                 return {
