@@ -78,7 +78,7 @@ const editRestaurant = async (req, res) => {
         // Get image from request
         let avatar = req.files.avatar || [null];
         let images = req.files.images || [];
-        let arrIndexEdit = JSON.parse(index) || [];
+        let arrIndexEdit = index ? JSON.parse(index) : [];
 
         // Merge array images
         const arrImages = [...images];
