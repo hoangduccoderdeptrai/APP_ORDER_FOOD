@@ -63,7 +63,7 @@ const updateStatusOrder = async (req, res) => {
             // Update profit and quantity solded of restaurant
             let totalPrice = order.totalPrice;
             let quantitySolded = 0;
-            promiseOrders = order.items.map(async (item) => {
+            let promiseOrders = order.items.map(async (item) => {
                 // Get menuItem by id
                 const menuItem = await MenuItem.findById(item.menuItemId);
 
