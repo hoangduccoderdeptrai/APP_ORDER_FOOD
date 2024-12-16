@@ -5,8 +5,7 @@ import { Order } from "../../Model/order.model.js";
 // Create Order
 const createOrder = async (req, res) => {
     try {
-        // const { restaurantId, items, deliveryAddress, phone, note } = req.body;
-        const { restaurantId, items, deliveryAddress} = req.body;
+        const { restaurantId, items, deliveryAddress, phone, note } = req.body;
         const userId = req.user.userId;
         const ItemArr = [];
         let totalPrice = 0;
