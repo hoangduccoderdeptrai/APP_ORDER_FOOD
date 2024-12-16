@@ -51,7 +51,7 @@ async function informationRestaurant(listRestaurantName) {
             restaurant = restaurant.toObject();
 
             // Get id of the restaurant
-            const restaurantId = restaurant._id;
+            const restaurantId = restaurant._id.toString();
 
             // Find the hot food of the restaurant
             const hotFoods = await MenuItem.find({
@@ -82,17 +82,18 @@ async function informationRestaurant(listRestaurantName) {
 const informationRestaurantDeclaration = {
     name: "informationOfRestaurant",
     description:
-        "Lấy ra thông tin các nhà hàng dựa vào danh sách tên nhà hàng được cung cấp bởi người dùng.",
+        "Lấy ra thông tin chi tiết các nhà hàng, quán ăn dựa vào danh sách tên của các nhà hàng, quán ăn được cung cấp bởi người dùng.",
     parameters: {
         type: "object",
-        description: "Chứa yêu cầu để tìm kiếm nhà hàng và lấy thông tin nhà hàng",
+        description: "Danh sách tên các nhà hàng mà người dùng muốn tìm hiểu thông tin chi tiết",
         properties: {
             listRestaurantName: {
                 type: "array",
-                description: "Danh sách tên nhà hàng khách hàng muốn tìm kiếm",
+                description: "Danh sách tên nhà hàng, quán ăn khách hàng muốn tìm kiếm",
                 items: {
                     type: "string",
-                    description: "Tên của từng nhà hàng người dùng muốn tìm hiểu thông tin",
+                    description:
+                        "Tên của từng nhà hàng, quán ăn người dùng muốn tìm hiểu thông tin",
                 },
             },
         },
@@ -148,15 +149,17 @@ async function recommendedRestaurant(
                 return search(category).regex;
             });
 
-            listFood = await MenuItem.find({ $in: newCategories }).select("restaurantId title");
+            listFood = await MenuItem.find({ category: { $in: newCategories } }).select(
+                "restaurantId title"
+            );
             let listIdRestaurantHasCategory = new Set(
                 listFood.map((food) => {
                     return food.restaurantId.toString();
                 })
             );
-            find._id = { $in: listIdRestaurantHasCategory };
+            find._id = { $in: [...listIdRestaurantHasCategory] };
         }
-
+        console.log(find);
         // Find the restaurant
         let restaurants = await Restaurant.find(find)
             .sort({
@@ -168,11 +171,11 @@ async function recommendedRestaurant(
 
         if (listFood && listFood.length > 0) {
             // Find the food of the restaurant
-            restaurants = restaurants.map(async (restaurant) => {
+            restaurants = restaurants.map((restaurant) => {
                 // Convert the restaurant to object
                 restaurant = restaurant.toObject();
 
-                const foods = listFood.filter((food) => {
+                let foods = listFood.filter((food) => {
                     return food.restaurantId.toString() === restaurant._id.toString();
                 });
 
@@ -183,6 +186,9 @@ async function recommendedRestaurant(
                     }
                     return b.quantitySolded - a.quantitySolded;
                 });
+
+                // Get maximum 2 foods if the restaurant has more than 2 foods
+                foods = foods.slice(0, 2);
 
                 return {
                     ...restaurant,
@@ -207,19 +213,19 @@ async function recommendedRestaurant(
 const recommendedRestaurantDeclaration = {
     name: "recommendRestaurantForUser",
     description:
-        "Gợi ý các nhà hàng và kèm theo món ăn của nhà hàng nếu có dựa trên thông tin người dùng cung cấp",
+        "Tìm kiếm, gợi ý nhà hàng theo yêu cầu của người dùng website Yummy cung cấp(nếu có). Ví dụ như quận của nhà hàng, đường phố nơi nhà hàng mở cửa, đánh giá sao của nhà hàng, thời gian mở cửa, thời gian đóng cửa, danh mục món ăn của nhà hàng, mô tả chi tiết của nhà hàng.",
     parameters: {
         type: "object",
         description:
-            "Gợi ý các nhà hàng và kèm theo món ăn của nhà hàng nếu có theo yêu cầu của người dùng cung cấp",
+            "Thông tin yêu cầu của người dùng về quán ăn, nhà hàng môn muốn tìm kiếm, gợi ý",
         properties: {
             borough: {
                 type: "string",
-                description: "Quận",
+                description: "Quận của nhà hàng",
             },
             street: {
                 type: "string",
-                description: "Đường phố của nhà hàng",
+                description: "Đường phố nơi nhà hàng mở cửa",
             },
             rating: {
                 type: "number",
@@ -236,20 +242,20 @@ const recommendedRestaurantDeclaration = {
             categories: {
                 type: "array",
                 description:
-                    "Danh sách các danh mục món ăn như là: món ăn vặt, đồ uống, trà sữa, món chay, bún phở, cơm, món á,..",
+                    "Danh sách các danh mục món ăn của nhà hàng như là: ăn vặt, đồ uống, trà sữa, món chay, bún phở, cơm, món á,...",
                 items: {
                     type: "string",
                     description:
-                        "Tên danh mục món ăn như: món ăn vặt, đồ uống, trà sữa, món chay, bún phở, cơm, món á,..",
+                        "Tên danh mục món ăn như: ăn vặt, đồ uống, trà sữa, món chay, bún phở, cơm, món á,...",
                 },
             },
             description: {
                 type: "string",
-                description: "Mô tả chi tiết nhà hàng",
+                description: "Mô tả chi tiết nhà hàng, quán ăn",
             },
             blackList: {
                 type: "array",
-                description: "Danh sách nhà hàng mà người dùng không muốn xem",
+                description: "Danh sách tên các nhà hàng mà người dùng không muốn xem",
                 items: {
                     type: "string",
                     description: "Tên của từng nhà hàng",
@@ -292,14 +298,14 @@ const specialtyFoodDeclaration = {
         "Tìm kiếm món ăn đặc biệt, đặc trưng nhất của trang web Yummy, những món ăn này là đại diện cho website không phải của bất cứ nhà hàng nào",
     parameters: {
         type: "object",
-        description: "Tìm kiếm món ăn đặc biệt của trang web Yummy",
+        description: "Thông tin danh sách các món ăn đặc biệt, đặc trưng mà người dùng ko muốn xem",
         properties: {
             blackList: {
                 type: "array",
                 description: "Danh sách món ăn đặc biệt mà người dùng không muốn xem lại",
                 items: {
                     type: "string",
-                    description: "Tên của từng món ăn",
+                    description: "Tên của từng món ăn đặc trưng",
                 },
             },
         },
@@ -366,35 +372,36 @@ async function recommendedFoods(
 const recommendedFoodsDeclaration = {
     name: "recommendedFoods",
     description:
-        "Gợi ý các món ăn dựa vào mô tả của khách hàng như tên, mô tả, giá, loại món ăn, giảm giá, đánh giá",
+        "Gợi ý, tìm kiếm thông tin các món ăn dựa vào mô tả của khách hàng(nếu có).Ví dụ như tên món ăn, mô tả chi tiết món ăn, giá cả món ăn, loại món ăn, phần trăm giảm giá, đánh giá số sao của món ăn",
     parameters: {
         type: "object",
-        description: "Gợi ý các món ăn dựa vào tên, mô tả, giá, loại món ăn, giảm giá, đánh giá",
+        description: "Thông tin tìm kiếm chi tiết của món ăn mà khách hàng muốn tìm kiếm",
         properties: {
             description: {
                 type: "string",
-                description: "Mô tả chi tiết món ăn",
+                description: "Mô tả chi tiết của món ăn",
             },
             minPrice: {
                 type: "number",
-                description: "Giá thấp nhất của món ăn",
+                description: "Giá thấp nhất của món ăn người dùng muốn tìm",
             },
             maxPrice: {
                 type: "number",
-                description: "Giá cao nhất của món ăn",
+                description: "Giá cao nhất của món ăn người dùng muốn tìm",
             },
             categories: {
                 type: "array",
                 description:
-                    "Danh sách các danh mục món ăn như: ăn vặt, đồ uống, trà sữa, món chay,...",
+                    "Danh sách các loại danh mục món ăn như: ăn vặt, đồ uống, trà sữa, món chay, bún phở, cơm, món á,..",
                 items: {
                     type: "string",
-                    description: "Tên danh mục món ăn như: bún phở, cơm, món á,...",
+                    description:
+                        "Tên danh mục món ăn như: ăn vặt, đồ uống, trà sữa, món chay, bún phở, cơm, món á,..",
                 },
             },
             discount: {
                 type: "number",
-                description: "Giảm giá của món ăn",
+                description: "Phần trăm giảm giá của món ăn",
             },
             starMedium: {
                 type: "number",
@@ -458,15 +465,17 @@ async function informationFoods(listFoodName, listRestaurantNameOfFood) {
 // 5.1 Create fuction declarations for the information of a foods
 const informationFoodsDeclaration = {
     name: "informationOfFoods",
-    description: "Tìm kiếm thông tin của một món ăn dựa vào tên",
+    description:
+        "Lấy ra thông tin cơ bản của một món ăn dựa vào tên món ăn và tên nhà hàng mà món ăn thuộc về(nếu có)",
     parameters: {
         type: "object",
-        description: "Tìm kiếm thông tin của một món ăn",
+        description:
+            "Thông tin danh sách tên của các món ăn, có thể là tên nhà hàng mà món ăn thuộc về",
         properties: {
             listFoodName: {
                 type: "array",
                 description:
-                    "Danh sách tên món ăn khách hàng muốn tìm kiếm được sắp xếp theo thứ tự ưu tiên. Ví dụ: bánh mochi, bánh tét thì tôi cần cung cấp danh sách như sau: ['bánh mochi', 'bánh tét']",
+                    "Danh sách tên món ăn khách hàng muốn tìm kiếm được sắp xếp theo thứ tự ưu tiên. Ví dụ: bánh mochi, bánh tét thì tôi cần nhận danh sách món ăn theo thứ tự như sau: ['bánh mochi', 'bánh tét']",
                 items: {
                     type: "string",
                     description: "Tên của từng món ăn",
@@ -475,7 +484,7 @@ const informationFoodsDeclaration = {
             listRestaurantNameOfFood: {
                 type: "array",
                 description:
-                    "Danh sách tên nhà hàng mà món ăn thuộc về. Ví dụ: bánh mochi quán A, bánh tét quán B thì tôi cần cung cấp danh sách như sau: ['A', 'B']",
+                    "Danh sách tên nhà hàng mà món ăn thuộc về. Ví dụ: bánh mochi quán A, bánh tét quán B thì tôi cần cung cấp danh sách tên nhà hàng theo thứ tự như sau: ['A', 'B']",
                 items: {
                     type: "string",
                     description: "Tên của từng nhà hàng tướng ứng với món ăn thuộc về",
@@ -545,7 +554,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const generatetiveModel = genAI.getGenerativeModel({
     model: "gemini-1.5-flash",
     systemInstruction:
-        "Bạn là một chatbot của ứng dụng Yummy. Nhiệm vụ của bạn là hỗ trợ người dùng tìm hiểu về thông tin của website Yummy. Website Yummy là trang web cho phép mọi người đặt và bán đồ ăn, thức uống. Những thông tin cơ bản mà người dùng cần chủ yếu là các thông tin của món ăn và nhà hàng, đơn đặt hàng của họ.Bạn có thể giúp tôi không?",
+        "Bạn là một chatbot của ứng dụng Yummy. Nhiệm vụ của bạn là hỗ trợ người dùng tìm hiểu về thông tin của website Yummy. Website Yummy là trang web cho phép mọi người đặt và bán đồ ăn, thức uống. Những thông tin cơ bản mà người dùng cần chủ yếu là các thông tin của món ăn và nhà hàng, đơn đặt hàng của họ.Bạn cố gắng hỗ trợ nhiệt tình nhé?",
     tools: {
         functionDeclarations: [
             informationRestaurantDeclaration,
@@ -572,7 +581,7 @@ const questionGemini = async (req, res) => {
 
     // Send the question to the generative model
     const result = await chat.sendMessage(newQuestion);
-    console.log(result.response.functionCalls());
+    console.log(result.response.functionCalls(), "calling function");
     let answer = "";
 
     // Get function calling is recommended
