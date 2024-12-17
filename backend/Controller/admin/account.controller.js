@@ -17,20 +17,22 @@ import { sendemail } from "../../helper/sendemail.js";
 const getPageAccount = async (req, res) => {
     try {
         // Find condition
-        let find = {};
+        let find = {
+            role: { $ne: "admin" },
+        };
 
         // Get title role when user search
         const objectSearchName = search(req.query.name);
         const objectSearchRole = search(req.query.role);
 
         // Check objectSearch has regex
-        if (objectSearchName.regex) {
-            find["name"] = objectSearchName.regex;
+        if (role) {
+            find = {
+                $and: [{ role: { $ne: "admin" } }, { role: role }],
+            };
         }
-
-        // Check objectSearch has regex
-        if (objectSearchRole.regex) {
-            find["role"] = objectSearchRole.regex;
+        if (objectSearchName.regex) {
+            find.name = objectSearchName.regex;
         }
 
         // Pagination
@@ -80,6 +82,10 @@ const getDetailAccount = async (req, res) => {
             return res.status(400).json({ msg: "Account not found" });
         }
 
+        if (account.role === "admin" && account._id.toString() !== req.user.userId.toString()) {
+            return res.status(400).json({ msg: "You can't access this account" });
+        }
+
         // Return Json
         res.status(200).json({
             account: account,
@@ -102,6 +108,10 @@ const deleteAccount = async (req, res) => {
         // Check account is null
         if (!account) {
             return res.status(400).json({ msg: "Account not found" });
+        }
+
+        if (account.role === "admin") {
+            return res.status(400).json({ msg: "You can't delete this account" });
         }
 
         // Delete user by id
