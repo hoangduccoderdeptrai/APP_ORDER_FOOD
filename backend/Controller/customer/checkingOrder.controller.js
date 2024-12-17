@@ -65,6 +65,7 @@ const getOrder = async (req, res) => {
                 const food = await MenuItem.findOne({ _id: idFood }).select(
                     "_id title price starMedium imageUrl"
                 );
+                if (!food) continue;
 
                 newListItemsOrder.push({
                     food: food,
