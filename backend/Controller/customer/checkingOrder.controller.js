@@ -74,7 +74,11 @@ const getOrder = async (req, res) => {
             }
             // Add new listItemsOrder to order
             order.items = newListItemsOrder;
-            newOrders.push(order);
+            if (newListItemsOrder.length > 0) newOrders.push(order);
+        }
+
+        if (newOrders.length === 0) {
+            return res.status(200).json({ message: "No order found" });
         }
 
         // Return Json
