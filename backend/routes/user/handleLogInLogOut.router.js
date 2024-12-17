@@ -14,6 +14,7 @@ import {
     changePassword,
     forgotPassword,
     getOtp,
+    verifyOtp,
 } from "../../Controller/user/handleLogInLogOut.controller.js";
 
 // Import getMe middleware
@@ -43,6 +44,9 @@ logInlogOutRouter.patch("/forgot-password", forgotPassword);
 
 // Get OTP
 logInlogOutRouter.post("/get-otp", getOtp);
+
+// Verify OTP
+logInlogOutRouter.post("/verify-otp", verifyOtp);
 
 // Get me
 logInlogOutRouter.get("/get-me", getMe);

@@ -274,31 +274,15 @@ const getOtp = async (req, res) => {
     }
 };
 
-// Handle forgot password
-const forgotPassword = async (req, res) => {
+// Verify otp
+const verifyOtp = async (req, res) => {
     try {
-        // Get email/phone from form
-        const accountSended = req.body.email;
+        // get email from form
+        const email = req.body.email;
         let otp = req.body.otp;
 
-        // Find account by email or phone
-        const account = await Account.findOne({
-            $or: [{ email: accountSended }, { phone: accountSended }],
-        });
-
-        // Check account
-        if (!account) {
-            res.status(200).json({ msg: "Account does not exist" });
-        }
-
-        // check otp
-        if (!otp) {
-            return res.status(400).json({ msg: "OTP is required" });
-        }
-
-        otp = md5(otp);
         // Find otp by email
-        const otpFinded = await Otp.find({ email: accountSended });
+        const otpFinded = await Otp.find({ email: email });
 
         if (otpFinded.length === 0) {
             return res.status(400).json({ msg: "OTP is expires" });
@@ -308,22 +292,59 @@ const forgotPassword = async (req, res) => {
         const latestOtp = otpFinded[otpFinded.length - 1];
 
         // Check otp
+        if (!otp) {
+            return res.status(400).json({ msg: "OTP is required" });
+        }
+
+        otp = md5(otp);
         if (latestOtp.otp !== otp) {
             return res.status(400).json({ msg: "OTP is incorrect" });
         }
 
-        // Create new password
-        const newPassword = Math.random().toString(36).slice(-8);
+        // Set time last otp to 5 minutes
+        latestOtp.expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
+        // Save otp
+        await latestOtp.save();
+
+        // Return Json
+        res.status(200).json({ msg: "Verify otp is successfully" });
+    } catch (error) {
+        return res.status(500).json({ msg: error.message });
+    }
+};
+
+// Handle forgot password
+const forgotPassword = async (req, res) => {
+    try {
+        // Get otp/newPassword from form
+        const newPassword = req.body.newPassword;
+        let otp = req.body.otp;
+        if (!otp) {
+            return res.status(400).json({ msg: "OTP is required" });
+        }
+        otp = md5(otp);
+
+        // Find Otp by otp
+        const otpFinded = await Otp.findOne({ otp: otp });
+
+        if (!otpFinded) {
+            return res.status(400).json({ msg: "OTP is expires" });
+        }
+
+        const email = otpFinded.email;
+        const account = await Account.findOne({ email: email });
+
+        // Check account
+        if (!account) {
+            res.status(200).json({ msg: "Account does not exist" });
+        }
 
         // Update password
         account.password_account = md5(newPassword);
 
         // Save account
         await account.save();
-
-        // Send email
-        const textContent = `Mật khẩu mới của bạn là: ${newPassword}`;
-        sendemail(accountSended, textContent);
 
         // Return Json
         res.status(200).json({ msg: "Reset password is successfully" });
@@ -376,4 +397,4 @@ const changePassword = async (req, res) => {
 };
 
 // Export module
-export { signIn, signUp, signOut, changePassword, forgotPassword, getOtp };
+export { signIn, signUp, signOut, changePassword, forgotPassword, getOtp, verifyOtp };
