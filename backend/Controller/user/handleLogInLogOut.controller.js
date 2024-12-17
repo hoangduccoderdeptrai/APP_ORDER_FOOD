@@ -7,6 +7,8 @@ import { Restaurant } from "../../Model/restaurant.model.js";
 // Import cloudinary
 import { Cloudinary } from "../../config/cloundinaryCofig.js";
 
+import { Otp } from "../../Model/otp.model.js";
+
 // Import md5
 import md5 from "md5";
 
@@ -234,11 +236,50 @@ const signOut = async (req, res) => {
     }
 };
 
+// Get Otp
+const getOtp = async (req, res) => {
+    try {
+        // Get email from form
+        const email = req.body.email;
+
+        // Get account by email
+        const account = await Account.find({ email: email });
+
+        // Check account
+        if (!account) {
+            return res.status(200).json({ msg: "Account does not exist" });
+        }
+
+        // Create new otp has 6 digits
+        let otp = Math.floor(100000 + Math.random() * 900000).toString();
+        let otpEndcode = md5(otp);
+
+        // Save otp
+        const newOtp = new Otp({
+            otp: otpEndcode,
+            email: email,
+        });
+
+        // Save otp
+        await newOtp.save();
+
+        // Send email
+        const textContent = `Mã OTP của bạn là: ${otp}, mã này tồn tại trong 2 phút`;
+        sendemail(email, textContent);
+
+        // Return Json
+        res.status(200).json({ msg: "Get otp is successfully" });
+    } catch (error) {
+        return res.status(500).json({ msg: error.message });
+    }
+};
+
 // Handle forgot password
 const forgotPassword = async (req, res) => {
     try {
         // Get email/phone from form
-        const accountSended = req.body.email || req.body.phone;
+        const accountSended = req.body.email;
+        let otp = req.body.otp;
 
         // Find account by email or phone
         const account = await Account.findOne({
@@ -248,23 +289,44 @@ const forgotPassword = async (req, res) => {
         // Check account
         if (!account) {
             res.status(200).json({ msg: "Account does not exist" });
-        } else {
-            // Create new password
-            const newPassword = Math.random().toString(36).slice(-8);
-
-            // Update password
-            account.password_account = md5(newPassword);
-
-            // Save account
-            await account.save();
-
-            // Send email
-            const textContent = `Mật khẩu của bạn là: ${newPassword}, vui lòng đăng nhập và đổi mật khẩu ngay sau khi đăng nhập thành công để bảo mật tài khoản.`;
-            sendemail(account.email, textContent);
-
-            // Return Json
-            res.status(200).json({ msg: "Reset password is successfully" });
         }
+
+        // check otp
+        if (!otp) {
+            return res.status(400).json({ msg: "OTP is required" });
+        }
+
+        otp = md5(otp);
+        // Find otp by email
+        const otpFinded = await Otp.find({ email: accountSended });
+
+        if (otpFinded.length === 0) {
+            return res.status(400).json({ msg: "OTP is expires" });
+        }
+
+        // Get latest otp
+        const latestOtp = otpFinded[otpFinded.length - 1];
+
+        // Check otp
+        if (latestOtp.otp !== otp) {
+            return res.status(400).json({ msg: "OTP is incorrect" });
+        }
+
+        // Create new password
+        const newPassword = Math.random().toString(36).slice(-8);
+
+        // Update password
+        account.password_account = md5(newPassword);
+
+        // Save account
+        await account.save();
+
+        // Send email
+        const textContent = `Mật khẩu mới của bạn là: ${newPassword}`;
+        sendemail(accountSended, textContent);
+
+        // Return Json
+        res.status(200).json({ msg: "Reset password is successfully" });
     } catch (err) {
         // Notificate Error
         res.status(500).json({ msg: err.message });
@@ -314,4 +376,4 @@ const changePassword = async (req, res) => {
 };
 
 // Export module
-export { signIn, signUp, signOut, changePassword, forgotPassword };
+export { signIn, signUp, signOut, changePassword, forgotPassword, getOtp };

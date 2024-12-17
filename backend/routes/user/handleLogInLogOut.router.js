@@ -13,6 +13,7 @@ import {
     signOut,
     changePassword,
     forgotPassword,
+    getOtp,
 } from "../../Controller/user/handleLogInLogOut.controller.js";
 
 // Import getMe middleware
@@ -39,6 +40,9 @@ logInlogOutRouter.patch("/change-password", authenticate, changePassword);
 
 // Forgot password
 logInlogOutRouter.patch("/forgot-password", forgotPassword);
+
+// Get OTP
+logInlogOutRouter.post("/get-otp", getOtp);
 
 // Get me
 logInlogOutRouter.get("/get-me", getMe);
