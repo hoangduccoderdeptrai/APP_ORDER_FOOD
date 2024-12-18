@@ -26,7 +26,7 @@ const getPageAccount = async (req, res) => {
         const objectSearchRole = search(req.query.role);
 
         // Check objectSearch has regex
-        if (role) {
+        if (req.query.role) {
             find = {
                 $and: [{ role: { $ne: "admin" } }, { role: role }],
             };
@@ -34,6 +34,7 @@ const getPageAccount = async (req, res) => {
         if (objectSearchName.regex) {
             find.name = objectSearchName.regex;
         }
+        console.log(find);
 
         // Pagination
         const numberAccounts = await Account.countDocuments(find); // Count all account
