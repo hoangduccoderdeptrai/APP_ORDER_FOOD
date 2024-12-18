@@ -7,6 +7,9 @@ import { MenuItem } from "../../Model/menuItem.model.js";
 // Import review model
 import { Review } from "../../Model/review.model.js";
 
+// Import account model
+import { Account } from "../../Model/account.model.js";
+
 // Import pagination helper
 import { pagination } from "../../helper/pagination.js";
 
@@ -46,6 +49,20 @@ const detailRestaurant = async (req, res) => {
             .skip(objectPagination.skip)
             .limit(objectPagination.limit);
 
+        const promiseComment = listComment.map(async (comment) => {
+            const userId = comment.accountId.toString();
+            const user = await Account.findById(userId).select("name avatar");
+            return {
+                _id: comment._id,
+                userId: userId,
+                userName: user.name,
+                userAvatar: user.avatar,
+                content: comment.reviewText,
+                star: comment.rating,
+            };
+        });
+        const listNewComment = await Promise.all(promiseComment);
+
         // Arrange list food that food has id in listIdFood will be first
         if (listAllFood.length > 0) {
             const listFoodFirt = listAllFood.filter((food) => {
@@ -63,7 +80,7 @@ const detailRestaurant = async (req, res) => {
         res.status(200).json({
             restaurant: restaurant,
             listAllFood: listAllFood,
-            listComment: listComment,
+            listComment: listNewComment,
             objectPagination: objectPagination,
         });
     } catch (error) {

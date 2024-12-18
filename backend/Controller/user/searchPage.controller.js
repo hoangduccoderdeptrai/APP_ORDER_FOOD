@@ -97,19 +97,19 @@ const searchPage = async (req, res) => {
                     msg: "Not found food",
                 });
             }
+
+            // Check have list food
+            // Get list id restaurant
+            let listIdRestaurant = listFood.map((food) => food.restaurantId.toString());
+
+            // Filter unique id restaurant
+            listIdRestaurant = [...new Set(listIdRestaurant)];
+
+            // Update find restaurant to save id restaurant
+            findRestaurant["_id"] = {
+                $in: listIdRestaurant,
+            };
         }
-
-        // Check have list food
-        // Get list id restaurant
-        let listIdRestaurant = listFood.map((food) => food.restaurantId.toString());
-
-        // Filter unique id restaurant
-        listIdRestaurant = [...new Set(listIdRestaurant)];
-
-        // Update find restaurant to save id restaurant
-        findRestaurant["_id"] = {
-            $in: listIdRestaurant,
-        };
 
         // Object pagination
         const numRestaurants = await Restaurant.countDocuments(findRestaurant);

@@ -576,7 +576,7 @@ const questionGemini = async (req, res) => {
 
     // Start chat with the generative model
     const chat = generatetiveModel.startChat({
-        history: historyChat,
+        // history: historyChat,
     });
 
     // Send the question to the generative model
