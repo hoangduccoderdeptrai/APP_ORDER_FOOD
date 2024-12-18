@@ -7,11 +7,13 @@ import {
     getPageRestaurants,
     getDetailRetaurant,
     changeStatusRestaurant,
+    
 } from "../../Controller/admin/restaurant.controller.js";
 
 // Get all restaurants
 restaurantRouter.get("/", getPageRestaurants);
-
+//search restaurant
+restaurantRouter.get('/search',getPageRestaurants)
 // Get detail restaurant
 restaurantRouter.get("/detail/:id", getDetailRetaurant);
 
