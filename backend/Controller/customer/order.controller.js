@@ -1,10 +1,11 @@
 import { Restaurant } from "../../Model/restaurant.model.js";
 import { MenuItem } from "../../Model/menuItem.model.js";
 import { Order } from "../../Model/order.model.js";
-
+import { getIo } from "../../config/socket.js";
 // Create Order
 const createOrder = async (req, res) => {
     try {
+        const io =getIo()
         const { restaurantId, items, deliveryAddress, phone, note } = req.body;
         const userId = req.user.userId;
         const ItemArr = [];
@@ -58,7 +59,7 @@ const createOrder = async (req, res) => {
 
         // Save order
         await newOrder.save();
-
+        io.emit("orderFood", newOrder);
         // Return response
         return res.status(200).json({ data: newOrder });
     } catch (err) {

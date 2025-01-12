@@ -257,6 +257,19 @@ const acceptOrDenyRestaurant = async (req, res) => {
     }
 };
 
+// const searchRestaurant =async(req,res)=>{
+//     const { name } = req.query;
+
+//     try {
+//         const query = name
+//         ? { name: { $regex: name, $options: 'i' } } // Case-insensitive search
+//         : {};
+//         const restaurants = await Restaurant.find(query);
+//         res.status(200).json(restaurants);
+//     } catch (err) {
+//         res.status(500).json({ message: 'Error fetching restaurants', error: err });
+//     }
+// }
 export {
     getPageRestaurants,
     getDetailRetaurant,
