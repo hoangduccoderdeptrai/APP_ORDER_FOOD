@@ -570,8 +570,9 @@ const questionGemini = async (req, res) => {
     // Get hisstory from the request body
     const historyChat = req.body.history;
     const newQuestion = req.body.question;
+
     for (let history of historyChat) {
-        console.log(history.parts[0].text);
+        console.log(history);
     }
 
     // Start chat with the generative model

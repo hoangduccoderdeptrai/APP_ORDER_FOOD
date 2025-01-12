@@ -73,6 +73,9 @@ const signIn = async (req, res) => {
 // Sign up account
 const signUp = async (req, res) => {
     try {
+        // Get otp from form
+        const otp = JSON.parse(req.body.otp);
+
         // Get account from form
         const infoAccount = JSON.parse(req.body.infoAccount);
 

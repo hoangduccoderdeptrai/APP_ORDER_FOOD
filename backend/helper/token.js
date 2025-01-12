@@ -63,7 +63,7 @@ function verifytoken(token) {
             .digest("base64url");
 
         // Check signature is valid
-        if (signature === signatureCheck && Date.now() <= decodedPayload.exp * 1000) {
+        if (signature === signatureCheck && Date.now() <= decodedPayload.exp) {
             return decodedPayload;
         } else {
             return null;
