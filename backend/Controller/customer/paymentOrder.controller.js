@@ -7,6 +7,9 @@ import qs from "qs";
 // import crypto
 import crypto from "crypto";
 
+// Import oders model
+import { Order } from "../../Model/order.model.js";
+
 // Import sortObject helper function
 import { sortObject } from "../../helper/sort.js";
 
@@ -14,6 +17,9 @@ const sendRequestToVnpay = async (req, res) => {
     try {
         // Set timezone for server
         process.env.TZ = "Asia/Ho_Chi_Minh";
+
+        // Get orderId from req
+        let orderId = req.body.orderId;
 
         // Get day time and format
         let date = new Date();
@@ -27,7 +33,7 @@ const sendRequestToVnpay = async (req, res) => {
         let secretKey = process.env.vnp_HashSecret;
         let vnpUrl = process.env.vnp_Url;
         let returnUrl = process.env.vnp_ReturnUrl;
-        let orderId = moment(date).format("DDHHmmss");
+        let orderIdPayment = moment(date).format("DDHHmmss");
         let amount = req.body.amount;
         let bankCode = req.body.bankCode;
         let locale = req.body.language || "vn";
@@ -40,8 +46,8 @@ const sendRequestToVnpay = async (req, res) => {
         vnp_Params["vnp_TmnCode"] = tmnCode;
         vnp_Params["vnp_Locale"] = locale;
         vnp_Params["vnp_CurrCode"] = currCode;
-        vnp_Params["vnp_TxnRef"] = orderId;
-        vnp_Params["vnp_OrderInfo"] = "Thanh toan cho ma GD:" + orderId;
+        vnp_Params["vnp_TxnRef"] = orderIdPayment;
+        vnp_Params["vnp_OrderInfo"] = "Thanh toan cho ma GD:" + orderIdPayment;
         vnp_Params["vnp_OrderType"] = "other";
         vnp_Params["vnp_Amount"] = amount * 100;
         vnp_Params["vnp_ReturnUrl"] = returnUrl;
@@ -60,6 +66,8 @@ const sendRequestToVnpay = async (req, res) => {
         vnp_Params["vnp_SecureHash"] = signed;
         vnpUrl += "?" + qs.stringify(vnp_Params, { encode: false });
 
+        // Create order transaction
+
         // Return json
         res.status(200).json({ vnpUrl: vnpUrl });
     } catch (error) {
@@ -67,4 +75,35 @@ const sendRequestToVnpay = async (req, res) => {
     }
 };
 
-export { sendRequestToVnpay };
+// Check return Url from Vnpay
+const returnVnpay = async (req, res) => {
+    try {
+        let vnp_Params = req.query;
+
+        let secureHash = vnp_Params["vnp_SecureHash"];
+
+        delete vnp_Params["vnp_SecureHash"];
+        delete vnp_Params["vnp_SecureHashType"];
+
+        vnp_Params = sortObject(vnp_Params);
+
+        let tmnCode = process.env.vnp_TmnCode;
+        let secretKey = process.env.vnp_HashSecret;
+
+        let signData = querystring.stringify(vnp_Params, { encode: false });
+        let hmac = crypto.createHmac("sha512", secretKey);
+        let signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
+
+        if (secureHash === signed) {
+            //Kiem tra xem du lieu trong db co hop le hay khong va thong bao ket qua
+
+            res.render("success", { code: vnp_Params["vnp_ResponseCode"] });
+        } else {
+            res.render("success", { code: "97" });
+        }
+    } catch (error) {
+        res.status(500).json({ msg: error.message });
+    }
+};
+
+export { sendRequestToVnpay, returnVnpay };
