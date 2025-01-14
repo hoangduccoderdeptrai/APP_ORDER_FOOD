@@ -88,7 +88,7 @@ const sendRequestToVnpay = async (req, res) => {
 // Check return Url from Vnpay
 const returnVnpay = async (req, res) => {
     try {
-        let vnp_Params = req.query;
+        let vnp_Params = { ...req.query };
 
         let secureHash = vnp_Params["vnp_SecureHash"];
 
@@ -100,7 +100,7 @@ const returnVnpay = async (req, res) => {
         let tmnCode = process.env.vnp_TmnCode;
         let secretKey = process.env.vnp_HashSecret;
 
-        let signData = querystring.stringify(vnp_Params, { encode: false });
+        let signData = qs.stringify(vnp_Params, { encode: false });
         let hmac = crypto.createHmac("sha512", secretKey);
         let signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
 
@@ -117,7 +117,7 @@ const returnVnpay = async (req, res) => {
             // Find transaction
             let transactions = await TransactionOrder.find({
                 orderIdPayment: orderIdPayment,
-                status: status,
+                status: false,
             });
             if (!transactions || transactions.length === 0) {
                 return res.status(404).json({ msg: "Transaction not found" });
@@ -125,7 +125,7 @@ const returnVnpay = async (req, res) => {
             let transaction = transactions[0];
 
             // Update order status
-            const orderId = transaction.orderId;
+            const orderId = transaction.orderId.toString();
 
             // Find order
             let order = await Order.findById(orderId);
