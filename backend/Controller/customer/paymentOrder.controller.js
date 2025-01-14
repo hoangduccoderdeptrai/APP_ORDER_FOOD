@@ -10,6 +10,9 @@ import crypto from "crypto";
 // Import oders model
 import { Order } from "../../Model/order.model.js";
 
+// Import transaction model
+import { TransactionOrder } from "../../Model/transactionOrder.model.js";
+
 // Import sortObject helper function
 import { sortObject } from "../../helper/sort.js";
 
@@ -67,6 +70,13 @@ const sendRequestToVnpay = async (req, res) => {
         vnpUrl += "?" + qs.stringify(vnp_Params, { encode: false });
 
         // Create order transaction
+        const infortransaction = {
+            orderId: orderId,
+            orderIdPayment: orderIdPayment,
+            status: false,
+        };
+        const transaction = new TransactionOrder(infortransaction);
+        await transaction.save();
 
         // Return json
         res.status(200).json({ vnpUrl: vnpUrl });
@@ -95,11 +105,45 @@ const returnVnpay = async (req, res) => {
         let signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
 
         if (secureHash === signed) {
-            //Kiem tra xem du lieu trong db co hop le hay khong va thong bao ket qua
+            // Get transaction
+            let status = vnp_Params["vnp_ResponseCode"];
+            let orderIdPayment = vnp_Params["vnp_TxnRef"];
 
-            res.render("success", { code: vnp_Params["vnp_ResponseCode"] });
+            // If status is 00, transaction is success else transaction is fail
+            if (status !== "00") {
+                return res.status(200).json({ code: status, msg: "Fail to payment order" });
+            }
+
+            // Find transaction
+            let transactions = await TransactionOrder.find({
+                orderIdPayment: orderIdPayment,
+                status: status,
+            });
+            if (!transactions || transactions.length === 0) {
+                return res.status(404).json({ msg: "Transaction not found" });
+            }
+            let transaction = transactions[0];
+
+            // Update order status
+            const orderId = transaction.orderId;
+
+            // Find order
+            let order = await Order.findById(orderId);
+            if (!order) {
+                return res.status(404).json({ msg: "Order not found" });
+            }
+
+            // Update order status
+            order.status = "completed";
+            await order.save();
+
+            // Update transaction status
+            transaction.status = true;
+            await transaction.save();
+
+            res.status(200).json({ code: status, msg: "Success to payment order" });
         } else {
-            res.render("success", { code: "97" });
+            res.status(400).json({ msg: "Fail to payment order", code: "97" });
         }
     } catch (error) {
         res.status(500).json({ msg: error.message });
