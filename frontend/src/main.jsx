@@ -6,7 +6,7 @@ import './index.css'
 import GlobalStyles from './components/GlobalStyles/index.js'
 import { BrowserRouter as Router } from 'react-router-dom'
 import { Provider } from 'react-redux'
-import { store } from './app/store.js'
+import { store } from './app/store'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
