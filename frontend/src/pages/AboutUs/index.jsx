@@ -1,13 +1,23 @@
 import * as React from 'react'
 import Image_value from '~/assets/images/aboutUs/about_us_ourvalue.png'
-import Background from '~/assets/images/aboutUs/background_about_us.png'
-import vector from '~/assets/images/aboutUs/about_us_line.png'
+import Aos from 'aos'
+import 'aos/dist/aos.css'
+import { useEffect } from 'react'
 
 const AboutUs = () => {
+  useEffect(() => {
+    Aos.init({
+      duration: 1000,
+      offset: 50,
+      easing: 'ease-in-out',
+      mirror: true,
+    })
+  }, [])
+
   // Biến Style cho Heading
-  const styleTextHeading = 'sm:text-[28px] md:text-[36px] lg:text-[48px] xl:text-[60px]'
+  const styleTextHeading = 'text-[28px] md:text-[36px] lg:text-[48px] xl:text-[50px]'
   // Biến Style cho các description
-  const styleTextDesc = 'sm:text-[12px] md:text-[16px] lg:text-[18px] xl:text-[25px]'
+  const styleTextDesc = 'text-[12px] md:text-[16px] lg:text-[18px] xl:text-[25px]'
   // Mảng các thẻ item của Giá trị mà Yummy mang lại
   const Items = [
     {
@@ -26,25 +36,20 @@ const AboutUs = () => {
       desc: 'Yummy cung cấp các chương trình khuyến mãi thường xuyên cho khách hàng thân thiết và mới.',
     },
   ]
-  // Mảng các thẻ cho Member
-  const MemberList = [
-    { img: '../src/assets/images/aboutUs/about_us_member2.png', name: 'Pham Duy' },
-    { img: '../src/assets/images/aboutUs/about_us_member2.png', name: 'Nguyen Ba' },
-    { img: '../src/assets/images/aboutUs/about_us_member3.png', name: 'Quang Dang' },
-    { img: '../src/assets/images/aboutUs/about_us_member2.png', name: 'Hoang Duc' },
-    { img: '../src/assets/images/aboutUs/about_us_member5.png', name: 'Le Khoi' },
-  ]
   return (
-    <div className='w-full' style={{ minWidth: '786px' }}>
+    <div className='w-full' style={{ minWidth: '410px' }}>
       {/*====================================== Giới thiệu về Yummy ======================================*/}
-      <div className='flex justify-center w-full items-center mt-[30px]'>
-        <div className='flex items-center w-[96%] p-[97px] bg-secondary rounded-[20px]'>
+      <div className='flex justify-center w-full items-center mt-[100px]' data-aos='fade-up'>
+        <div className='flex items-center w-[96%] p-[30px] md:p-[50px] bg-secondary rounded-[20px]'>
           <img
             src='../src/assets/images/aboutUs/about_us_intro.png'
             alt='Image about_us_intro'
-            className='max-w-[41.5%] h-auto'
+            className='max-w-[41.5%] h-auto max-sm:hidden'
           />
-          <div className='flex justify-center p-[50px] bg-accent rounded-[20px] lg:absolute lg:left-[445px] lg:right-[90px]'>
+          <div
+            className='flex justify-center p-[30px] bg-accent rounded-[20px] lg:absolute lg:left-[445px] lg:right-[90px]'
+            data-aos='zoom-in'
+          >
             <div className='w-[94.5%]'>
               <div
                 className={`text-primary font-bold text-center uppercase ${styleTextHeading} mt-[18px]`}
@@ -70,99 +75,97 @@ const AboutUs = () => {
         </div>
       </div>
 
-      <div
-        className='min-w-screen '
-        style={{
-          backgroundImage: `url(${Background})`,
-          backgroundSize: '100% auto',
-          backgroundRepeat: 'no-repeat',
-        }}
-      >
-        {/*====================================== Những con người tạo nên Yummy ======================================*/}
-        <div className='py-[70px] px-[70px]'>
+      {/*====================================== Những con người tạo nên Yummy ======================================*/}
+      <div className=' mt-[70px] px-[20px] sm:px-[40px] lg:px-[70px]'>
+        <div className='flex flex-col lg:flex-row justify-between items-center gap-6'>
           <div
-            className={`text-primary uppercase text-center font-bold w-[200px] sm:w-[400px] lg:w-[600px] text-[20px] ${styleTextHeading}`}
+            className={`text-primary uppercase font-bold text-center lg:text-left w-full lg:w-[600px] ${styleTextHeading}`}
+            data-aos='fade-right'
           >
             Những con người tạo nên Yummy
           </div>
-          {/* Map thẻ gồm ảnh và tên của từng member */}
-          <div className='relative w-full'>
-            {MemberList.map((member, index) => {
-              const memberPosition = [
-                'mt-[12vh] ml-[4.1vw]',
-                'ml-[26vw] mt-[10vw]',
-                'ml-[45vw] mt-[-3vw]',
-                'ml-[61vw] mt-[15vw]',
-                'ml-[70vw] mt-[-10vw]',
-              ][index]
-              return (
-                <div
-                  key={index}
-                  className={`absolute flex justify-center w-[15.6%] h-[17vw] py-[20px] px-[10px] ${memberPosition}`}
-                  style={{
-                    backgroundImage: `url(${member.img})`,
-                    backgroundSize: '100% auto',
-                    backgroundRepeat: 'no-repeat',
-                  }}
-                >
-                  <div
-                    style={{ textShadow: '2px 2px 0 #000' }}
-                    className={`text-accent font-bold text-center mt-auto leading-[30px] ${styleTextDesc}`}
-                  >
-                    {member.name}
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-          <div className={`font-medium italic w-[55vw] mt-[30vw] ${styleTextDesc}`}>
+          <div
+            className={`font-medium italic text-center lg:text-left w-full lg:w-[55vw] ${styleTextDesc}`}
+            data-aos='fade-left'
+          >
             “Chúng tôi - những con người cùng với những ngọn lửa đam mê cháy bỏng dành cho công
             nghệ, đang không ngừng nỗ lực trau dồi và hoàn thiện bản thân hơn để mang đến những sản
             phẩm vượt trội và tạo ra những trải nghiệm tuyệt vời nhất cho mọi người.”
           </div>
         </div>
-
-        {/*====================================== Sứ mệnh của chúng tôi ======================================*/}
-        <div className=' mt-[4vw]'>
-          <div className='relative'>
+        <div className='relative group'>
+          <img
+            src='../src/assets/images/aboutUs/group_img.png'
+            alt='Ảnh nhóm chúng tôi'
+            className='h-[320px] sm:h-[480px] lg:h-[640px] w-full object-cover mt-10'
+            data-aos='zoom-in'
+          />
+          <div className='absolute inset-0 flex justify-center bg-black bg-opacity-50 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-1000'>
             <div
-              dir='rtl'
-              className={`inline bg-primary p-[2vw] rounded-s-[20px] text-accent uppercase font-bold ${styleTextHeading} pl-[100px]`}
+              className={`transform translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out mt-[100px] sm:mt-[200px] lg:mt-[300px] p-[70px]`}
             >
-              Sứ mệnh của chúng tôi
-            </div>
-            <img
-              src={vector}
-              alt=''
-              className='w-[64vw] h-auto absolute top-2 sm:top-4 lg:top-10'
-            />
-          </div>
-          <div className='px-[70px] pb-[70px] flex gap-[30px] justify-between w-full mt-[4vw] items-center'>
-            <div className=' items-center justify-between w-[800px]'>
-              <p className={`text-center font-medium ${styleTextDesc}`}>
-                <strong className='font-bold text-[40px] text-secondary'>Yummy</strong> cam kết mang
-                đến cho khách hàng trải nghiệm ẩm thực đa dạng và tiện lợi thông qua nền tảng đặt
-                món ăn trực tuyến hiện đại.
+              <p className={`${styleTextDesc} text-center`}>
+                Nhóm chúng tôi gồm 5 thành viên đến từ lớp CNTT2022.1:
               </p>
-              <p className={`mt-[20px] text-center font-medium ${styleTextDesc} xl:text-[-5px]`}>
-                Chúng tôi kết nối những nhà hàng hàng đầu với thực khách, đảm bảo mỗi bữa ăn đều
-                tươi ngon, an toàn và được giao tận nơi một cách nhanh chóng. Với Yummy, việc thưởng
-                thức ẩm thực trở nên dễ dàng, chỉ cần vài cú click là bạn đã có ngay bữa ăn yêu
-                thích tại nhà.
-              </p>
+              <div className='grid grid-cols-2 ml-[50px]'>
+                <div className={`${styleTextDesc} font-light`}>1. Nguyễn Quang Đăng</div>
+                <div className={`${styleTextDesc} font-light`}>MSSV: 22520191</div>
+                <div className={`${styleTextDesc} font-light`}>2. Nguyễn Công Bá</div>
+                <div className={`${styleTextDesc} font-light`}>MSSV: 22520087</div>
+                <div className={`${styleTextDesc} font-light`}>3. Phạm Văn Duy</div>
+                <div className={`${styleTextDesc} font-light`}>MSSV: 22520341</div>
+                <div className={`${styleTextDesc} font-light`}>4. Lê Hoàng Đức</div>
+                <div className={`${styleTextDesc} font-light`}>MSSV: 22520351</div>
+                <div className={`${styleTextDesc} font-light`}>5. Lê Minh Khôi</div>
+                <div className={`${styleTextDesc} font-light`}>MSSV: 22520698</div>
+              </div>
             </div>
-            <img
-              src='../src/assets/images/aboutUs/about_us_mission.png'
-              alt='about_us_mission'
-              className='w-[30vw] h-auto'
-            />
           </div>
+        </div>
+      </div>
+
+      {/*====================================== Sứ mệnh của chúng tôi ======================================*/}
+      <div className=' p-[20px] lg:p-[70px] flex relative flex-col lg:flex-row justify-center'>
+        <div
+          className='relative md:mr-[120px] flex justify-center flex-shrink-0'
+          data-aos='fade-down-right'
+        >
+          <img
+            src='../src/assets/images/aboutUs/about_us_mission.png'
+            alt=''
+            className=' w-full  xl:w-[550px] xl:h-[420px] lg:h-[340px]  rounded-[20px]'
+          />
+          <img
+            src='../src/assets/images/aboutUs/about_us_mission1.png'
+            alt=''
+            className='absolute xl:top-[150px] lg:left-[180px] lg:top-[100px] xl:left-[290px] lg:w-[300px] xl:w-[350px] rounded-[20px] max-lg:hidden'
+          />
+        </div>
+        <div className='flex flex-col items-center max-lg:mt-5 ' data-aos='fade-up-left'>
+          <div
+            className={`text-primary uppercase font-bold  w-full ${styleTextHeading} max-lg:text-center`}
+          >
+            Yummy - Kết nối vị ngon, trọn từng bữa ăn!
+          </div>
+          <div className={`font-light ${styleTextDesc} mt-[30px] max-lg:text-center`}>
+            Yummy cam kết mang đến cho khách hàng trải nghiệm ẩm thực đa dạng và tiện lợi thông qua
+            nền tảng đặt món ăn trực tuyến hiện đại. <br />
+            Chúng tôi kết nối những nhà hàng hàng đầu với thực khách, đảm bảo mỗi bữa ăn đều tươi
+            ngon, an toàn và được giao tận nơi một cách nhanh chóng. Với Yummy, việc thưởng thức ẩm
+            thực trở nên dễ dàng, chỉ cần vài cú click là bạn đã có ngay bữa ăn yêu thích tại nhà.
+          </div>
+          <button
+            className='px-[30px] py-[15px] bg-primary rounded-[100px] text-accent text-[11px] md:text-[15px] xl:text-[20px] transition-all duration-300 hover:bg-accent hover:text-primary hover:shadow-lg mt-[20px]'
+            onClick={'routes.OURCOMMIT'}
+          >
+            Cam kết của Yummy
+          </button>
         </div>
       </div>
 
       {/*====================================== Giá trị Yummy mang lại ======================================*/}
       <div
-        className='flex flex-col items-center min-w-screen h-auto py-[4.1vw] px-[5vw]'
+        className='flex flex-col items-center min-w-screen min-h-[700px] py-[4.1vw] px-[5vw]'
         style={{
           backgroundImage: `url(${Image_value})`,
           backgroundSize: 'cover',
@@ -172,10 +175,12 @@ const AboutUs = () => {
         <div className={`mb-[3vw] text-accent uppercase font-bold text-center ${styleTextHeading}`}>
           Giá trị Yummy mang lại
         </div>
-        {/* Map các thẻ giá trị mà Yummy mang lại */}
-        <div className='flex flex-wrap justify-center gap-[2vw] '>
+        <div className='flex flex-wrap justify-center gap-[5vw] '>
           {Items.map((item, index) => (
             <div
+              data-aos='fade-up'
+              data-aos-anchor-placement='top-bottom'
+              data-aos-delay={index * 200}
               key={index}
               className='relative w-[90%] sm:w-[293px] h-auto p-[3vw] mt-[2vw] bg-accent bg-opacity-70 rounded-[20px]'
             >
