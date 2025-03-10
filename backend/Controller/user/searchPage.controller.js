@@ -49,7 +49,7 @@ const searchPage = async (req, res) => {
             findRestaurant["name"] = objectSearchRestaurant.regex;
         }
 
-        if (boroughRestaurant) {
+        if (boroughRestaurant.length > 0) {
             findRestaurant["address.borough"] = {
                 $in: boroughRestaurant,
             };

@@ -1,0 +1,51 @@
+export const FormData = [
+  {
+    lable: 'Title',
+    name: 'title',
+    componentType: 'input',
+    type: 'text',
+    placeholder: 'Enter item title',
+  },
+  {
+    lable: 'Description',
+    name: 'description',
+    componentType: 'textarea',
+    placeholder: 'Enter item description',
+  },
+  {
+    lable: 'Category',
+    name: 'category',
+    componentType: 'select',
+    options: [
+      { id: 'do_uong', label: 'Đồ uống' },
+      { id: 'thuc_an_nhanh', label: 'Thức ăn nhanh' },
+      { id: 'mon_a', label: 'Món Á' },
+      { id: 'com', label: 'Cơm' },
+      { id: 'tra_sua', label: 'Trà sữa' },
+      { id: 'mon_chay', label: 'Món chay' },
+      { id: 'bun_pho', label: 'Bún phở' },
+      { id: 'an_vat', label: 'Ăn vặt' },
+    ],
+  },
+  {
+    lable: 'Price',
+    name: 'price',
+    componentType: 'input',
+    type: 'number',
+    placeholder: 'Enter item price',
+  },
+  {
+    lable: 'Quantity',
+    name: 'quantity',
+    componentType: 'input',
+    type: 'number',
+    placeholder: 'Enter item quantity',
+  },
+  {
+    lable: 'Discount',
+    name: 'discount',
+    componentType: 'input',
+    type: 'number',
+    placeholder: 'Enter item discount (%)',
+  },
+]
