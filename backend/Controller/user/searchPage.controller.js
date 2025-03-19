@@ -4,7 +4,7 @@ import { MenuItem } from "../../Model/menuItem.model.js";
 // Import restaurant model
 import { Restaurant } from "../../Model/restaurant.model.js";
 
-// Import search fucntion helper
+// Import search function helper
 import { search } from "../../helper/search.js";
 
 // Import pagination function helper
@@ -56,7 +56,7 @@ const searchPage = async (req, res) => {
         }
 
         if (starMedium) {
-            // Conver starMedium to number
+            // Convert starMedium to number
             starMedium = parseInt(starMedium);
             findRestaurant["starMedium"] = { $gte: starMedium };
         }
