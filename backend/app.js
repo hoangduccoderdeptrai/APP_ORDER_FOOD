@@ -19,18 +19,25 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-let whileListAllow = ["https://vnueats.com", "http://localhost:5173"];
-let corsOptions = {
-    origin: function (origin, callback) {
-        if (whileListAllow.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            callback(new Error("Not allowed by CORS"));
-        }
-    },
-    credentials: true,
-};
-app.use(cors(corsOptions));
+// let whileListAllow = ["https://vnueats.com", "http://localhost:5173"];
+// let corsOptions = {
+//     origin: function (origin, callback) {
+//         if (!origin||whileListAllow.includes(origin)) {
+//             callback(null, true);
+//         } else {
+//             callback(new Error("Not allowed by CORS"));
+//         }
+//     },
+//     credentials: true,
+// };
+// app.use(cors(corsOptions));
+
+app.use(
+    cors({
+        // origin: "http://localhost:5173",
+        credentials: true,
+    })
+);
 
 const server = http.createServer(app);
 initSocket(server); //Initalize io
