@@ -30,7 +30,11 @@ let corsOptions = {
     },
     credentials: true,
 };
-app.use(cors(corsOptions));
+app.use(
+    cors({
+        origin: "*",
+    })
+);
 
 const server = http.createServer(app);
 initSocket(server); //Initalize io
