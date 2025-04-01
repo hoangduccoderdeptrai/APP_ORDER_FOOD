@@ -30,6 +30,7 @@ let corsOptions = {
     },
     credentials: true,
 };
+
 app.use(
     cors({
         origin: "*",
