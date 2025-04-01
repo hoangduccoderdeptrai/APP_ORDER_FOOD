@@ -35,6 +35,7 @@ import PrivacyPolicy from './pages/PrivacyPolicyNew'
 import OrderInstructions from './pages/OrderInstructionsNew'
 import ContactInstructions from './pages/ContactInstructionsNew'
 import OperatingPolicy from './pages/OperatingPolicyNew'
+import CreateBlog from './pages/Blogs'
 
 function App() {
   const { user } = useAuth()
@@ -46,6 +47,7 @@ function App() {
       <Routes>
         <Route element={<DefaultLayout />}>
           <Route path='/' element={<Home />} />
+          <Route path='/post/blogs' element={<CreateBlog/>} />
           <Route path='/about-us' element={<AboutUs />} />
           <Route path='/menu' element={<Menu />} />
           <Route path='/register/seller' element={<SellerRegisterForm />} />
